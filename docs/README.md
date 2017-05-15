@@ -4,23 +4,23 @@
 
 ### Network settings
 
-** DHCP on/off
+* DHCP on/off
 
 (readonly filled with current IP if DHCP is on)
 
-** IP Address 
+* IP Address 
 
-** IP Mask
+* IP Mask
 
-** Default gateway
+* Default gateway
 
-** DNS server
+* DNS server
 
 (read/write)
 
-** NTP server
+* NTP server
 
-** TimeZone
+* TimeZone
 
 Save/Cancel/Reset to defaults buttons
 
