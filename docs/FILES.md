@@ -18,7 +18,6 @@ timezone  | Local time zone offset | 0
 ### *Example:*
 ```xml
 <config>
-<name>ehcontrol Master</name>
 <ip>192.168.0.88</ip>
 <mask>255.255.255.0</mask>
 <gw>192.168.0.1</gw>
