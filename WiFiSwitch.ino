@@ -5,17 +5,22 @@
 #include <WiFiManager.h>
 #include <Run.h>
 
+#define RESET_PIN D8
+
 struct events {
- uint8_t wifiConnected		= 0;
- uint8_t resetLongPress 	= 0;
- uint8_t resetShortPress	= 0;
- uint8_t turnOffAllSockets= 0;
+ uint16_t wifiConnected		= 0;
+ uint16_t resetLongPress 	= 0;
+ uint16_t resetShortPress	= 0;
+ uint16_t turnOffAllSockets= 0;
+ uint16_t keyPressed      = 0;
+ uint16_t keyReleased     = 0;
 };
 struct statuses {
  bool wifiConnected	= false;
  bool ntpSync			  = false;
  bool rtcPresent		= false;
  bool rtcValid			= false;
+ bool keyPressed    = false;
 };
 events event;
 statuses status;
@@ -25,8 +30,8 @@ String ip   = "192.168.20.99";
 String mask = "255.255.255.0";
 String gw   = "192.168.20.2";
 String dns  = "192.168.20.2";
-String ntp1 = "192.168.20.2";
-String ntp2 = "192.168.20.11";
+String ntp1 = "192.168.30.30";
+String ntp2 = "192.168.30.4";
 String ntp3 = "pool1.ntp.org";
 String tz   = "0";
 
@@ -44,11 +49,11 @@ uint32_t wifiStart() {
   }
   WiFi.begin();
   Serial.print("Connecting to ");
-  Serial.print(WiFi.SSID());
+  Serial.println(WiFi.SSID());
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
   return RUN_DELETE;
 }
-uint8_t waitWF = 0;
+uint8_t waitWF = 1;
 uint32_t wifiWait() {
   if(WiFi.status() != WL_CONNECTED) {
     if (waitWF <= WIFI_CHECK_COUNT) {
@@ -62,6 +67,7 @@ uint32_t wifiWait() {
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
     }
   } else {
+    Serial.println(WiFi.localIP());
     event.wifiConnected++;
   }
   return RUN_DELETE;
@@ -120,10 +126,53 @@ uint32_t wifiManager() {
   RUN_DELETE;
 }
 
+uint32_t printTime() {
+  Serial.println((uint32_t)getTime());
+  return 10000;  
+}
+// Query Reset Key ststus change and flag events
+uint32_t checkKey() {
+  if (digitalRead(RESET_PIN) == HIGH && !status.keyPressed) {
+    event.keyPressed++;
+    status.keyPressed = true;
+  }
+  if (digitalRead(RESET_PIN) == LOW && status.keyPressed) {
+    event.keyReleased++;
+    status.keyPressed = false;
+  }
+  return 100;
+}
+#define KEY_LONG_TIME 3000
+// Called on Key Pressed Event
+uint32_t keyPressed() {
+  digitalWrite(D0, LOW);
+  taskAddWithDelay(keyLongPressed, KEY_LONG_TIME);
+  return RUN_NEVER;
+}
+// Called on Key Release Event
+uint32_t keyReleased() {
+  digitalWrite(D0, HIGH);
+  taskDel(keyLongPressed);
+  return RUN_NEVER;
+}
+// Called if Key Pressed for KEY_LONG_TIME mS
+uint32_t keyLongPressed() {
+  wifiManager();
+  return RUN_DELETE;
+}
+
 void setup(){
-  Serial.begin(74880);
-  taskAdd(wifiStart);
-  taskAdd(initRTC);
+  pinMode(D0, OUTPUT);    //For debug
+  digitalWrite(D0, HIGH); //For debug
+
+  Serial.begin(74880);    //For debug
+  taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
+  taskAdd(initRTC);       // Add task with RTC init
+  taskAddWithSemaphore(initNTP, &event.wifiConnected); // Run initNTP() on Wi-Fi connection
+  taskAdd(printTime);     //For debug
+  taskAdd(checkKey);      // Key query
+  taskAddWithSemaphore(keyPressed, &event.keyPressed); // Run keyPressed() on keyPressed event
+  taskAddWithSemaphore(keyReleased, &event.keyReleased); // Run keyReleased() on keyRelease event
 }
 void loop(void){
   taskExec();

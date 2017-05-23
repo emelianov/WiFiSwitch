@@ -10,7 +10,7 @@ PIN | GPIO | Default Function | Project Function
 D0  | 16 | | S0
 D1  | 5  | I2C SDL | S1
 D2  | 4  | I2C SDA | SDA
-D3  | 0  | | SDL
+D3  | 0  | | SCL
 D4  | 2  | ESP LED | S2
 D5  | 14 | SPI CLK | S3
 D6  | 12 | SPI MISO | S4
