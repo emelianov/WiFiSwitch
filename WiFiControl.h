@@ -1,4 +1,5 @@
 #pragma once
+#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 enum OverrideMode { SON, SOFF, SNA };
 OverrideMode operator ! (OverrideMode m) {
   if (m = SON) return SOFF;
@@ -6,6 +7,7 @@ OverrideMode operator ! (OverrideMode m) {
   return SNA;
 }
 enum LastChanged { SOCKET, GROUP };
+enum WaveType { SINGLE, DOUBLE };
 
 class Override {
   public:
@@ -15,11 +17,21 @@ class Override {
 class Schedule {
   public:
   bool active() {
-    return false;
+    return act;
   }
   bool active(time_t t) {
-    return false;
+    time_t secondsFromMidnight = t % 86400UL;
+    if (on < off)  // |   |T1|####|T2|   |
+        return (secondsFromMidnight > on && secondsFromMidnight < off);
+      else                  // |###|T1|   |T2|###|
+        return (secondsFromMidnight > on || secondsFromMidnight < off);
   }
+  void set(time_t ton, time_t toff) {
+    on = ton;
+    off = toff;
+    act = true;
+  }
+  bool act;
   time_t on;
   time_t off;
 };
@@ -32,8 +44,17 @@ class Wave: public Override {
     period = DEFAULT_WAVE * 1000;
     taskAddWithDelay(waveTask, period);
   }
+  void setWaveType(WaveType t) {
+    switch (t) {
+      case SINGLE:
+      break;
+      case DOUBLE:
+      break;
+    }
+  }
   //time_t period;
   bool state;
+  WaveType type;
 };
 class DoubleSchedule {
   public:
@@ -48,7 +69,7 @@ class DoubleSchedule {
 };
 class Socket: public DoubleSchedule, public Override {
   public:
-  Socket(uint8_t hwpin) {
+  Socket(uint8_t hwpin, Wave * wave = NULL) {
     pin = hwpin;
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
@@ -69,6 +90,16 @@ class Socket: public DoubleSchedule, public Override {
       digitalWrite(pin, LOW);
     }
   }
+  void assignGroup(Override * gr = NULL) {
+    group = gr;
+    if (group != NULL) {
+      overrideBy = GROUP;
+      groupOverride = group->mode;
+    } else {
+      overrideBy = SOCKET;
+      groupOverride = SNA;
+    }
+  }
   String   name;
   LastChanged overrideBy;
   OverrideMode socketOverride;
@@ -87,7 +118,7 @@ Socket * socket[SOCKET_COUNT];
 DoubleSchedule feedSchedule;
 
 #define GROUP_COUNT 4
-Override group[GROUP_COUNT];
+Override * group[GROUP_COUNT];
 
 Override feed;
 uint32_t feedTask() {
@@ -136,9 +167,16 @@ uint32_t socketsTask() {
     }
   }
 }
-
+void setWave(WaveType t) {
+  
+}
 uint32_t initSockets() {
+  uint8_t pins[SOCKET_COUNT] = { PINS };
   for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
-    
+    socket[i] = new Socket(pins[i]);
+    socket[i]->name = String(i);
+  }
+  for (uint8_t i = 0; i < GROUP_COUNT; i++) {
+    group[i] = new Override();
   }
 }
