@@ -36,6 +36,7 @@ String ntp3 = "pool1.ntp.org";
 String tz   = "0";
 
 #include "WiFiTime.h"
+#include "WiFiControl.h"
 
 #define WIFI_SETUP_AP "AutoConnectAP"
 #define WIFI_CHECK_DELAY 1000
