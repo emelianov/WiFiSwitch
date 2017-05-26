@@ -25,24 +25,15 @@ struct statuses {
 events event;
 statuses status;
 
-bool   dhcp = true;
-String ip   = "192.168.20.99";
-String mask = "255.255.255.0";
-String gw   = "192.168.20.2";
-String dns  = "192.168.20.2";
-String ntp1 = "192.168.30.30";
-String ntp2 = "192.168.30.4";
-String ntp3 = "pool1.ntp.org";
-String tz   = "0";
-
+#include "WiFiConfig.h"
 #include "WiFiTime.h"
 #include "WiFiControl.h"
+#include "WiFiWeb.h"
 
 #define WIFI_SETUP_AP "AutoConnectAP"
 #define WIFI_CHECK_DELAY 1000
 #define WIFI_CHECK_COUNT 5
-uint32_t readConfig() {
-}
+
 uint32_t wifiStart() {
   WiFi.mode(WIFI_STA);
   if (!dhcp) {
