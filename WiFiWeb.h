@@ -4,6 +4,8 @@
 #define UPLOADUSER  "admin"
 #define UPLOADPASS "password"
 //#undef UPLOADPASS
+#define BUSY ;
+#define IDLE ;
 
 ESP8266WebServer server(80);      // create a server at port 80
 
@@ -173,5 +175,6 @@ uint32_t initWeb() {
     server.on("/edit", HTTP_POST, handleFile, handleFileUpload);    // Upload file
     server.onNotFound(anyFile);         // call function anyFile() on any other requests
     server.begin();                     // start to listen for clients 
+    return RUN_DELETE;
 }
 

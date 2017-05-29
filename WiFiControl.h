@@ -1,24 +1,57 @@
 #pragma once
-#define PINS D0, D1, D4, D5, D6, D7, D9, D10
+//#define PINS D0, D1, D4, D5, D6, D7, D9, D10
+// Don't use RX/TX during debug
+#define PINS D0, D1, D4, D5, D6, D7, D6, D7
+
+// Define enumeration type for convinient override manipulations
 enum OverrideMode { SON, SOFF, SNA };
 OverrideMode operator ! (OverrideMode m) {
   if (m = SON) return SOFF;
   if (m = SOFF) return SON;
   return SNA;
 }
+
 enum LastChanged { SOCKET, GROUP };
 enum WaveType { SINGLE, DOUBLE };
 
 class Override {
   public:
-  OverrideMode mode;
-  time_t period;
+  Override(task t = NULL) {
+    overrideTask = t;
+  }
+  OverrideMode mode = SNA;
+  time_t period = 0;
+  task overrideTask;
+  bool isNa() {
+    return mode == SNA;
+  }
+  bool isOn() {
+    return mode == SON;
+  }
+  bool isOff() {
+    return mode == SOFF;
+  }
+  void start(time_t t, OverrideMode m=SON) {
+    mode = m;
+    period = t;
+    taskAddWithDelay(overrideTask, t * 1000);
+  }
+  void stop() {
+    mode = SNA;
+    taskDel(overrideTask);
+  }
 };
+
 class Schedule {
   public:
+  bool act = false;
+  time_t on = 0;
+  time_t off = 0;
+  // Schedule is active
   bool active() {
     return act;
   }
+  // Time is withing schedule time range
   bool active(time_t t) {
     time_t secondsFromMidnight = t % 86400UL;
     if (on < off)  // |   |T1|####|T2|   |
@@ -31,18 +64,15 @@ class Schedule {
     off = toff;
     act = true;
   }
-  bool act;
-  time_t on;
-  time_t off;
 };
 #define DEFAULT_WAVE 30
 uint32_t waveTask();
+// Warning it's not real class
+// Only one instance allowable to be used
 class Wave: public Override {
   public:
-  Wave() {
-    state = true;
-    period = DEFAULT_WAVE * 1000;
-    taskAddWithDelay(waveTask, period);
+  Wave() : Override(waveTask) {
+    start(DEFAULT_WAVE);
   }
   void setWaveType(WaveType t) {
     switch (t) {
@@ -52,8 +82,6 @@ class Wave: public Override {
       break;
     }
   }
-  //time_t period;
-  bool state;
   WaveType type;
 };
 class DoubleSchedule {
@@ -69,18 +97,28 @@ class DoubleSchedule {
 };
 class Socket: public DoubleSchedule, public Override {
   public:
-  Socket(uint8_t hwpin, Wave * wave = NULL) {
+  Socket(uint8_t hwpin, task t = NULL, Wave* w = NULL): Override(t) {
     pin = hwpin;
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
+    wave = w;
   }
+  String        name;
+  LastChanged   overrideBy;
+  OverrideMode  socketOverride;
+  Override*     group;
+  OverrideMode  groupOverride;
+  OverrideMode  feedOverride;
+  OverrideMode  schedule;
+  Wave*         wave;
+
   void turn(OverrideMode state) {
     if (state == SON) {
       if (wave != NULL) {
-        if (wave->state == SON) {
+        if (wave->isOn()) {
           digitalWrite(pin, HIGH);
         }
-        if (wave->state == SOFF) {
+        if (wave->isOff()) {
           digitalWrite(pin, LOW);
         }
       } else {
@@ -100,26 +138,28 @@ class Socket: public DoubleSchedule, public Override {
       groupOverride = SNA;
     }
   }
-  String   name;
-  LastChanged overrideBy;
-  OverrideMode socketOverride;
-  //time_t   period;
-  Override *  group;
-  OverrideMode groupOverride;
-  OverrideMode feedOverride;
-  OverrideMode schedule;
-  Wave * wave;
   private:
   uint8_t pin;
 };
 #define SOCKET_COUNT 8
-Socket * socket[SOCKET_COUNT];
+Socket* socket[SOCKET_COUNT];
+template <int I>
+uint32_t socketTask() {
+  socket[I]->socketOverride = SNA;
+  return RUN_DELETE;
+}
+task socketTasks[SOCKET_COUNT] = { socketTask<0>, socketTask<1>, socketTask<2>, socketTask<3>, socketTask<4>, socketTask<5>, socketTask<6>, socketTask<7> };
 
 DoubleSchedule feedSchedule;
 
 #define GROUP_COUNT 4
-Override * group[GROUP_COUNT];
-
+Override* group[GROUP_COUNT];
+template <int I>
+uint32_t groupTask() {
+  group[I]->mode = SNA;
+  return RUN_DELETE;
+}
+task groupOverride[GROUP_COUNT] = { groupTask<0>, groupTask<1>, groupTask<2>, groupTask<3> };
 Override feed;
 uint32_t feedTask() {
   return RUN_DELETE;
@@ -127,8 +167,8 @@ uint32_t feedTask() {
 
 Wave wave;
 uint32_t waveTask() {
-  wave.state != wave.state;
-  return wave.period;
+  wave.mode!= wave.mode;
+  return wave.period * 1000;
 }
 
 uint32_t socketsTask() {
@@ -170,13 +210,20 @@ uint32_t socketsTask() {
 void setWave(WaveType t) {
   
 }
+void turnOffAllSockets() {
+ for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
+  socket[i]->turn(SOFF);
+ }
+}
 uint32_t initSockets() {
   uint8_t pins[SOCKET_COUNT] = { PINS };
   for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
-    socket[i] = new Socket(pins[i]);
+    socket[i] = new Socket(pins[i], socketTasks[i]);
     socket[i]->name = String(i);
   }
   for (uint8_t i = 0; i < GROUP_COUNT; i++) {
-    group[i] = new Override();
+    group[i] = new Override(groupOverride[i]);
   }
+  taskAdd(socketsTask);
+  return RUN_DELETE;
 }

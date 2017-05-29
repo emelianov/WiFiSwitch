@@ -4,6 +4,7 @@
 #include <DNSServer.h>
 #include <WiFiManager.h>
 #include <Run.h>
+#include <FS.h>
 
 #define RESET_PIN D8
 
@@ -149,24 +150,27 @@ uint32_t keyReleased() {
 }
 // Called if Key Pressed for KEY_LONG_TIME mS
 uint32_t keyLongPressed() {
+  turnOffAllSockets();
   wifiManager();
   return RUN_DELETE;
 }
 
-void setup(){
+void setup() {
   pinMode(D0, OUTPUT);    //For debug
   digitalWrite(D0, HIGH); //For debug
 
   Serial.begin(74880);    //For debug
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
-  taskAddWithSemaphore(initNTP, &event.wifiConnected); // Run initNTP() on Wi-Fi connection
+  taskAdd(initSockets);   // Add task to initilize Sockets control
+  taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
+  taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAdd(printTime);     //For debug
   taskAdd(checkKey);      // Key query
-  taskAddWithSemaphore(keyPressed, &event.keyPressed); // Run keyPressed() on keyPressed event
-  taskAddWithSemaphore(keyReleased, &event.keyReleased); // Run keyReleased() on keyRelease event
+  taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event
+  taskAddWithSemaphore(keyReleased, &event.keyReleased);// Run keyReleased() on keyRelease event
 }
-void loop(void){
+void loop(void) {
   taskExec();
   yield();
 }
