@@ -165,9 +165,13 @@ void handleDelete() {
   IDLE
 }
 
-
+uint32_t webHandle() {
+  server.handleClient();
+  return 100;
+}
 uint32_t initWeb() {
-     server.on("/ajax_inputs", HTTP_GET, ajaxInputs);  // call function ajaxInputs() if Web Server gets request http://192.168.1.20/ajax_inputs?LED1=0...
+  Serial.println("Init WebServer");
+    server.on("/ajax_inputs", HTTP_GET, ajaxInputs);  // call function ajaxInputs() if Web Server gets request http://192.168.1.20/ajax_inputs?LED1=0...
     // You can add multiple server.on(url...) to handle different url by specific routines
     server.on(INDEX, HTTP_GET, indexFile); // call function indexFile() on GET <INDEX>
     server.on("/list", HTTP_GET, listFile);                   // List/Upload/Delete page
@@ -175,6 +179,7 @@ uint32_t initWeb() {
     server.on("/edit", HTTP_POST, handleFile, handleFileUpload);    // Upload file
     server.onNotFound(anyFile);         // call function anyFile() on any other requests
     server.begin();                     // start to listen for clients 
+    taskAdd(webHandle);
     return RUN_DELETE;
 }
 

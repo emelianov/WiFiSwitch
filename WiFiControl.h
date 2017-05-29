@@ -1,6 +1,6 @@
 #pragma once
 //#define PINS D0, D1, D4, D5, D6, D7, D9, D10
-// Don't use RX/TX during debug
+// Don't use RX/TX during debug -----D9--D10
 #define PINS D0, D1, D4, D5, D6, D7, D6, D7
 
 // Define enumeration type for convinient override manipulations
@@ -206,6 +206,7 @@ uint32_t socketsTask() {
       switched = true;
     }
   }
+  return 500;
 }
 void setWave(WaveType t) {
   

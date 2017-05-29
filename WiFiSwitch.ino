@@ -138,20 +138,20 @@ uint32_t checkKey() {
 #define KEY_LONG_TIME 3000
 // Called on Key Pressed Event
 uint32_t keyPressed() {
-  digitalWrite(D0, LOW);
   taskAddWithDelay(keyLongPressed, KEY_LONG_TIME);
   return RUN_NEVER;
 }
 // Called on Key Release Event
 uint32_t keyReleased() {
-  digitalWrite(D0, HIGH);
   taskDel(keyLongPressed);
   return RUN_NEVER;
 }
 // Called if Key Pressed for KEY_LONG_TIME mS
 uint32_t keyLongPressed() {
+    digitalWrite(D0, HIGH);
   turnOffAllSockets();
   wifiManager();
+    digitalWrite(D0, LOW);
   return RUN_DELETE;
 }
 
