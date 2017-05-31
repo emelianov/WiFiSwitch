@@ -6,8 +6,8 @@
 // Define enumeration type for convinient override manipulations
 enum OverrideMode { SON, SOFF, SNA };
 OverrideMode operator ! (OverrideMode m) {
-  if (m = SON) return SOFF;
-  if (m = SOFF) return SON;
+  if (m == SON) return SOFF;
+  if (m == SOFF) return SON;
   return SNA;
 }
 
@@ -65,7 +65,8 @@ class Schedule {
     act = true;
   }
 };
-#define DEFAULT_WAVE 30
+//#define DEFAULT_WAVE 30
+#define DEFAULT_WAVE 3
 uint32_t waveTask();
 // Warning it's not real class
 // Only one instance allowable to be used
@@ -114,6 +115,7 @@ class Socket: public DoubleSchedule, public Override {
 
   void turn(OverrideMode state) {
     if (state == SON) {
+      
       if (wave != NULL) {
         if (wave->isOn()) {
           digitalWrite(pin, HIGH);
@@ -167,14 +169,14 @@ uint32_t feedTask() {
 
 Wave wave;
 uint32_t waveTask() {
-  wave.mode!= wave.mode;
+  wave.mode = !wave.mode;
   return wave.period * 1000;
 }
 
 uint32_t socketsTask() {
   for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
     bool switched = false;
-    if (socket[i]->overrideBy == SOCKET) {
+    if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
       if (socket[i]->socketOverride != SNA) {
         socket[i]->turn(socket[i]->socketOverride);
         switched = true;

@@ -148,13 +148,17 @@ uint32_t keyReleased() {
 }
 // Called if Key Pressed for KEY_LONG_TIME mS
 uint32_t keyLongPressed() {
-    digitalWrite(D0, HIGH);
+  digitalWrite(D0, HIGH);
   turnOffAllSockets();
   wifiManager();
-    digitalWrite(D0, LOW);
+  digitalWrite(D0, LOW);
   return RUN_DELETE;
 }
-
+uint32_t initDbg() {
+  socket[2]->socketOverride = SON;
+  socket[2]->wave = &wave;
+  return RUN_DELETE;
+}
 void setup() {
   pinMode(D0, OUTPUT);    //For debug
   digitalWrite(D0, HIGH); //For debug
@@ -163,6 +167,7 @@ void setup() {
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
+  taskAdd(initDbg);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAdd(printTime);     //For debug
