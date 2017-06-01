@@ -19,9 +19,6 @@ class Override {
   Override(task t = NULL) {
     overrideTask = t;
   }
-  OverrideMode mode = SNA;
-  time_t period = 0;
-  task overrideTask;
   bool isNa() {
     return mode == SNA;
   }
@@ -31,15 +28,37 @@ class Override {
   bool isOff() {
     return mode == SOFF;
   }
+  void set(OverrideMode m) {
+    mode = m;
+  }
+  OverrideMode get() {
+    return mode;
+  }
   void start(time_t t, OverrideMode m=SON) {
     mode = m;
     period = t;
-    taskAddWithDelay(overrideTask, t * 1000);
+    taskDel(overrideTask);
+    if (t > 0) {
+      taskAddWithDelay(overrideTask, t * 1000);
+    }
   }
   void stop() {
     mode = SNA;
     taskDel(overrideTask);
   }
+  void on(time_t t=0) {
+    start(t, SON);
+  }
+  void off(time_t t=0) {
+    start(t, SOFF);
+  }
+  void na() {
+    stop();
+  }
+  OverrideMode mode = SNA;
+  time_t period = 0;
+  protected:
+  task overrideTask;
 };
 
 class Schedule {
@@ -52,8 +71,8 @@ class Schedule {
     return act;
   }
   // Time is withing schedule time range
-  bool active(time_t t) {
-    time_t secondsFromMidnight = t % 86400UL;
+  bool active(time_t secondsFromMidnight) {
+    //time_t secondsFromMidnight = t % 86400UL;
     if (on < off)  // |   |T1|####|T2|   |
         return (secondsFromMidnight > on && secondsFromMidnight < off);
       else                  // |###|T1|   |T2|###|
@@ -91,7 +110,10 @@ class DoubleSchedule {
     return schedule1.active() || schedule2.active();
   }
   bool active(time_t t) {
-    return schedule1.active(t) || schedule2.active(t);
+    bool r = false;
+    if (schedule1.active()) r = r || schedule1.active(t);
+    if (schedule2.active()) r = r || schedule2.active(t);
+    return r;
   }
   Schedule schedule1;
   Schedule schedule2;
@@ -104,41 +126,53 @@ class Socket: public DoubleSchedule, public Override {
     digitalWrite(pin, LOW);
     wave = w;
   }
-  String        name;
-  LastChanged   overrideBy;
-  OverrideMode  socketOverride;
-  Override*     group;
-  OverrideMode  groupOverride;
-  OverrideMode  feedOverride;
-  OverrideMode  schedule;
-  Wave*         wave;
-
+  String        name = "";
+  LastChanged   overrideBy = SOCKET;
+  //OverrideMode  socketOverride;
+  Override*     group = NULL;
+  //OverrideMode  groupOverride;
+  OverrideMode  feedOverride = SNA;
+  OverrideMode  schedule = SNA;
+  Wave*         wave = NULL;
+  
   void turn(OverrideMode state) {
     if (state == SON) {
-      
       if (wave != NULL) {
         if (wave->isOn()) {
+          Serial.println("ON");
           digitalWrite(pin, HIGH);
         }
         if (wave->isOff()) {
+          Serial.println("OFF");
           digitalWrite(pin, LOW);
         }
       } else {
+        Serial.println("WAVE OFF");
         digitalWrite(pin, HIGH);
       }
     } else {
+      Serial.println("???");
       digitalWrite(pin, LOW);
     }
   }
-  void assignGroup(Override * gr = NULL) {
+  void setGroup(Override* gr = NULL) {
     group = gr;
     if (group != NULL) {
       overrideBy = GROUP;
-      groupOverride = group->mode;
+      //groupOverride = group->mode;
     } else {
       overrideBy = SOCKET;
-      groupOverride = SNA;
+      //groupOverride = SNA;
     }
+  }
+  void start(time_t t, OverrideMode m = SON) {
+    overrideBy = SOCKET;
+    Override::start(t, m);
+  }
+  void setOverride(time_t t, OverrideMode m) {
+    overrideBy = SOCKET;
+    period = t;
+    taskAddWithDelay(overrideTask, t * 1000L);
   }
   private:
   uint8_t pin;
@@ -147,7 +181,9 @@ class Socket: public DoubleSchedule, public Override {
 Socket* socket[SOCKET_COUNT];
 template <int I>
 uint32_t socketTask() {
-  socket[I]->socketOverride = SNA;
+  Serial.println(I);
+  socket[I]->mode = SNA;
+  socket[I]->overrideBy = GROUP;
   return RUN_DELETE;
 }
 task socketTasks[SOCKET_COUNT] = { socketTask<0>, socketTask<1>, socketTask<2>, socketTask<3>, socketTask<4>, socketTask<5>, socketTask<6>, socketTask<7> };
@@ -162,36 +198,43 @@ uint32_t groupTask() {
   return RUN_DELETE;
 }
 task groupOverride[GROUP_COUNT] = { groupTask<0>, groupTask<1>, groupTask<2>, groupTask<3> };
-Override feed;
+Override* feed;
 uint32_t feedTask() {
+  feed->na();
   return RUN_DELETE;
 }
 
 Wave wave;
 uint32_t waveTask() {
-  wave.mode = !wave.mode;
+  wave.mode  = !wave.mode;
   return wave.period * 1000;
 }
 
 uint32_t socketsTask() {
-  for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
+//  for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
+uint8_t i = 2;
+{
     bool switched = false;
     if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
-      if (socket[i]->socketOverride != SNA) {
-        socket[i]->turn(socket[i]->socketOverride);
+      if (socket[i]->mode != SNA) {
+        Serial.println("SOCKET");
+        socket[i]->turn(socket[i]->mode);
         switched = true;
       }
     } else { //.overrideBy == GROUP
-      if (socket[i]->group != NULL && socket[i]->group->mode != SNA) {
+      if (socket[i]->group->mode != SNA) {
+        Serial.println("GROUP");
         socket[i]->turn(socket[i]->group->mode);
         switched = true;
       }
     }
-    if (!switched && feed.mode != SNA) {
-      socket[i]->turn(feed.mode);
+    if (!switched && feed->mode != SNA) {
+      Serial.println("GLOBAL FEED");
+      socket[i]->turn(feed->mode);
       switched = true;
     }
     if (!switched && socket[i]->feedOverride != SNA) {
+      Serial.println("SCHED FEED");
       if (feedSchedule.active(getTime())) {
         socket[i]->turn(socket[i]->feedOverride);
       } else {
@@ -200,12 +243,17 @@ uint32_t socketsTask() {
       switched = true;
     }
     if (!switched && socket[i]->active()) {
+      Serial.println("SCHED SOCKET");
       if (socket[i]->active(getTime())) {
         socket[i]->turn(SON);
       } else {
         socket[i]->turn(SOFF);
       }
       switched = true;
+    }
+    if (!switched) {
+      Serial.println("ELSE");
+      socket[i]->turn(SON);
     }
   }
   return 500;
@@ -227,6 +275,7 @@ uint32_t initSockets() {
   for (uint8_t i = 0; i < GROUP_COUNT; i++) {
     group[i] = new Override(groupOverride[i]);
   }
+  feed = new Override(feedTask);
   taskAdd(socketsTask);
   return RUN_DELETE;
 }

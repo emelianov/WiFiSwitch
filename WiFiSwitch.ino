@@ -155,8 +155,18 @@ uint32_t keyLongPressed() {
   return RUN_DELETE;
 }
 uint32_t initDbg() {
-  socket[2]->socketOverride = SON;
+  socket[2]->na();
   socket[2]->wave = &wave;
+  feedSchedule.schedule1.act = true;
+  feedSchedule.schedule1.on = 8*60;
+  feedSchedule.schedule1.off = 8*60+20;
+  socket[2]->feedOverride = SON;
+   // socket[2]->setGroup(&group[0]);
+  //taskAddWithDelay(initDbg2, 15000);
+  return RUN_DELETE;
+}
+uint32_t initDbg2() {
+  socket[2]->off(15);
   return RUN_DELETE;
 }
 void setup() {

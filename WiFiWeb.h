@@ -165,6 +165,32 @@ void handleDelete() {
   IDLE
 }
 
+#define DEFAULT_OVERRIDE 10
+void handleOverride() {
+  server.sendHeader("Connection", "close");
+  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  //server.sendHeader("Refresh", "5; url=/list");
+  String md;
+  time_t tm = DEFAULT_OVERRIDE;
+  if(server.hasArg("time")) {
+    tm = server.arg("time").toInt();
+  }
+  if(server.hasArg("mode")) {
+    if (server.arg("mode") == "ON") {
+      socket[2]->start(tm * 1000L, SON);
+      return;
+    } else if (server.arg("mode") == "OFF") {
+      socket[2]->start(tm * 1000L, SOFF);
+      return;
+    } else {
+      ;
+    }
+    server.send(200, "text/plain", "OK");
+  }
+  server.send(500, "text/plain", "ERROR");
+  IDLE
+}
+
 uint32_t webHandle() {
   server.handleClient();
   return 100;
@@ -178,6 +204,7 @@ uint32_t initWeb() {
     server.on("/delete", HTTP_GET, handleDelete);                   // Delete File
     server.on("/edit", HTTP_POST, handleFile, handleFileUpload);    // Upload file
     server.onNotFound(anyFile);         // call function anyFile() on any other requests
+    server.on("/socket", HTTP_GET, handleOverride);
     server.begin();                     // start to listen for clients 
     taskAdd(webHandle);
     return RUN_DELETE;

@@ -8,7 +8,7 @@ String dns  = "192.168.20.2";
 String ntp1 = "192.168.30.30";
 String ntp2 = "192.168.30.4";
 String ntp3 = "pool1.ntp.org";
-String tz   = "0";
+String tz   = "5";
 String admin = "admin";
 String pass = "password";
 
