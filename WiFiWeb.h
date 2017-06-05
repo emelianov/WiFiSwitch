@@ -28,9 +28,39 @@ String getContentType(String filename) {
 }
 // callback function that is called by Web server in case if /ajax_input?LED=1&LED2=...
 void ajaxInputs() {
+  char data[400];
+  uint8_t i;
   server.sendHeader("Connection", "close");                         // Headers to free connection ASAP and 
   server.sendHeader("Cache-Control", "no-store, must-revalidate");  // Don't cache response
-  server.send(200, "text/xml", "<xml>");                      // Send string from xmlResponse() as XML document to cliend.
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    String soc = "SOC"+String(i);
+    if (server.hasArg(soc)) {
+      if (server.arg(soc) == "1") {
+        socket[i]->on();
+      } else {
+        socket[i]->off();
+      }
+    }
+  }
+  String res = "";
+  sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
+  res += data;
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    sprintf_P(data, PSTR("<Socket>%s</Socket>\n"), socket[i]->isOn()?"checked":"unckecked");
+    res += data;
+  }
+/*  <TimerCheckbox>checked</TimerCheckbox>\n\
+  <TimerCheckbox>checked</TimerCheckbox>\n\
+  <TimerCheckbox>checked</TimerCheckbox>\n\
+  <TimerCheckbox>checked</TimerCheckbox>\n\
+  <TimerCheckbox>checked</TimerCheckbox>\n\
+  <TimerCheckbox>checked</TimerCheckbox>\n\
+  <TimerValue>01:15</TimerValue>\n\
+  <TimerValue>15:54</TimerValue>\n\
+  <TimerValue>11:30</TimerValue>\n\
+*/
+  res += "</state>";
+  server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
                                                                     // 200 - means Success html result code
 }
 // callback function that is called by Web server if no sutable callback function fot URL found
@@ -90,6 +120,7 @@ void handleFile() {
 // File upload. Called on data received
 void handleFileUpload(){
   File fsUploadFile;
+  Serial.println("UPLOAD");
 #ifdef UPLOADPASS
   if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
     return server.requestAuthentication();
@@ -177,10 +208,10 @@ void handleOverride() {
   }
   if(server.hasArg("mode")) {
     if (server.arg("mode") == "ON") {
-      socket[2]->start(tm * 1000L, SON);
+      socket[2]->start(SON, tm * 1000L);
       return;
     } else if (server.arg("mode") == "OFF") {
-      socket[2]->start(tm * 1000L, SOFF);
+      socket[2]->start(SOFF, tm * 1000L);
       return;
     } else {
       ;

@@ -172,8 +172,8 @@ uint32_t initDbg2() {
 void setup() {
   pinMode(D0, OUTPUT);    //For debug
   digitalWrite(D0, HIGH); //For debug
-
   Serial.begin(74880);    //For debug
+  SPIFFS.begin();
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control

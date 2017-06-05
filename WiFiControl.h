@@ -34,7 +34,7 @@ class Override {
   OverrideMode get() {
     return mode;
   }
-  void start(time_t t, OverrideMode m=SON) {
+  void start(OverrideMode m, time_t t) {
     mode = m;
     period = t;
     taskDel(overrideTask);
@@ -47,10 +47,10 @@ class Override {
     taskDel(overrideTask);
   }
   void on(time_t t=0) {
-    start(t, SON);
+    start(SON, t);
   }
   void off(time_t t=0) {
-    start(t, SOFF);
+    start(SOFF, t);
   }
   void na() {
     stop();
@@ -92,7 +92,7 @@ uint32_t waveTask();
 class Wave: public Override {
   public:
   Wave() : Override(waveTask) {
-    start(DEFAULT_WAVE);
+    start(SON, DEFAULT_WAVE);
   }
   void setWaveType(WaveType t) {
     switch (t) {
@@ -165,9 +165,9 @@ class Socket: public DoubleSchedule, public Override {
       //groupOverride = SNA;
     }
   }
-  void start(time_t t, OverrideMode m = SON) {
+  void start(OverrideMode m, time_t t=0) {
     overrideBy = SOCKET;
-    Override::start(t, m);
+    Override::start(m, t);
   }
   void setOverride(time_t t, OverrideMode m) {
     overrideBy = SOCKET;

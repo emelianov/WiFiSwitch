@@ -1,0 +1,3686 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=0.9">
+    <title>BSS_Test.bsdesign_170414</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="http://weareoutman.github.io/clockpicker/dist/jquery-clockpicker.min.css">
+    <link rel="stylesheet" href="https://weareoutman.github.io/clockpicker/assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css">
+    <link rel="stylesheet" href="styles.min.css">
+	
+		<!---- chart live css--*/-->
+	<style>
+	.big-chart {
+  height: 180px; margin: 0 auto; width:100%;
+}
+.realtime {
+  position: absolute;
+  right: 35px;
+  bottom: 35px;
+}
+.line-chart {
+  width:100%;
+  height:100px;
+}
+.donut {
+  width:100%;
+  height:120px;
+}
+.donut-label {
+  position:absolute;
+  left:0;
+  top:25%;
+  font-size:20pt;
+  color:#ddd;
+  width:100%;
+  height:120px;
+  text-align:center;
+}
+.bar-chart,.pie-chart {
+  width:100%;
+  height:40px;
+}
+
+.progress {
+  height: 11px;
+}
+.progress-sm {
+  height: 8px;
+}
+
+.tooltip {
+  position:absolute;
+  background-color:#333;
+  color:#fff;
+  border-radius:3px;
+  padding:2px;
+  opacity:0.9;
+}
+.sparklines {
+  margin-top:20px;
+  padding-bottom:5px;
+  box-shadow:0 0 0;
+  -webkit-box-shadow:0 0 0;
+}
+
+.border-right {
+  border-right:1px solid #eee;
+}
+.dashboard-block, .dashboard-block:hover, .dashboard-block:active, .dashboard-block:focus {
+  color: #606060;
+  text-decoration: none;
+  text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.5);
+  outline: none;
+}
+.dashboard-block {
+ position: relative;
+ display: block;
+ padding: 30px 20px;
+ background-color: #eee;
+ opacity:0.9;
+ overflow: hidden;
+ margin-bottom:5px;
+}
+.dashboard-block .rotate {
+ z-index: 8;
+ float: right;
+ height: 100%;
+}
+.dashboard-block .rotate i {
+ position: absolute;
+ left: 0;
+ left: auto;
+ right: 0;
+ bottom: 0;
+ display: block;
+ height: 65px;
+ font-size: 75px;
+ -webkit-transform: rotate(-40deg);
+ -moz-transform: rotate(-40deg);
+ -o-transform: rotate(-40deg);
+ -ms-transform: rotate(-40deg);
+ transform: rotate(-40deg);
+ text-shadow:1px 0 #ddd;
+}
+.dashboard-block i,.dashboard-block:hover i,.dashboard-block:active i,.dashboard-block:focus i {
+ color: #e2e2e2;
+}
+.dashboard-block .more {
+ position: absolute;
+ top: 10px;
+ right: 10px;
+ font-size: 16px;
+ color: rgba(0, 0, 0, 0.25) !important;
+ text-shadow: none;
+}
+.dashboard-block .details {
+ position: relative;
+ z-index: 10;
+ float: left;
+ margin-top: -10px;
+ text-align: left;
+}
+.dashboard-block .title {
+ display: block;
+ margin-bottom: 1em;
+ font-size: 13px;
+ text-transform: uppercase;
+}
+.dashboard-block .sub {
+ display: block;
+ font-size: 32px;
+}
+
+	</style>
+</head>
+
+<body>
+	<div class="for_chart">
+	</div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-5 col-sm-4 col-xs-9">
+                <h4>Wifi Socket Control</h4></div>
+            <div class="col-md-1 col-md-offset-5 col-sm-1 col-sm-offset-6 col-xs-1">
+                <div class="schedule_checkbox chart_on_off_btn">
+                    <form id="check_sockets" name="socket_form">
+                        <input name="chart_checkbox" type="checkbox" checked="unchecked" data-toggle="toggle" data-style="ios" data-size="mini"  data-on="Chart On" data-off="Chart Off" data-onstyle="success" data-offstyle="default"/>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="well"><span><strong>Overide Group Control</strong></span>
+            <div class="col-md-12">
+                <hr>
+            </div> 
+            <div>
+                <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Feed Mode" data-vars="timer" data-target="#modal_1" id="modal1">Feed Mode <p class="timmershow"></p></button>
+                <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Group 1" data-vars="timer1" data-target="#modal_2" id="modal2">Group 1 <p class="timmershow"></p></button>
+                <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Group 2" data-vars="timer2" data-target="#modal_3" id="modal3">Group 2 <p class="timmershow"></p> </button>
+                <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Group 3" data-vars="timer3" data-target="#modal_4" id="modal4">Group 3 <p class="timmershow"></p></button>
+                <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Group 4" data-vars="timer4" data-target="#modal_5" id="modal5">Group 4 <p class="timmershow"></p></button>
+				<input type="hidden" id="hidden_id"/>
+				<input type="hidden" id="hidden_model_id" />
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_1">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title"> 1Overide Setting</h4></div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p>Select Override ON or OFF</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-9 col-sm-offset-0">
+                                        <div class="min_select">
+                                            <input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override1" name="candlestick" />
+											
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row set_button_time">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+                                            <button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+                                            <button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+                                            <button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+                                            <button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+                                            <button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+                                            <button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+                                            <button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+                                            <button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+                                            <button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+                                            <button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+                                            <button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+                                            <button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+                                            <button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+                                            <button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+							<div class="row staus_selected">
+								<div class="col-sm-2 hidden-xs">
+								</div>
+								<div class="col-sm-8 col-xs-12">
+									<form>
+										<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+										
+										<input class="data_time" type="hidden" value=""/>
+										<input class="data_type" type="hidden" value=""/>
+									</form>
+								</div>
+								<div class="col-sm-2 hidden-xs">
+								</div>
+							</div>
+                            <div class="modal-footer">
+                                <button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+                                <button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_2">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title"> 2Overide Setting</h4></div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p>Select Override ON or OFF</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-9 col-sm-offset-0">
+                                        <div class="min_select">
+                                            <input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override2" name="candlestick" />
+											
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row set_button_time">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+                                            <button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+                                            <button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+                                            <button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+                                            <button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+                                            <button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+                                            <button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+                                            <button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+                                            <button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+                                            <button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+                                            <button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+                                            <button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+                                            <button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+                                            <button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+                                            <button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+							<div class="row staus_selected">
+								<div class="col-sm-2 hidden-xs">
+								</div>
+								<div class="col-sm-8 col-xs-12">
+									<form>
+										<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+										
+										<input class="data_time" type="hidden" value=""/>
+										<input class="data_type" type="hidden" value=""/>
+									</form>
+								</div>
+								<div class="col-sm-2 hidden-xs">
+								</div>
+							</div>
+                            <div class="modal-footer">
+                                <button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+                                <button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_3">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title"> 3Overide Setting</h4></div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p>Select Override ON or OFF</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-9 col-sm-offset-0">
+                                        <div class="min_select">
+                                            <input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override3" name="candlestick" />
+											
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row set_button_time">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+                                            <button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+                                            <button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+                                            <button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+                                            <button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+                                            <button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+                                            <button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+                                            <button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+                                            <button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+                                            <button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+                                            <button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+                                            <button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+                                            <button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+                                            <button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+                                            <button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+							<div class="row staus_selected">
+								<div class="col-sm-2 hidden-xs">
+								</div>
+								<div class="col-sm-8 col-xs-12">
+									<form>
+										<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+										
+										<input class="data_time" type="hidden" value=""/>
+										<input class="data_type" type="hidden" value=""/>
+									</form>
+								</div>
+								<div class="col-sm-2 hidden-xs">
+								</div>
+							</div>
+                            <div class="modal-footer">
+                                <button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+                                <button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_4">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title"> 4Overide Setting</h4></div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p>Select Override ON or OFF</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-9 col-sm-offset-0">
+                                        <div class="min_select">
+                                            <input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override4" name="candlestick" />
+											
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row set_button_time">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+                                            <button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+                                            <button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+                                            <button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+                                            <button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+                                            <button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+                                            <button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+                                            <button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+                                            <button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+                                            <button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+                                            <button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+                                            <button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+                                            <button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+                                            <button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+                                            <button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+							<div class="row staus_selected">
+								<div class="col-sm-2 hidden-xs">
+								</div>
+								<div class="col-sm-8 col-xs-12">
+									<form>
+										<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+										
+										<input class="data_time" type="hidden" value=""/>
+										<input class="data_type" type="hidden" value=""/>
+									</form>
+								</div>
+								<div class="col-sm-2 hidden-xs">
+								</div>
+							</div>
+                            <div class="modal-footer">
+                                <button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+                                <button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_5">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title"> 5Overide Setting</h4></div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p>Select Override ON or OFF</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-9 col-sm-offset-0">
+                                        <div class="min_select">
+                                            <input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override5" name="candlestick" />
+											
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row set_button_time">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+                                            <button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+                                            <button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+                                            <button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+                                            <button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+                                            <button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+                                            <button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+                                            <button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+                                            <button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+                                            <button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+                                            <button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+                                            <button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+                                            <button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+                                            <button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+                                            <button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+							<div class="row staus_selected">
+								<div class="col-sm-2 hidden-xs">
+								</div>
+								<div class="col-sm-8 col-xs-12">
+									<form>
+										<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+										
+										<input class="data_time" type="hidden" value=""/>
+										<input class="data_type" type="hidden" value=""/>
+									</form>
+								</div>
+								<div class="col-sm-2 hidden-xs">
+								</div>
+							</div>
+                            <div class="modal-footer">
+                                <button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+                                <button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+						  </div>
+        </div>
+    </div>
+    <div class="container sockets">
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text1"></span> <strong class="socket_name">Socket 1</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer6" data-target="#modal_6" id="modal6"><span class="socket_name">Socket 1</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_6">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override6" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text1">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable1 "value="Socket 1" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="1">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT1"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare1">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t1 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t1 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare11">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t11 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t11 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration11">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+											<div class="col-sm-4 chart_set_iphone">
+							<div class="set_chart_space">
+								<div class="chart_space">
+								<div class="re">
+								  <h4 class="text-center">
+									<div class="btn-group btn-toggle realtime"> 
+									 <button class="btn btn-xs btn-default">off</button>
+									 <button class="btn btn-xs btn-success active">live</button>
+									</div>
+								  </h4>
+								 </div>
+								  <div id="chart1" class="big-chart">
+								  
+								  </div>
+								</div>
+							</div>
+						</div>
+									</div>
+           </div>
+      
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text2"></span> <strong class="socket_name">Socket 2</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer7" data-target="#modal_7" id="modal7"><span class="socket_name">Socket 2</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_7">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override7" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text2">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable2 "value="Socket 2" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="2">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT2"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare2">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t2 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t2 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare22">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t22 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t22 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration22">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+									</div>
+           </div>
+      
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text3"></span> <strong class="socket_name">Socket 3</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer8" data-target="#modal_8" id="modal8"><span class="socket_name">Socket 3</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_8">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override8" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text3">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable3 "value="Socket 3" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="3">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT3"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare3">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t3 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t3 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare33">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t33 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t33 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration33">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+									</div>
+           </div>
+      
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text4"></span> <strong class="socket_name">Socket 4</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer9" data-target="#modal_9" id="modal9"><span class="socket_name">Socket 4</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_9">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override9" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text4">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable4 "value="Socket 4" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="4">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT4"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare4">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t4 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t4 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare44">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t44 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t44 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration44">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+									</div>
+           </div>
+      
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text5"></span> <strong class="socket_name">Socket 5</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer10" data-target="#modal_10" id="modal10"><span class="socket_name">Socket 5</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_10">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override10" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text5">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable5 "value="Socket 5" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="5">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT5"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare5">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t5 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t5 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare55">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t55 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t55 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration55">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+									</div>
+           </div>
+      
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text6"></span> <strong class="socket_name">Socket 6</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer11" data-target="#modal_11" id="modal11"><span class="socket_name">Socket 6</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_11">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override11" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text6">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable6 "value="Socket 6" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="6">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT6"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare6">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t6 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t6 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare66">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t66 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t66 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration66">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+									</div>
+           </div>
+      
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text7"></span> <strong class="socket_name">Socket 7</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer12" data-target="#modal_12" id="modal12"><span class="socket_name">Socket 7</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_12">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override12" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text7">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable7 "value="Socket 7" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="7">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT7"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare7">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t7 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t7 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare77">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t77 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t77 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration77">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+									</div>
+           </div>
+      
+					
+			<div class="well custom-well-socket">
+				<div class="row">
+					<div class="col-sm-8 col-xs-12 ">
+						
+						<div class="row">
+							<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
+								<p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text8"></span> <strong class="socket_name">Socket 8</strong></p>
+								
+								<button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer13" data-target="#modal_13" id="modal13"><span class="socket_name">Socket 8</span> <p class="timmershow"></p></button>
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="modal_13">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Overide Setting</h4></div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<p>Select Override ON or OFF</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-12 col-sm-9 col-sm-offset-0">
+														<div class="min_select">
+															<input type="checkbox"  class="input-group js-candlestick" id="candlestickID_override13" name="candlestick" />
+															
+														</div>
+													</div>
+												</div>
+												<div class="row set_button_time">
+													<div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="1"  data_type="min" type="button"> 1min</button>
+															<button class="btn default_grey" data_time="5"  data_type="min" type="button"> 5min</button>
+															<button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+															<button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+															<button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+															<button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+															<button class="btn default_grey" data_time="1"  data_type="hr"  type="button"> 1hr</button>
+															<button class="btn default_grey" data_time="1.5"data_type="hr"  type="button">1.5hr</button>
+														</div>
+													</div>
+													<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+														<div class="btn-group-vertical" role="group">
+															<button class="btn default_grey" data_time="2"  data_type="hr" type="button"> 2hr</button>
+															<button class="btn default_grey" data_time="4"  data_type="hr" type="button"> 4hr</button>
+															<button class="btn default_grey" data_time="6"  data_type="hr" type="button"> 6hr</button>
+															<button class="btn default_grey" data_time="8"  data_type="hr" type="button"> 8hr</button>
+															<button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+															<button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+															<button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+															<button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="row staus_selected">
+												<div class="col-sm-2 hidden-xs">
+												</div>
+												<div class="col-sm-8 col-xs-12">
+													<form>
+														<input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value=""/>
+														
+														<input class="data_time" type="hidden" value=""/>
+														<input class="data_type" type="hidden" value=""/>
+													</form>
+												</div>
+												<div class="col-sm-2 hidden-xs">
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								
+								
+								
+								<div class="modal fade" role="dialog" tabindex="-1" id="edit_text8">
+									<div class="modal-dialog modal-sm" role="document">
+										<div class="modal-content">
+											<div class="modal-header">
+												<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+												<h4 class="modal-title"> Change Socket Name</h4>
+											</div>
+											<div class="modal-body">
+												<div class="row">
+													<div class="col-md-12">
+														<div class="row ">
+															<div class="col-sm-2 hidden-xs">
+															</div>
+															<div class="col-sm-8 col-xs-12">
+																<input class=" form-control" name=""  data-class="editable8 "value="Socket 8" type="text">
+															</div>
+															<div class="col-sm-2 hidden-xs">
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+											<div class="modal-footer">
+												<button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+												<button class="save_name btn btn-primary" type="button" data-dismiss="modal">Save</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="socket_toggle">
+								
+									<form id="check_sockets" name="socket_form" timer-code="8">
+										<input name="socket" type="checkbox"  data-toggle="toggle" data-width="100" data-onstyle="success" data-offstyle="danger"/>
+									</form>
+									<div class="count_downT8"><span class="timmershow"></span></div>
+								</div>
+							</div>
+							<div class="col-lg-2 col-lg-offset-1 col-md-3 col-sm-3 col-xs-5">
+								<div class="device_group"><span><strong>Device Group</strong></span>
+									<div>
+										<select class="selectpicker" data-style="btn-primary" data-width="110px">
+											<option value="12" selected="">No Group</option>
+											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
+											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
+											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
+											<option value="14" data-content="<span class='label label-info'>Group 4</span>">Group 4</option>
+										</select>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-4 col-xs-3">
+								<div class="analog_div"><span><strong>T. Amps</strong></span>
+									<div><span class="analog">... </span></div>
+								</div>
+							</div>
+						</div>
+						<div class="well custom-well-inner socket_tog ">
+							<div class="row socket_inner_div_1 pare8">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_1">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t8 off_d " data-donetext="Done" >
+										<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end  t8 off_d" data-donetext="Done" >
+										<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+							</div>
+							<div class="row socket_inner_div_2 pare88">
+								<div class="col-md-2 col-xs-2">
+									<div class="schedule_checkbox socket_iner_btn_2">
+										<form id="check_sockets" name="socket_form">
+											<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+										</form>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+									<div class="input-group clockpicker start t88 off_d" data-donetext="Done" >
+										<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+									<div class="input-group clockpicker end t88 off_d" data-donetext="Done" >
+										<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+									</div>
+								</div>
+								<div class="col-md-12 text-center" style="clear:both">
+									<span>Total Duration : <span class="duration88">00:00</span></span><br/><br/>
+								</div>
+							</div>
+						</div>
+					
+					</div>
+									</div>
+           </div>
+      
+		        
+	 </div>
+    <div class="container">
+        <div class="well"><span><strong>Feed Mode Setting</strong></span>
+            <div class="col-md-12">
+                <hr>
+            </div>
+            <div class="row">
+				<div class=" col-md-8" style="float:none;margin:0 auto;">
+										<div class=" custom-well-inner socket_tog ">
+						<div class="row socket_inner_div_1 pare9">
+							<div class="col-md-2 col-xs-2">
+								<div class="schedule_checkbox socket_iner_btn_1">
+									<form id="check_sockets" name="socket_form">
+										<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+									</form>
+								</div>
+							</div>
+							<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+								<div class="input-group clockpicker start t9 off_d " data-donetext="Done" >
+									<input class="input-sm form-control " type="text" value="00:00" id="clockTimer" name="clockTimer"style="cursor:pointer" readonly/><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+								</div>
+							</div>
+							<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+								<div class="input-group clockpicker end  t9 off_d" data-donetext="Done" >
+									<input class="input-sm form-control " id="clockTimer" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+								</div>
+							</div>
+						</div>
+						<div class="row socket_inner_div_2 pare99">
+							<div class="col-md-2 col-xs-2">
+								<div class="schedule_checkbox socket_iner_btn_2">
+									<form id="check_sockets" name="socket_form">
+										<input type="checkbox" name="TimerCheckbox" data-toggle="toggle" data-style="ios" data-size="mini"/>
+									</form>
+								</div>
+							</div>
+							<div class="col-md-5 col-xs-5"><span class="small">Start Time</span>
+								<div class="input-group clockpicker start t99 off_d" data-donetext="Done" >
+									<input type="text" id="clockTimer" value="00:00" class="input-sm form-control" name="clockTimer" style="cursor:pointer" readonly /><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+								</div>
+							</div>
+							<div class="col-md-5 col-xs-5"><span class="small">End Time</span>
+								<div class="input-group clockpicker end t99 off_d" data-donetext="Done" >
+									<input class="input-sm form-control" type="text" value="00:00" name="clockTimer" style="cursor:pointer" readonly><span class=" input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+								</div>
+							</div>
+							<div class="col-md-12 text-center" style="clear:both">
+								<span>Total Duration : <span class="duration99">00:00</span></span><br/><br/>
+							</div>
+						</div>
+					</div>
+						
+				</div>
+            </div>
+            <div class="row">
+                <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-3 col-xs-5">
+									<div>
+                        <p>
+							<input type="checkbox"class="  input-group js-candlestick" id="candlestickID1" name="candlestick" /><span class="editable1">Socket 1</span>
+						</p>
+                    </div>
+									<div>
+                        <p>
+							<input type="checkbox"class="  input-group js-candlestick" id="candlestickID2" name="candlestick" /><span class="editable2">Socket 2</span>
+						</p>
+                    </div>
+									<div>
+                        <p>
+							<input type="checkbox"class="  input-group js-candlestick" id="candlestickID3" name="candlestick" /><span class="editable3">Socket 3</span>
+						</p>
+                    </div>
+									<div>
+                        <p>
+							<input type="checkbox"class="  input-group js-candlestick" id="candlestickID4" name="candlestick" /><span class="editable4">Socket 4</span>
+						</p>
+                    </div>
+				                </div>
+				<div class="col-lg-3 col-md-3 col-sm-3 col-xs-5">
+									<div>
+                        <p>
+							<input type="checkbox" class="input-group js-candlestick" id="candlestickID5" name="candlestick" />
+							<span class="editable5">Socket 5</span>
+						</p>
+                    </div>
+									<div>
+                        <p>
+							<input type="checkbox" class="input-group js-candlestick" id="candlestickID6" name="candlestick" />
+							<span class="editable6">Socket 6</span>
+						</p>
+                    </div>
+									<div>
+                        <p>
+							<input type="checkbox" class="input-group js-candlestick" id="candlestickID7" name="candlestick" />
+							<span class="editable7">Socket 7</span>
+						</p>
+                    </div>
+									<div>
+                        <p>
+							<input type="checkbox" class="input-group js-candlestick" id="candlestickID8" name="candlestick" />
+							<span class="editable8">Socket 8</span>
+						</p>
+                    </div>
+				                </div>
+                
+            </div>
+        </div>
+		<div class="well">
+			<div><span><strong>Wave Maker Controller</strong></span>
+				<div class="col-md-12">
+					<hr>
+				</div>
+				<div class="row">
+					<div class="col-lg-4 col-lg-offset-2 col-md-4 col-sm-4 col-sm-offset-2 col-xs-6">
+						<div class="device_group"><span>Wave Maker Setting</span>
+							<div>
+								<select id="wave_selection" class="selectpicker" data-style="btn-primary" data-width="175px">
+									<option value="100" selected name="no_wave">No Wave</option>
+									<optgroup label="Single Pump Options">
+									<option value="110" name="single1">Single Pump Pulse</option>
+									</optgroup>
+									<optgroup label="Dual Pump Options">
+									<option value="121" name="dual_pulse">Dual Pump Pulse</option>
+									<option value="122" name="dual_alternate">Dual Pump Alternate</option>
+									<option value="123" name="dual_series">Dual Pump Series</option>
+									<option value="124" name="dual_random">Dual Pump Random</option>
+									</optgroup>
+									<optgroup label="Quad Pump Option">
+									<option value="141" name="quad_pulse">Quad Pump Pulse</option>
+									<option value="142" name="quad_alternate">Quad Pump Alternate</option>
+									<option value="143" name="quad_series">Quad Pump Series</option>
+									<option value="144" name="quad_random">Quad Pump Random</option>
+									</optgroup>
+								</select>
+							</div>
+						</div>
+					</div>
+					<div class="col-lg-3 col-md-3 col-md-offset-0 col-sm-3 col-sm-offset-0 col-xs-6 col-xs-offset-0"><span class="medium">Wave Frequency</span>
+						<div class="input-group clockpicker duration" data-donetext="Done">
+							<input class="input-sm form-control" type="text" value="00:30" id="wave_time"><span class="input-group-addon"> <span class="glyphicon glyphicon-time"> </span></span>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="http://weareoutman.github.io/clockpicker/dist/jquery-clockpicker.min.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="script.min.js"></script>
+	<script src="custom.js"></script>
+	
+	 <script type='text/javascript'>
+        
+        $(document).ready(function() {
+        
+            $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js',function(){
+			  $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.pie.min.js',function(){
+				$.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.resize.min.js',function(){
+						
+				  // styles for all charts
+				  gridStyle = {borderColor:'#ddd',borderWidth:1,hoverable:true,clickable:true};
+				  
+				  // static charts
+				  var d1 = [];
+				  for (var i = 0; i < 14; i += 0.2) {
+					 d1.push([i, Math.sin(i)]);
+				  } 
+				  var d2 = [[0, 3], [4, 8], [8, 5], [9, 13]];
+				  var d3 = [[0, 12], [7, 12], [12, 13]];
+				  
+				
+				  // real-time chart
+				  // we use an inline data source in the example, usually data would
+				  // be fetched from a server
+				  var data = [], totalPoints = 200;
+				  function getRandomData() {
+					
+					if (data.length > 0)
+					  data = data.slice(1);
+					
+					// do a random walk
+					while (data.length < totalPoints) {
+					  var prev = data.length > 0 ? data[data.length - 1] : 50;
+					  var y = prev + Math.random() * 10-5;
+					  if (y < 0)
+						y = 0;
+					  if (y > 100)
+						y = 100;
+					  data.push(Math.round(y*100)/100);
+					}
+				  
+					// zip the generated y values with the x values
+					var res = [];
+					for (var i = 0; i < data.length; ++i){
+					  res.push([i, data[i]])
+					}
+					return res;
+					
+					
+				  }
+				  
+				  // setup control widget
+				  var updateInterval = 300;
+				  $("#updateInterval").val(updateInterval).change(function () {
+				  var v = $(this).val();
+				  if (v && !isNaN(+v)) {
+					updateInterval = +v;
+					if (updateInterval < 1)
+						updateInterval = 1;
+						if (updateInterval > 2000)
+						 updateInterval = 2000;
+						 $(this).val("" + updateInterval);
+						}
+				  });
+				  
+				  // realtime plot
+				  var options = {
+					grid:gridStyle,
+					//series:{shadowSize:0,lines:{show:true,fill:true,fillColor:'rgba(40,200,40,.5)'},color:'#5cb85c'},
+					series:{shadowSize:0,lines:{show:true,fill:true,fillColor:'rgba(200,220,200,.6)'},color:'#99bb99'},       
+					yaxis:{min:0,max:100,font:'#ddd'},
+					//xaxis:{show:true}
+					  xaxis: {
+						ticks: [[0,'0 min'],[30,'0:30min'],[60,'1:00 min'] ,[90,'1:30 min'],[120,'2:00 min'],[150,'4:00 min'],[180,'5:00 min']]
+					  }
+				  };
+				   
+				  var plot = $.plot($("#chart1"), [ getRandomData() ], options);
+				  var realTime;
+				  function update() {
+					plot.setData([ getRandomData() ]);
+					plot.draw();
+					realTime = setTimeout(update, updateInterval);
+				  }
+				  
+				  update();
+				  
+				  $("#chart1").bind("plothover", function (event, pos, item) {
+					$("#tooltip").remove();
+					if (item) {
+						var tooltip = item.series.data[item.dataIndex][1];
+						$('<a href="#" class="tooltip" id="tooltip">' + tooltip + '</a>')
+						.css({
+						  top: item.pageY + 5,
+						  left: item.pageX + 5
+						})
+						.appendTo("body").fadeIn(200);
+					}
+				  });
+				  
+				  $('.realtime').click(function() {
+					var activeBtn = $(this).find(".active");
+					
+					if (activeBtn.text()==="off"){
+					  update();
+					  $(this).find(":contains('off')").removeClass("btn-danger");
+					}
+					else {
+					  clearTimeout(realTime);
+					  $(this).find(":contains('off')").addClass("btn-danger");
+					}
+					
+					$('.realtime>.btn').toggleClass("active btn-success");
+					
+				  });//toggle click
+
+				});// end getScript (resize)
+			  });// end getScript (pie)
+			});// end getScript
+
+
+					
+			});
+				
+	$(document).ready(function()
+	{
+	  $(".candlestick-toggle").css("left","20px");
+	  
+	});				
+	</script>
+
+     <script>
+		$(document).ready(function(){
+			
+			var status;
+			$(document).on("click",".min_select .candlestick-bg",function(){
+				 $("#status_text").val("Select Time");
+				if($(this).hasClass("candlestick-bg grab on")){
+					status = 'ON';
+					$(this).closest('.modal-content').find(".set_button_time button").addClass("btn-success");
+					$(this).closest('.modal-content').find(".set_button_time button").removeClass("off_red");
+					$(this).closest('.modal-content').find(".set_button_time button").removeClass("default_grey");
+				}else if($(this).hasClass("candlestick-bg grab off")){
+					status = 'OFF';
+					$(this).closest('.modal-content').find(".set_button_time button").addClass("off_red");
+					$(this).closest('.modal-content').find(".set_button_time button").removeClass("btn-success");
+					$(this).closest('.modal-content').find(".set_button_time button").removeClass("default_grey");
+				}else{
+					$(this).closest('.modal-content').find(".set_button_time button").addClass("default_grey");
+					$(this).closest('.modal-content').find(".set_button_time button").removeClass("btn-success");
+					$(this).closest('.modal-content').find(".set_button_time button").removeClass("off_red");
+				}
+			});
+			$(document).on("click",".set_button_time button",function(){
+					var data_time = $(this).attr("data_time");
+					var data_type = $(this).attr("data_type");
+					$(this).closest('.modal-content').find("#status_text").val(status+" For "+data_time+data_type);
+					$(".data_time").val(data_time);
+					$(".data_type").val(data_type);
+			});
+			
+			
+			/* for timer disable on off*/
+			$(document).on("click",".socket_iner_btn_1 .toggle.btn ",function(){
+				if($(this).hasClass("toggle btn btn-xs ios btn-primary")){
+					$(this).closest('.socket_tog').find(".socket_inner_div_1 .clockpicker").removeClass("off_d"); //enable
+					$(this).closest('.socket_tog').find("div .socket_iner_btn_2 input").bootstrapToggle('enable'); //enable
+					$(this).closest('.custom-well-socket').find(".socket_toggle #check_sockets ").addClass('none'); //enable
+					$(this).closest('.custom-well-socket').find(".buton_replace_socket ").removeClass('none'); //enable
+			
+				}else{
+					$(this).closest('.socket_tog').find("div .clockpicker").addClass("off_d"); //disable
+					$(this).closest('.socket_tog').find("div .socket_iner_btn_2 input").bootstrapToggle('off').bootstrapToggle('disable');
+					$(this).closest('.custom-well-socket').find(".socket_toggle #check_sockets ").removeClass('none'); //enable
+					$(this).closest('.custom-well-socket').find(".buton_replace_socket ").addClass('none'); //enable
+					//disable
+				}
+			});
+			
+			$(document).on("click",".socket_iner_btn_2 .toggle.btn ",function(){
+				if($(this).hasClass("toggle btn btn-xs ios btn-primary")){
+					$(this).closest('.socket_tog').find(".socket_inner_div_2 .clockpicker").removeClass("off_d"); //enable
+			
+				}else{
+					$(this).closest('.socket_tog').find(".socket_inner_div_2 .clockpicker").addClass("off_d"); //disable
+				}
+			});
+			
+			// disable by default
+			$(".socket_iner_btn_2 input").bootstrapToggle('off').bootstrapToggle('disable');
+			
+	
+			$(document).on("click",".chart_on_off_btn .toggle.btn.btn-xs",function(){
+				if($(this).hasClass("toggle btn btn-xs ios btn-default off")){
+					$(".chart_set_iphone").addClass("none");
+					$(".for_chart").addClass("none");
+				}else{
+					$(".chart_set_iphone").removeClass("none");
+					$(".for_chart").removeClass("none");
+				}
+			});
+			
+			
+			
+			
+		});
+		
+	</script>
+	 
+	<script>
+		var _second = 1000;
+		var _minute = _second * 60;
+		var _hour = _minute * 60;
+		var _day = _hour * 24;
+		var timer;
+		var end;
+		var currentDate;
+		
+		//3. Group Overrides 
+			$(document).on("click",".count_value",function(){
+				var data_time = $(".data_time").val();
+				var data_type =	$(".data_type").val();
+				var my_btn_id = $("#hidden_id").val();
+				var model_id = $("#hidden_model_id").val();
+				 if(data_type == 'hr'){
+						  data_time = data_time * 60;
+					 }
+				if($(model_id+" .modal-body .candlestick-bg").hasClass("candlestick-bg grab on")){
+					
+					$(my_btn_id).removeClass("btn-danger").removeClass("btn-info").addClass("btn-success");
+					var datavar = $(my_btn_id).attr("data-vars");
+					var datatext = $(my_btn_id).attr("data-text");
+					
+					currentDate = new Date();
+					
+					 console.log(data_time);
+					if(my_btn_id == "#modal1"){
+						end = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end); }, 1000);
+					}else if(my_btn_id == "#modal2"){
+						end1 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer1 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end1); }, 1000);
+					}else if(my_btn_id == "#modal3"){
+						end2 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer2 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end2); }, 1000);
+					}else if(my_btn_id == "#modal4"){
+						end3 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer3 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end3); }, 1000);
+					}else if(my_btn_id == "#modal5"){
+						end4 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer4 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end4); }, 1000);
+					}else if(my_btn_id == "#modal6"){
+						end6 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer6 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end6); }, 1000);
+					}else if(my_btn_id == "#modal7"){
+						end7 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer7 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end7); }, 1000);
+					}else if(my_btn_id == "#modal8"){
+						end8 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer8 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end8); }, 1000);
+					}else if(my_btn_id == "#modal9"){
+						end9 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer9 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end9); }, 1000);
+					}else if(my_btn_id == "#modal10"){
+						end10 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer10 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end10); }, 1000);
+					}else if(my_btn_id == "#modal11"){
+						end11 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer11 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end11); }, 1000);
+					}else if(my_btn_id == "#modal12"){
+						end12 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer12 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end12); }, 1000);
+					}else if(my_btn_id == "#modal13"){
+						end13 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer13 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end13); }, 1000);
+					}else if(my_btn_id == "#modal14"){
+						end14 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer14 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end14); }, 1000);
+					}
+					
+				}else if($(model_id+" .modal-body .candlestick-bg").hasClass("candlestick-bg grab off")){
+					
+					$(my_btn_id).removeClass("btn-info").removeClass("btn-success").addClass("btn-danger");
+					currentDate = new Date();
+					
+					if(my_btn_id == "#modal1"){
+						end = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end); }, 1000);
+					}else if(my_btn_id == "#modal2"){
+						end1 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer1 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end1); }, 1000);
+					}else if(my_btn_id == "#modal3"){
+						end2 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer2 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end2); }, 1000);
+					}else if(my_btn_id == "#modal4"){
+						end3 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer3 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end3); }, 1000);
+					}else if(my_btn_id == "#modal5"){
+						end4 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer4 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end4); }, 1000);
+					}else if(my_btn_id == "#modal6"){
+						end6 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer6 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end6); }, 1000);
+					}else if(my_btn_id == "#modal7"){
+						end7 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer7 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end7); }, 1000);
+					}else if(my_btn_id == "#modal8"){
+						end8 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer8 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end8); }, 1000);
+					}else if(my_btn_id == "#modal9"){
+						end9 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer9 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end9); }, 1000);
+					}else if(my_btn_id == "#modall0"){
+						end10 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer10 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end10); }, 1000);
+					}else if(my_btn_id == "#modal11"){
+						end11 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer11 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end11); }, 1000);
+					}else if(my_btn_id == "#modal12"){
+						end12 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer12 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end12); }, 1000);
+					}else if(my_btn_id == "#modal13"){
+						end13 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer13 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end13); }, 1000);
+					}else if(my_btn_id == "#modal14"){
+						end14 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
+						timer14 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end14); }, 1000);
+					}
+				}else {
+					$(my_btn_id).removeClass("btn-danger").removeClass("btn-success").addClass("btn-info");
+				}
+			});
+			
+		$(document).on("click",".count_down_btn.btn-success, .count_down_btn.btn-danger",function(){
+				var datavar = $(this).attr("data-vars");
+				var datatext = $(this).attr("data-text");
+				if(datavar=='timer'){
+					clearInterval(timer);
+				}else if(datavar=='timer1'){
+					clearInterval(timer1);
+				}else if(datavar=='timer2'){
+					clearInterval(timer2);
+				}else if(datavar=='timer3'){
+					clearInterval(timer3);
+				}else if(datavar=='timer4'){
+					clearInterval(timer4);
+				}else if(datavar=='timer5'){
+					clearInterval(timer5);
+				}else if(datavar=='timer6'){
+					clearInterval(timer6);
+				}else if(datavar=='timer7'){
+					clearInterval(timer7);
+				}else if(datavar=='timer8'){
+					clearInterval(timer8);
+				}else if(datavar=='timer9'){
+					clearInterval(timer9);
+				}else if(datavar=='timer10'){
+					clearInterval(timer10);
+				}else if(datavar=='timer11'){
+					clearInterval(timer11);
+				}else if(datavar=='timer12'){
+					clearInterval(timer12);
+				}else if(datavar=='timer13'){
+					clearInterval(timer13);
+				}else if(datavar=='timer14'){
+					clearInterval(timer14);
+				}
+				
+				$(this).removeClass("btn-success").removeClass("btn-danger").addClass("btn-info");
+				$(this).children("p").html("");
+				return false;
+		});
+		
+		$(document).on("click",".count_down_btn",function(){
+				$("#hidden_id").val("#"+$(this).attr('id'));
+				$("#hidden_model_id").val($(this).attr('data-target'));
+		});
+		
+	</script>
+	
+	
+	<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t1, .clockpicker.start.t1').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare11 span.duration11");
+			var start = convert($('.clockpicker.start.t1').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t1').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute1 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_1 = new Date(currentDate.getTime() + (ttl_minute1 * 60 * 1000));
+			timer_1 = setInterval(function() { showRemaining(".count_down1",'','',end_1); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t11, .clockpicker.start.t11').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare11 span.duration11");
+			var start = convert($('.clockpicker.start.t11').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t11').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute1 = (hs*60)+ parseInt(mi) ;
+			
+			end_1 = new Date(currentDate.getTime() + (ttl_minute1 * 60 * 1000));
+			timer_1 = setInterval(function() { showRemaining(".count_down1",'','',end_1); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t2, .clockpicker.start.t2').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare22 span.duration22");
+			var start = convert($('.clockpicker.start.t2').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t2').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute2 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_2 = new Date(currentDate.getTime() + (ttl_minute2 * 60 * 1000));
+			timer_2 = setInterval(function() { showRemaining(".count_down2",'','',end_2); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t22, .clockpicker.start.t22').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare22 span.duration22");
+			var start = convert($('.clockpicker.start.t22').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t22').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute2 = (hs*60)+ parseInt(mi) ;
+			
+			end_2 = new Date(currentDate.getTime() + (ttl_minute2 * 60 * 1000));
+			timer_2 = setInterval(function() { showRemaining(".count_down2",'','',end_2); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t3, .clockpicker.start.t3').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare33 span.duration33");
+			var start = convert($('.clockpicker.start.t3').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t3').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute3 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_3 = new Date(currentDate.getTime() + (ttl_minute3 * 60 * 1000));
+			timer_3 = setInterval(function() { showRemaining(".count_down3",'','',end_3); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t33, .clockpicker.start.t33').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare33 span.duration33");
+			var start = convert($('.clockpicker.start.t33').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t33').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute3 = (hs*60)+ parseInt(mi) ;
+			
+			end_3 = new Date(currentDate.getTime() + (ttl_minute3 * 60 * 1000));
+			timer_3 = setInterval(function() { showRemaining(".count_down3",'','',end_3); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t4, .clockpicker.start.t4').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare44 span.duration44");
+			var start = convert($('.clockpicker.start.t4').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t4').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute4 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_4 = new Date(currentDate.getTime() + (ttl_minute4 * 60 * 1000));
+			timer_4 = setInterval(function() { showRemaining(".count_down4",'','',end_4); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t44, .clockpicker.start.t44').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare44 span.duration44");
+			var start = convert($('.clockpicker.start.t44').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t44').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute4 = (hs*60)+ parseInt(mi) ;
+			
+			end_4 = new Date(currentDate.getTime() + (ttl_minute4 * 60 * 1000));
+			timer_4 = setInterval(function() { showRemaining(".count_down4",'','',end_4); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t5, .clockpicker.start.t5').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare55 span.duration55");
+			var start = convert($('.clockpicker.start.t5').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t5').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute5 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_5 = new Date(currentDate.getTime() + (ttl_minute5 * 60 * 1000));
+			timer_5 = setInterval(function() { showRemaining(".count_down5",'','',end_5); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t55, .clockpicker.start.t55').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare55 span.duration55");
+			var start = convert($('.clockpicker.start.t55').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t55').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute5 = (hs*60)+ parseInt(mi) ;
+			
+			end_5 = new Date(currentDate.getTime() + (ttl_minute5 * 60 * 1000));
+			timer_5 = setInterval(function() { showRemaining(".count_down5",'','',end_5); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t6, .clockpicker.start.t6').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare66 span.duration66");
+			var start = convert($('.clockpicker.start.t6').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t6').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute6 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_6 = new Date(currentDate.getTime() + (ttl_minute6 * 60 * 1000));
+			timer_6 = setInterval(function() { showRemaining(".count_down6",'','',end_6); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t66, .clockpicker.start.t66').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare66 span.duration66");
+			var start = convert($('.clockpicker.start.t66').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t66').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute6 = (hs*60)+ parseInt(mi) ;
+			
+			end_6 = new Date(currentDate.getTime() + (ttl_minute6 * 60 * 1000));
+			timer_6 = setInterval(function() { showRemaining(".count_down6",'','',end_6); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t7, .clockpicker.start.t7').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare77 span.duration77");
+			var start = convert($('.clockpicker.start.t7').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t7').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute7 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_7 = new Date(currentDate.getTime() + (ttl_minute7 * 60 * 1000));
+			timer_7 = setInterval(function() { showRemaining(".count_down7",'','',end_7); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t77, .clockpicker.start.t77').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare77 span.duration77");
+			var start = convert($('.clockpicker.start.t77').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t77').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute7 = (hs*60)+ parseInt(mi) ;
+			
+			end_7 = new Date(currentDate.getTime() + (ttl_minute7 * 60 * 1000));
+			timer_7 = setInterval(function() { showRemaining(".count_down7",'','',end_7); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+<script>
+	var currentDate = new Date();
+	$('.clockpicker.end.t8, .clockpicker.start.t8').each(function(){
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare88 span.duration88");
+			var start = convert($('.clockpicker.start.t8').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t8').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result = dif1 + ':' + dif2;
+			fone = dif1;
+			foneone = dif2;
+			runtime.text(result);
+			
+			var ttl_minute8 = (dif1*60)+ parseInt(dif2) ;
+			
+			end_8 = new Date(currentDate.getTime() + (ttl_minute8 * 60 * 1000));
+			timer_8 = setInterval(function() { showRemaining(".count_down8",'','',end_8); }, 1000);
+			
+			$(document).on("click",".clockpicker.end",function(){
+				var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+				(".count_down"+timer_code).addClass('none');
+					$(this).closest('.custom-well-socket').find (".count_down"+c).removeClass('none');
+				
+			});
+			
+		});
+		
+	});
+	
+	/*second_one*input-group clockpicker end t1/*/
+	
+	
+	$('.clockpicker.end.t88, .clockpicker.start.t88').each(function(){
+		
+		$(this).clockpicker({
+			twelvehour: true
+		});
+		var a = $(this).find('input');
+		a.on('change', function() {
+			var convert = function(str) {
+				if (str.substr(5) == 'AM') {
+					str = str.substr(0, 5);
+				} else {
+					str = (parseInt(str) + 12) + ':' + str.substr(3, 2);
+				}
+				return str;
+			}
+			var runtime = $(".pare88 span.duration88");
+			var start = convert($('.clockpicker.start.t88').find('input')[0].value);
+			var end = convert($('.clockpicker.end.t88').find('input')[0].value);
+			var dif1 = parseInt(end) - parseInt(start);
+			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			var result1 = '00:00';
+			if (dif1 < 0) {
+				dif1 = 24 + dif1;
+			}
+			if (dif2 < 0) {
+				if (dif1 == 0) {
+					dif1 = 24;
+				}
+				dif2 = 60 + dif2;
+				dif1 --;
+			}
+			if (dif1 < 10) dif1 = '0' + dif1;
+			if (dif2 < 10) dif2 = '0' + dif2;
+			result1 = dif1 + ':' + dif2;
+			sone =dif1;
+			soneone =dif2;
+			
+			var hs = parseInt(fone) + parseInt(sone);
+			var mi = parseInt(foneone) + parseInt(soneone);
+			
+			if(mi >= 60){	
+				mi = parseInt(mi) - 60 ;
+				hs = parseInt(hs) + 1 ;
+			}
+			if(hs < 10){
+				hs = "0"+hs;
+			}
+			if(mi < 10){
+				mi = "0"+mi;
+			}
+			var t_d = hs + ":" + mi;
+			runtime.text(t_d);
+			
+			
+			var ttl_minute8 = (hs*60)+ parseInt(mi) ;
+			
+			end_8 = new Date(currentDate.getTime() + (ttl_minute8 * 60 * 1000));
+			timer_8 = setInterval(function() { showRemaining(".count_down8",'','',end_8); }, 1000);
+			
+		
+		});
+	});
+	
+		/*$(document).on("click",".clockpicker.end input",function(){
+			var c = $(this).closest('.custom-well-socket').find("#check_sockets").attr("timer-code");
+			$(".count_down"+c).removeClass('none');
+			
+		});*/
+	
+	
+	</script>
+
+
+
+
+<script>
+$(document).ready(function(){
+/*-for main toogle--*/
+	$(document).on("click",".socket_toggle .toggle.btn",function(){
+		var timer_code = $(this).closest('.socket_toggle').find("#check_sockets").attr("timer-code");
+		if($(this).hasClass("toggle btn btn-success")){
+			
+			//$(this).closest('.custom-well-socket').find(".custom-well-inner").addClass("show_socket");
+		}else{
+		//	$(this).closest('.custom-well-socket').find(".custom-well-inner").removeClass("show_socket");
+			
+				
+				//clearInterval(timer);
+				//$(this).closest('.socket_toggle').find(".count_down"+timer_code).addClass('none');
+				//$(this).closest('.custom-well-socket').find("input").val('00:00');
+				//$(this).closest('.custom-well-socket').find(".duration"+timer_code+timer_code).html('00:00');
+			
+		}
+	});
+	
+	/*----change socket name  on edit---*/
+	
+	$(document).on("click",".save_name",function(){
+		var socket_name = $(this).closest('.modal-content').find("input").val();	
+		var get_class = $(this).closest('.modal-content').find("input").attr('data-class');	
+			$("span."+get_class).html(socket_name);
+			$(this).closest('.custom-well-socket').find(".socket_name").html(socket_name);
+		
+	});
+}); 
+
+
+	
+		/************* Button Timmer *********/
+		function showRemaining(my_btn_id,ttl,vari,lastend) {
+//			console.log(lastend);
+			var startDates = new Date();
+	//var distance = new Date('23:00');
+			var distance = lastend - startDates;
+			if (distance < 0) {
+				clearInterval(vari);
+				$(my_btn_id+" .timmershow").html('');
+				$(my_btn_id).removeClass("btn-success").removeClass("btn-danger").addClass("btn-info");
+				
+				return;
+			}
+			var days = Math.floor(distance / _day);
+			var hours = Math.floor((distance % _day) / _hour);
+			var minutes = Math.floor((distance % _hour) / _minute);
+			var seconds = Math.floor((distance % _minute) / _second);
+
+			$(my_btn_id+" .timmershow").html(hours + 'h:'+ minutes + 'm:' + seconds+'s');
+		}
+		
+		
+		/************* Button Timmer *********/
+		
+		var _seconds = 1000;
+		var _minutes = _seconds * 60;
+		var _hours = _minutes * 60;
+		var _days = _hours * 24;
+		var timers;
+		
+		var currentDates = new Date();
+		var ends = new Date(currentDates.getTime() + (50 * 60 * 1000));
+		
+		function showRemainings() {
+			var startDates = new Date();
+			var distance = ends - startDates;
+			if (distance < 0) {
+
+				clearInterval(timers);
+				$(".count_down").html("EXPIRED");
+
+				return;
+			}
+			var days = Math.floor(distance / _days);
+			var hours = Math.floor((distance % _days) / _hours);
+			var minutes = Math.floor((distance % _hours) / _minutes);
+			var seconds = Math.floor((distance % _minutes) / _seconds);
+
+			$(".count_down").html(hours + 'h:'+ minutes + 'm:' + seconds+'s');
+		}
+		
+		$(document).ready(function(){
+			timers = setInterval(showRemainings, 1000);
+			initArduinoIO();
+		});
+
+</script>
+</body>
+</html>
