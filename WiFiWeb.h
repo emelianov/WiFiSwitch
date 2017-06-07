@@ -26,10 +26,31 @@ String getContentType(String filename) {
   else if(filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
+//Format 00:00PM
+time_t strToTime(String tm) {
+  Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
+  Serial.println(tm.substring(0,2).toInt());
+  Serial.println(tm.substring(3,5).toInt());
+ return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) + ((tm.substring(5,7)=="PM")?12*3600L:0);
+}
+String timeToStr(time_t t) {
+    String ampm = "AM";
+    char  strTime[10];
+    uint16_t minutesFromMidnight = t % 86400UL / 60;
+    if (minutesFromMidnight >= 720) {
+      ampm = "PM";
+      if (minutesFromMidnight >= 780)
+        minutesFromMidnight -= 720;
+    }
+    sprintf_P(strTime, PSTR("%02d:%02d%s"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60), ampm.c_str());
+    return String(strTime);
+}
 // callback function that is called by Web server in case if /ajax_input?LED=1&LED2=...
 void ajaxInputs() {
   char data[400];
   uint8_t i;
+  char  strTime[4][8];
+  uint16_t  minutesFromMidnight;
   server.sendHeader("Connection", "close");                         // Headers to free connection ASAP and 
   server.sendHeader("Cache-Control", "no-store, must-revalidate");  // Don't cache response
   for (i = 0; i < SOCKET_COUNT; i++) {
@@ -38,10 +59,45 @@ void ajaxInputs() {
       if (server.arg(soc) == "1") {
         socket[i]->on();
       } else {
-        socket[i]->off();
+        socket[i]->na();
       }
     }
   }
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    String sched1 = "TCB"+String(i*2);
+    String sched2 = "TCB"+String(i*2+1);
+    String tm11 = "TIM"+String(i*4);
+    String tm12 = "TIM"+String(i*4+1);
+    String tm13 = "TIM"+String(i*4+2);
+    String tm14 = "TIM"+String(i*4+3);
+    if (server.hasArg(sched1)) {
+      Serial.println(server.arg(sched1));
+      if (server.arg(sched1) == "1") {
+        socket[i]->schedule1.act=true;
+      } else {
+        socket[i]->schedule1.act=false;
+      }
+    }
+    if (server.hasArg(sched2)) {
+      if (server.arg(sched2) == "1") {
+        socket[i]->schedule2.act=true;
+      } else {
+        socket[i]->schedule2.act=false;
+      }
+    }
+    if (server.hasArg(tm11)) {
+      socket[i]->schedule1.on = strToTime(server.arg(tm11));
+    }
+    if (server.hasArg(tm12)) {
+      socket[i]->schedule1.off = strToTime(server.arg(tm12));
+    }
+    if (server.hasArg(tm13)) {
+      socket[i]->schedule2.on = strToTime(server.arg(tm13));
+    }
+    if (server.hasArg(tm14)) {
+      socket[i]->schedule2.off = strToTime(server.arg(tm14));
+    }   
+  }  
   String res = "";
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
   res += data;
@@ -49,16 +105,17 @@ void ajaxInputs() {
     sprintf_P(data, PSTR("<Socket>%s</Socket>\n"), socket[i]->isOn()?"checked":"unckecked");
     res += data;
   }
-/*  <TimerCheckbox>checked</TimerCheckbox>\n\
-  <TimerCheckbox>checked</TimerCheckbox>\n\
-  <TimerCheckbox>checked</TimerCheckbox>\n\
-  <TimerCheckbox>checked</TimerCheckbox>\n\
-  <TimerCheckbox>checked</TimerCheckbox>\n\
-  <TimerCheckbox>checked</TimerCheckbox>\n\
-  <TimerValue>01:15</TimerValue>\n\
-  <TimerValue>15:54</TimerValue>\n\
-  <TimerValue>11:30</TimerValue>\n\
-*/
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n"),
+              socket[i]->schedule1.active()?"checked":"unckecked",
+              socket[i]->schedule2.active()?"checked":"unckecked",
+              timeToStr(socket[i]->schedule1.on).c_str(),
+              timeToStr(socket[i]->schedule1.off).c_str(),
+              timeToStr(socket[i]->schedule2.on).c_str(),
+              timeToStr(socket[i]->schedule2.off).c_str()
+              );
+    res += data;
+  }
   res += "</state>";
   server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
                                                                     // 200 - means Success html result code

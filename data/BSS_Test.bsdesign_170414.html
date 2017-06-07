@@ -2208,7 +2208,8 @@
 					// do a random walk
 					while (data.length < totalPoints) {
 					  var prev = data.length > 0 ? data[data.length - 1] : 50;
-					  var y = prev + Math.random() * 10-5;
+					  //var y = prev + Math.random() * 10-5;
+					  var y = document.getElementsByClassName("analog")[0].innerHTML;
 					  if (y < 0)
 						y = 0;
 					  if (y > 100)
