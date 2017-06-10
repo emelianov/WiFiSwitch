@@ -45,14 +45,15 @@ String timeToStr(time_t t) {
     sprintf_P(strTime, PSTR("%02d:%02d%s"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60), ampm.c_str());
     return String(strTime);
 }
-// callback function that is called by Web server in case if /ajax_input?LED=1&LED2=...
+// callback function that is called by Web server in case if /ajax_input?...
 void ajaxInputs() {
-  char data[400];
+  char data[400];   // sprintf buffer
   uint8_t i;
   char  strTime[4][8];
   uint16_t  minutesFromMidnight;
   server.sendHeader("Connection", "close");                         // Headers to free connection ASAP and 
   server.sendHeader("Cache-Control", "no-store, must-revalidate");  // Don't cache response
+  // Got Socket on/off switching or Schedule changes
   for (i = 0; i < SOCKET_COUNT; i++) {
     String soc = "SOC"+String(i);
     if (server.hasArg(soc)) {
@@ -62,14 +63,12 @@ void ajaxInputs() {
         socket[i]->na();
       }
     }
-  }
-  for (i = 0; i < SOCKET_COUNT; i++) {
     String sched1 = "TCB"+String(i*2);
     String sched2 = "TCB"+String(i*2+1);
-    String tm11 = "TIM"+String(i*4);
-    String tm12 = "TIM"+String(i*4+1);
-    String tm13 = "TIM"+String(i*4+2);
-    String tm14 = "TIM"+String(i*4+3);
+    String tm11 =   "TIM"+String(i*4);
+    String tm12 =   "TIM"+String(i*4+1);
+    String tm13 =   "TIM"+String(i*4+2);
+    String tm14 =   "TIM"+String(i*4+3);
     if (server.hasArg(sched1)) {
       Serial.println(server.arg(sched1));
       if (server.arg(sched1) == "1") {
@@ -97,7 +96,76 @@ void ajaxInputs() {
     if (server.hasArg(tm14)) {
       socket[i]->schedule2.off = strToTime(server.arg(tm14));
     }   
-  }  
+  }
+  // Got feed schedule changes
+  {
+    String sched1 = "TCB16";
+    String sched2 = "TCB17";
+    String tm11 =   "TIM32";
+    String tm12 =   "TIM33";
+    String tm13 =   "TIM34";
+    String tm14 =   "TIM35";
+    if (server.hasArg(sched1)) {
+      Serial.println(server.arg(sched1));
+      if (server.arg(sched1) == "1") {
+        feedSchedule.schedule1.act=true;
+      } else {
+        feedSchedule.schedule1.act=false;
+      }
+    }
+    if (server.hasArg(sched2)) {
+      if (server.arg(sched2) == "1") {
+        feedSchedule.schedule2.act=true;
+      } else {
+        feedSchedule.schedule2.act=false;
+      }
+    }
+    if (server.hasArg(tm11)) {
+      feedSchedule.schedule1.on = strToTime(server.arg(tm11));
+    }
+    if (server.hasArg(tm12)) {
+      feedSchedule.schedule1.off = strToTime(server.arg(tm12));
+    }
+    if (server.hasArg(tm13)) {
+      feedSchedule.schedule2.on = strToTime(server.arg(tm13));
+    }
+    if (server.hasArg(tm14)) {
+      feedSchedule.schedule2.off = strToTime(server.arg(tm14));
+    }   
+  }
+  // Got Socket feed schedule override mode
+  #define SOCKET_FEED_BASE 13
+  for (i=0;i<=SOCKET_COUNT;i++) {
+    String cArg = "C" + String(SOCKET_FEED_BASE + i);
+    if (server.hasArg(cArg)) {
+      String v = server.arg(cArg);
+      if (v == "1") {
+        socket[i]->feedOverride = SON;
+      } else if (v == "0") {
+        socket[i]->feedOverride = SOFF;
+      } else {
+        socket[i]->feedOverride = SNA;
+      }
+    }   
+  }
+  // Got group
+  for (i=0;i<=SOCKET_COUNT;i++) {
+    String cArg = "SOCG" + String(i);
+    if (server.hasArg(cArg)) {
+      String v = server.arg(cArg);
+      if (v == "11") {
+        socket[i]->setGroup(group[0]);
+      } else if (v == "12") {
+        socket[i]->setGroup(group[1]);
+      } else if (v == "13") {
+        socket[i]->setGroup(group[2]);
+      } else if (v == "14") {
+        socket[i]->setGroup(group[3]);
+      } else {
+        socket[i]->setGroup();
+      }
+    }   
+  }
   String res = "";
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
   res += data;
