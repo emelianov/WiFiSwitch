@@ -166,6 +166,27 @@ void ajaxInputs() {
       }
     }   
   }
+  #define GROUP_BASE 1
+  #define GROUP_OVERRIDE 1
+  for (i=0;i<=GROUP_COUNT;i++) {
+    String cArg = "C" + String(GROUP_BASE + i);
+    String tArg = "CD" + String(GROUP_OVERRIDE + i);
+    if (server.hasArg(cArg)) {
+      String v = server.arg(cArg);
+      if (v == "1") {
+        group[i]->modeWaiting = SON;
+      } else if (v == "0") {
+        group[i]->modeWaiting = SOFF;
+      } else {
+        group[i]->modeWaiting = SNA;
+      }
+    }
+    if (server.hasArg(tArg)) {
+      group[i]->stop();
+      group[i]->start(group[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
+    }
+  }
+
   String res = "";
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
   res += data;

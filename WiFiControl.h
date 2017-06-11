@@ -38,7 +38,7 @@ class Override {
     mode = m;
     period = t;
     taskDel(overrideTask);
-    if (t > 0) {
+    if (t > 0 && mode != SNA) {
       taskAddWithDelay(overrideTask, t * 1000);
     }
   }
@@ -56,6 +56,7 @@ class Override {
     stop();
   }
   OverrideMode mode = SNA;
+  OverrideMode modeWaiting = SNA;
   time_t period = 0;
   protected:
   task overrideTask;
@@ -218,13 +219,15 @@ uint8_t i = 2;
     bool switched = false;
     if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
       if (socket[i]->mode != SNA) {
-        Serial.println("SOCKET");
+        Serial.print("SOCKET: ");
+        Serial.println(socket[i]->group == NULL?"No grpup":"Override");
         socket[i]->turn(socket[i]->mode);
         switched = true;
       }
     } else { //.overrideBy == GROUP
-      if (socket[i]->group->mode != SNA) {
+      if (socket[i]->group != NULL && socket[i]->group->mode != SNA) {
         Serial.println("GROUP");
+        Serial.println(socket[i]->group->mode == SNA?"NA":"ON/OFF");
         socket[i]->turn(socket[i]->group->mode);
         switched = true;
       }
@@ -253,7 +256,8 @@ uint8_t i = 2;
       switched = true;
     }
     if (!switched) {
-      Serial.println("ELSE");
+      Serial.print("ELSE: ");
+      Serial.println(socket[i]->group == NULL?"No grpup":"Override");
       socket[i]->turn(SON);
     }
   }
