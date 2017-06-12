@@ -5,6 +5,7 @@
 
 // Define enumeration type for convinient override manipulations
 enum OverrideMode { SON, SOFF, SNA };
+// Override <not> operator way: !SON=SOFF, !SOFF=SON, SNA=SNA 
 OverrideMode operator ! (OverrideMode m) {
   if (m == SON) return SOFF;
   if (m == SOFF) return SON;
@@ -12,9 +13,10 @@ OverrideMode operator ! (OverrideMode m) {
 }
 
 enum LastChanged { SOCKET, GROUP };
-enum WaveSocket { SINGLE, DOUBLE, QUAD };
+enum WaveSocket { NONE, SINGLE, DOUBLE, QUAD };
 enum WaveType { PULSE, ALTERNATIVE, SERIES, RANDOM };
 
+// Override and task to manage override duration
 class Override {
   public:
   Override(task t = NULL) {
@@ -56,12 +58,13 @@ class Override {
   void na() {
     stop();
   }
-  OverrideMode mode = SNA;
-  OverrideMode modeWaiting = SNA;
-  time_t period = 0;
-  task overrideTask;
+  OverrideMode mode = SNA;        // Current socket/switch mode
+  OverrideMode modeWaiting = SNA; // Temp mode storage
+  time_t period = 0;              // Override dutation
+  task overrideTask;              // Callback function
 };
 
+// Schedule class
 class Schedule {
   public:
   bool act = false;
@@ -85,6 +88,7 @@ class Schedule {
     act = true;
   }
 };
+
 //#define DEFAULT_WAVE 30
 #define DEFAULT_WAVE 3
 #define WAVE_SOC1 2
@@ -92,7 +96,8 @@ class Schedule {
 #define WAVE_SOC3 3
 #define WAVE_SOC4 4
 
-uint32_t wavePulse();
+uint32_t wavePulse(); // Forward declaration
+
 // Warning it's not real class
 // Only one instance allowable to be used
 class Wave: public Override {
@@ -103,6 +108,7 @@ class Wave: public Override {
   WaveSocket to;
   WaveType type;
 };
+// Compilation of two Schedule classes
 class DoubleSchedule {
   public:
   bool active() {
@@ -117,6 +123,7 @@ class DoubleSchedule {
   Schedule schedule1;
   Schedule schedule2;
 };
+// Socket implementation
 class Socket: public DoubleSchedule, public Override {
   public:
   Socket(uint8_t hwpin, task t = NULL, Wave* w = NULL): Override(t) {
@@ -179,6 +186,7 @@ class Socket: public DoubleSchedule, public Override {
 };
 #define SOCKET_COUNT 8
 Socket* socket[SOCKET_COUNT];
+// Template to generate callback functions for each socket
 template <int I>
 uint32_t socketTask() {
   Serial.println(I);
@@ -188,22 +196,28 @@ uint32_t socketTask() {
 }
 task socketTasks[SOCKET_COUNT] = { socketTask<0>, socketTask<1>, socketTask<2>, socketTask<3>, socketTask<4>, socketTask<5>, socketTask<6>, socketTask<7> };
 
+// Feed Schedule
 DoubleSchedule feedSchedule;
 
+// Groups
 #define GROUP_COUNT 4
 Override* group[GROUP_COUNT];
+// Template to generate callback functions for each socket
 template <int I>
 uint32_t groupTask() {
   group[I]->mode = SNA;
   return RUN_DELETE;
 }
 task groupOverride[GROUP_COUNT] = { groupTask<0>, groupTask<1>, groupTask<2>, groupTask<3> };
+
+// Global feed
 Override* feed;
 uint32_t feedTask() {
   feed->na();
   return RUN_DELETE;
 }
 
+// Wave
 Wave wave;
 uint32_t wavePulse() {
   wave.mode  = !wave.mode;
@@ -223,7 +237,7 @@ uint32_t waveRandom() {
   return wave.period * 1000;
 }
 
-  void setWave(WaveType t) {
+void setWave(WaveType t) {
     wave.type = t;
     switch (t) {
       case PULSE:
@@ -238,11 +252,19 @@ uint32_t waveRandom() {
       case RANDOM:
         wave.overrideTask = waveRandom;
       break;
+      default:
+        wave.overrideTask = wavePulse;
     }
-  }
-  void setWave(WaveSocket t) {
+}
+void setWave(WaveSocket t) {
     wave.to = t;
     switch (t) {
+      case NONE:
+        socket[WAVE_SOC1]->wave = NULL;
+        socket[WAVE_SOC2]->wave = NULL;
+        socket[WAVE_SOC3]->wave = NULL;
+        socket[WAVE_SOC4]->wave = NULL;
+      break;
       case SINGLE:
         socket[WAVE_SOC1]->wave = &wave;
         socket[WAVE_SOC2]->wave = NULL;
@@ -262,11 +284,10 @@ uint32_t waveRandom() {
         socket[WAVE_SOC4]->wave = &wave;
       break;
     }
-  }
-// Feed mode OFF
-// Global Feed mode ON
-// result -- Wave function stops working
-// ????
+}
+
+// Switching sockets according to overrides, schedules and waves
+// Should be run in main loop
 uint32_t socketsTask() {
 //  for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
 uint8_t i = 2;

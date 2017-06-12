@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <DNSServer.h>
 #include <WiFiManager.h>
+#define RUN_TASKS 32
 #include <Run.h>
 #include <FS.h>
 

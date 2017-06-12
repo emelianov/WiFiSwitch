@@ -53,11 +53,11 @@ String timeToStr(time_t t) {
 void ajaxInputs() {
   char data[400];   // sprintf buffer
   uint8_t i;
-  char  strTime[4][8];
+  char  strTime[4][8];    // Schedule time strings buffer
   uint16_t  minutesFromMidnight;
   server.sendHeader("Connection", "close");                         // Headers to free connection ASAP and 
   server.sendHeader("Cache-Control", "no-store, must-revalidate");  // Don't cache response
-  // Got Socket on/off switching or Schedule changes
+  // Check if got Socket on/off switching or Schedule changes
   for (i = 0; i < SOCKET_COUNT; i++) {
     String soc = "SOC"+String(i);
     if (server.hasArg(soc)) {
@@ -67,41 +67,41 @@ void ajaxInputs() {
         socket[i]->na();
       }
     }
-    String sched1 = "TCB"+String(i*2);
-    String sched2 = "TCB"+String(i*2+1);
-    String tm11 =   "TIM"+String(i*4);
-    String tm12 =   "TIM"+String(i*4+1);
-    String tm13 =   "TIM"+String(i*4+2);
-    String tm14 =   "TIM"+String(i*4+3);
-    if (server.hasArg(sched1)) {
+    String sched1 = "TCB"+String(i*2);    // e.g. ?TCB2=1
+    String sched2 = "TCB"+String(i*2+1);  // e.g. ?TCB3=1
+    String tm11 =   "TIM"+String(i*4);    // e.g. ?TIM8=10:15AM
+    String tm12 =   "TIM"+String(i*4+1);  // e.g. ?TIM9=11:00PM
+    String tm13 =   "TIM"+String(i*4+2);  // e.g. ?TIM10=12:00PM
+    String tm14 =   "TIM"+String(i*4+3);  // e.g. ?TIM11=21:45PM
+    if (server.hasArg(sched1)) {          // First Schedule switch updateed
       Serial.println(server.arg(sched1));
-      if (server.arg(sched1) == "1") {
+      if (server.arg(sched1) == "1") {    // Switch is turned On 
         socket[i]->schedule1.act=true;
-      } else {
+      } else {                            // Switch is turned Off
         socket[i]->schedule1.act=false;
       }
     }
-    if (server.hasArg(sched2)) {
+    if (server.hasArg(sched2)) {        // Second Schedule Switch updated
       if (server.arg(sched2) == "1") {
         socket[i]->schedule2.act=true;
       } else {
         socket[i]->schedule2.act=false;
       }
     }
-    if (server.hasArg(tm11)) {
+    if (server.hasArg(tm11)) {          // First Schedule Start time is updated
       socket[i]->schedule1.on = strToTime(server.arg(tm11));
     }
-    if (server.hasArg(tm12)) {
+    if (server.hasArg(tm12)) {          // First Schedule Stop time is updated
       socket[i]->schedule1.off = strToTime(server.arg(tm12));
     }
-    if (server.hasArg(tm13)) {
+    if (server.hasArg(tm13)) {          // Second Schedule Start time is updated
       socket[i]->schedule2.on = strToTime(server.arg(tm13));
     }
-    if (server.hasArg(tm14)) {
+    if (server.hasArg(tm14)) {          // Second Schedule Stop time is updated
       socket[i]->schedule2.off = strToTime(server.arg(tm14));
     }   
   }
-  // Got feed schedule changes
+  // Check if Feed Schedule changes
   {
     String sched1 = "TCB16";
     String sched2 = "TCB17";
@@ -109,67 +109,74 @@ void ajaxInputs() {
     String tm12 =   "TIM33";
     String tm13 =   "TIM34";
     String tm14 =   "TIM35";
-    if (server.hasArg(sched1)) {
-      Serial.println(server.arg(sched1));
-      if (server.arg(sched1) == "1") {
+    if (server.hasArg(sched1)) {      // First Schedule Switch is updated
+      //Serial.println(server.arg(sched1));
+      if (server.arg(sched1) == "1") {  // On
         feedSchedule.schedule1.act=true;
-      } else {
+      } else {                          // Off
         feedSchedule.schedule1.act=false;
       }
     }
-    if (server.hasArg(sched2)) {
-      if (server.arg(sched2) == "1") {
+    if (server.hasArg(sched2)) {    // Second Schedule Switch is updated
+      if (server.arg(sched2) == "1") {  // On
         feedSchedule.schedule2.act=true;
-      } else {
+      } else {                          // Off
         feedSchedule.schedule2.act=false;
       }
     }
-    if (server.hasArg(tm11)) {
+    if (server.hasArg(tm11)) {      // Set First Schedule Start time
       feedSchedule.schedule1.on = strToTime(server.arg(tm11));
     }
-    if (server.hasArg(tm12)) {
+    if (server.hasArg(tm12)) {      // Set First Schedule Stop time
       feedSchedule.schedule1.off = strToTime(server.arg(tm12));
     }
-    if (server.hasArg(tm13)) {
+    if (server.hasArg(tm13)) {      // Set Second Schedule Start time
       feedSchedule.schedule2.on = strToTime(server.arg(tm13));
     }
-    if (server.hasArg(tm14)) {
+    if (server.hasArg(tm14)) {    // Set Second Schedule Stop time
       feedSchedule.schedule2.off = strToTime(server.arg(tm14));
     }   
   }
-  // Got Socket feed schedule override mode
-  #define SOCKET_FEED_BASE 13
+  // Check if Socket Schedule Feed Override mode is changed
+  // For first Socket url argument will be ?C13=1
+  // For second ?C14=1 etc
+  #define SOCKET_FEED_BASE 13     
   for (i = 0; i < SOCKET_COUNT; i++) {
     String cArg = "C" + String(SOCKET_FEED_BASE + i);
     if (server.hasArg(cArg)) {
       String v = server.arg(cArg);
-      if (v == "1") {
+      if (v == "1") {         // Override On
         socket[i]->feedOverride = SON;
-      } else if (v == "0") {
+      } else if (v == "0") {  // Override Off
         socket[i]->feedOverride = SOFF;
-      } else {
+      } else {                // else Override set to NA
         socket[i]->feedOverride = SNA;
       }
     }   
   }
-  // Got group
+  // Check if got assign Socket to Group command
+  // Assign First Socket to first group ?SOCG0=0
+  // Assign Third Socket to 4-th group ?SOCG2=3
   for (i = 0; i < SOCKET_COUNT; i++) {
     String cArg = "SOCG" + String(i);
     if (server.hasArg(cArg)) {
       String v = server.arg(cArg);
-      if (v == "11") {
+      if (v == "11") {      // Group1
         socket[i]->setGroup(group[0]);
-      } else if (v == "12") {
+      } else if (v == "12") { // Group2
         socket[i]->setGroup(group[1]);
-      } else if (v == "13") {
+      } else if (v == "13") { // Group3
         socket[i]->setGroup(group[2]);
-      } else if (v == "14") {
+      } else if (v == "14") { // Group4
         socket[i]->setGroup(group[3]);
-      } else {
+      } else {  // otherway set No Group
         socket[i]->setGroup();
       }
     }   
   }
+  // Check if Socket override mode or time is changed
+  // Second Socket override to off ?C6=0 
+  // New Mode will be saved to temprary variable until get actual period of time to override duration
   #define SOCKET_OVERRIDE_BASE 5
   for (i = 0; i < SOCKET_COUNT; i++) {
     String cArg = "C" + String(SOCKET_OVERRIDE_BASE + i);
@@ -184,11 +191,13 @@ void ajaxInputs() {
         socket[i]->modeWaiting = SNA;
       }
     }
-    if (server.hasArg(tArg)) {
-      socket[i]->stop();
+    if (server.hasArg(tArg)) {  // If override time in minutes is passed ?CD6=15
+      socket[i]->stop();        // Stop previous started Override if any
       socket[i]->start(socket[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
     }    
   }
+  // Check if Group override mode or time is changed
+  // First Group to Off ?C1=0
   #define GROUP_BASE 1
   #define GROUP_OVERRIDE 1
   for (i = 0; i < GROUP_COUNT; i++) {
@@ -205,11 +214,11 @@ void ajaxInputs() {
       }
     }
     if (server.hasArg(tArg)) {
-      group[i]->stop();
+      group[i]->stop();     // Stop existing override if any
       group[i]->start(group[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
     }
   }
-
+  // Feed override ?C0=1
   {
     String cArg = "C0";
     String tArg = "CD0";
@@ -228,8 +237,44 @@ void ajaxInputs() {
       feed->start(feed->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
     }
   }
-
-
+  // Check if Wave mode is changed
+  // ?SOCG8=121
+  {
+    String cArg = "SOCG8";
+    if (server.hasArg(cArg)) {
+      String v = server.arg(cArg);
+      if (v == "110") {
+        setWave(SINGLE);
+        setWave(PULSE);  
+      } else if (v == "121") {
+        setWave(DOUBLE);
+        setWave(PULSE);
+      } else if (v == "122") {
+        setWave(DOUBLE);
+        setWave(ALTERNATIVE);        
+      } else if (v == "123") {
+        setWave(DOUBLE);
+        setWave(SERIES);      
+      } else if (v == "124") {
+        setWave(DOUBLE);
+        setWave(RANDOM);      
+      } else if (v == "141") {
+        setWave(QUAD);
+        setWave(PULSE);        
+      } else if (v == "142") {
+        setWave(QUAD);
+        setWave(ALTERNATIVE);        
+      } else if (v == "143") {
+        setWave(QUAD);
+        setWave(SERIES);              
+      } else if (v == "144") {
+        setWave(QUAD);
+        setWave(RANDOM);                    
+      } else {
+        setWave(NONE);
+      }
+    }   
+  }
   String res = "";
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
   res += data;
@@ -259,6 +304,38 @@ void ajaxInputs() {
               );
     res += data;
   }
+  sprintf_P(data, PSTR("<Switch>%s</Switch>"),
+              (feed->mode==SON)?"1":(feed->mode==SOFF)?"0":"2"
+              );
+  res += data;
+  for (i = 0; i < GROUP_COUNT; i++) {
+    sprintf_P(data, PSTR("<Switch>%s</Switch>"),
+              (group[i]->mode==SON)?"1":(group[i]->mode==SOFF)?"0":"2"
+              );
+    res += data;
+  }
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    sprintf_P(data, PSTR("<Switch>%s</Switch>"),
+              (socket[i]->mode==SON)?"1":(socket[i]->mode==SOFF)?"0":"2"
+              );
+    res += data;
+  }
+  for (i = 0; i < GROUP_COUNT; i++) {
+    sprintf_P(data, PSTR("<Switch>%s</Switch>"),
+              (socket[i]->feedOverride==SON)?"1":(socket[i]->feedOverride==SOFF)?"0":"2"
+              );
+    res += data;
+  }
+  sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n"),
+              feedSchedule.schedule1.active()?"checked":"unckecked",
+              feedSchedule.schedule2.active()?"checked":"unckecked",
+              timeToStr(feedSchedule.schedule1.on).c_str(),
+              timeToStr(feedSchedule.schedule1.off).c_str(),
+              timeToStr(feedSchedule.schedule2.on).c_str(),
+              timeToStr(feedSchedule.schedule2.off).c_str()
+              );
+  res += data;
+
   for (i = 0; i < GROUP_COUNT; i++) {
     
   }
