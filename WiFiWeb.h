@@ -28,10 +28,14 @@ String getContentType(String filename) {
 }
 //Format 00:00PM
 time_t strToTime(String tm) {
-  Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
-  Serial.println(tm.substring(0,2).toInt());
-  Serial.println(tm.substring(3,5).toInt());
- return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) + ((tm.substring(5,7)=="PM")?12*3600L:0);
+  if (tm.length() >= 7) {
+    Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
+    Serial.println(tm.substring(0,2).toInt());
+    Serial.println(tm.substring(3,5).toInt());
+    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) + ((tm.substring(5,7)=="PM")?12*3600L:0);
+  } else {
+    return 0;
+  }
 }
 String timeToStr(time_t t) {
     String ampm = "AM";
@@ -135,7 +139,7 @@ void ajaxInputs() {
   }
   // Got Socket feed schedule override mode
   #define SOCKET_FEED_BASE 13
-  for (i=0;i<=SOCKET_COUNT;i++) {
+  for (i = 0; i < SOCKET_COUNT; i++) {
     String cArg = "C" + String(SOCKET_FEED_BASE + i);
     if (server.hasArg(cArg)) {
       String v = server.arg(cArg);
@@ -149,7 +153,7 @@ void ajaxInputs() {
     }   
   }
   // Got group
-  for (i=0;i<=SOCKET_COUNT;i++) {
+  for (i = 0; i < SOCKET_COUNT; i++) {
     String cArg = "SOCG" + String(i);
     if (server.hasArg(cArg)) {
       String v = server.arg(cArg);
@@ -166,9 +170,28 @@ void ajaxInputs() {
       }
     }   
   }
+  #define SOCKET_OVERRIDE_BASE 5
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    String cArg = "C" + String(SOCKET_OVERRIDE_BASE + i);
+    String tArg = "CD" + String(SOCKET_OVERRIDE_BASE + i);
+    if (server.hasArg(cArg)) {
+      String v = server.arg(cArg);
+      if (v == "1") {
+        socket[i]->modeWaiting = SON;
+      } else if (v == "0") {
+        socket[i]->modeWaiting = SOFF;
+      } else {
+        socket[i]->modeWaiting = SNA;
+      }
+    }
+    if (server.hasArg(tArg)) {
+      socket[i]->stop();
+      socket[i]->start(socket[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
+    }    
+  }
   #define GROUP_BASE 1
   #define GROUP_OVERRIDE 1
-  for (i=0;i<=GROUP_COUNT;i++) {
+  for (i = 0; i < GROUP_COUNT; i++) {
     String cArg = "C" + String(GROUP_BASE + i);
     String tArg = "CD" + String(GROUP_OVERRIDE + i);
     if (server.hasArg(cArg)) {
@@ -187,23 +210,57 @@ void ajaxInputs() {
     }
   }
 
+  {
+    String cArg = "C0";
+    String tArg = "CD0";
+    if (server.hasArg(cArg)) {
+      String v = server.arg(cArg);
+      if (v == "1") {
+        feed->modeWaiting = SON;
+      } else if (v == "0") {
+        feed->modeWaiting = SOFF;
+      } else {
+        feed->modeWaiting = SNA;
+      }
+    }
+    if (server.hasArg(tArg)) {
+      feed->stop();
+      feed->start(feed->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
+    }
+  }
+
+
   String res = "";
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
   res += data;
+  // Socket switch state
   for (i = 0; i < SOCKET_COUNT; i++) {
     sprintf_P(data, PSTR("<Socket>%s</Socket>\n"), socket[i]->isOn()?"checked":"unckecked");
     res += data;
   }
+  // Socket override timers state and group
+  #define GROUP_HTML_BASE 11
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n"),
+    uint8_t gr = 0;
+    for (uint8_t j = 0; j < GROUP_COUNT; j++) {
+      if (socket[i]->group == group[j]) {
+        gr = j + GROUP_HTML_BASE;
+        continue; 
+      }
+    }
+    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<Group>%d</Group>"),
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
               timeToStr(socket[i]->schedule1.on).c_str(),
               timeToStr(socket[i]->schedule1.off).c_str(),
               timeToStr(socket[i]->schedule2.on).c_str(),
-              timeToStr(socket[i]->schedule2.off).c_str()
+              timeToStr(socket[i]->schedule2.off).c_str(),
+              gr
               );
     res += data;
+  }
+  for (i = 0; i < GROUP_COUNT; i++) {
+    
   }
   res += "</state>";
   server.send(200, "text/xml", res);                      // Send string as XML document to cliend.

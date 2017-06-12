@@ -12,7 +12,8 @@ OverrideMode operator ! (OverrideMode m) {
 }
 
 enum LastChanged { SOCKET, GROUP };
-enum WaveType { SINGLE, DOUBLE };
+enum WaveSocket { SINGLE, DOUBLE, QUAD };
+enum WaveType { PULSE, ALTERNATIVE, SERIES, RANDOM };
 
 class Override {
   public:
@@ -58,7 +59,6 @@ class Override {
   OverrideMode mode = SNA;
   OverrideMode modeWaiting = SNA;
   time_t period = 0;
-  protected:
   task overrideTask;
 };
 
@@ -87,22 +87,20 @@ class Schedule {
 };
 //#define DEFAULT_WAVE 30
 #define DEFAULT_WAVE 3
-uint32_t waveTask();
+#define WAVE_SOC1 2
+#define WAVE_SOC2 1
+#define WAVE_SOC3 3
+#define WAVE_SOC4 4
+
+uint32_t wavePulse();
 // Warning it's not real class
 // Only one instance allowable to be used
 class Wave: public Override {
   public:
-  Wave() : Override(waveTask) {
+  Wave() : Override(wavePulse) {
     start(SON, DEFAULT_WAVE);
   }
-  void setWaveType(WaveType t) {
-    switch (t) {
-      case SINGLE:
-      break;
-      case DOUBLE:
-      break;
-    }
-  }
+  WaveSocket to;
   WaveType type;
 };
 class DoubleSchedule {
@@ -153,7 +151,7 @@ class Socket: public DoubleSchedule, public Override {
         digitalWrite(pin, HIGH);
       }
     } else {
-      Serial.println("???");
+      Serial.println("OFF");
       digitalWrite(pin, LOW);
     }
   }
@@ -207,11 +205,68 @@ uint32_t feedTask() {
 }
 
 Wave wave;
-uint32_t waveTask() {
+uint32_t wavePulse() {
+  wave.mode  = !wave.mode;
+  return wave.period * 1000;
+}
+uint32_t waveAlt() {
+  wave.mode  = !wave.mode;
+  return wave.period * 1000;  
+}
+uint32_t waveSeries() {
+  wave.mode  = !wave.mode;
+  return wave.period * 1000;
+
+}
+uint32_t waveRandom() {
   wave.mode  = !wave.mode;
   return wave.period * 1000;
 }
 
+  void setWave(WaveType t) {
+    wave.type = t;
+    switch (t) {
+      case PULSE:
+        wave.overrideTask = wavePulse;
+      break;
+      case ALTERNATIVE:
+        wave.overrideTask = waveAlt;
+      break;
+      case SERIES:
+        wave.overrideTask = waveSeries;
+      break;
+      case RANDOM:
+        wave.overrideTask = waveRandom;
+      break;
+    }
+  }
+  void setWave(WaveSocket t) {
+    wave.to = t;
+    switch (t) {
+      case SINGLE:
+        socket[WAVE_SOC1]->wave = &wave;
+        socket[WAVE_SOC2]->wave = NULL;
+        socket[WAVE_SOC3]->wave = NULL;
+        socket[WAVE_SOC4]->wave = NULL;
+      break;
+      case DOUBLE:
+        socket[WAVE_SOC1]->wave = &wave;
+        socket[WAVE_SOC2]->wave = &wave;
+        socket[WAVE_SOC3]->wave = NULL;
+        socket[WAVE_SOC4]->wave = NULL;
+      break;
+      case QUAD:
+        socket[WAVE_SOC1]->wave = &wave;
+        socket[WAVE_SOC2]->wave = &wave;
+        socket[WAVE_SOC3]->wave = &wave;
+        socket[WAVE_SOC4]->wave = &wave;
+      break;
+    }
+  }
+// Feed mode OFF
+// Global Feed mode ON
+// result -- Wave function stops working
+// ????
 uint32_t socketsTask() {
 //  for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
 uint8_t i = 2;
@@ -226,7 +281,7 @@ uint8_t i = 2;
       }
     } else { //.overrideBy == GROUP
       if (socket[i]->group != NULL && socket[i]->group->mode != SNA) {
-        Serial.println("GROUP");
+        Serial.print("GROUP ");
         Serial.println(socket[i]->group->mode == SNA?"NA":"ON/OFF");
         socket[i]->turn(socket[i]->group->mode);
         switched = true;
@@ -237,7 +292,7 @@ uint8_t i = 2;
       socket[i]->turn(feed->mode);
       switched = true;
     }
-    if (!switched && socket[i]->feedOverride != SNA) {
+    if (!switched && socket[i]->feedOverride != SNA && feedSchedule.active()) {
       Serial.println("SCHED FEED");
       if (feedSchedule.active(getTime())) {
         socket[i]->turn(socket[i]->feedOverride);
@@ -256,16 +311,13 @@ uint8_t i = 2;
       switched = true;
     }
     if (!switched) {
-      Serial.print("ELSE: ");
-      Serial.println(socket[i]->group == NULL?"No grpup":"Override");
+      Serial.println("ELSE");
       socket[i]->turn(SON);
     }
   }
   return 500;
 }
-void setWave(WaveType t) {
-  
-}
+
 void turnOffAllSockets() {
  for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
   socket[i]->turn(SOFF);
