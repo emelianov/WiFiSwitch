@@ -37,6 +37,14 @@ time_t strToTime(String tm) {
     return 0;
   }
 }
+//Format 00:00
+time_t strToTime24(String tm) {
+  if (tm.length() >= 5) {
+    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L);
+  } else {
+    return 0;
+  }
+}
 String timeToStr(time_t t) {
     String ampm = "AM";
     char  strTime[10];
@@ -47,6 +55,12 @@ String timeToStr(time_t t) {
         minutesFromMidnight -= 720;
     }
     sprintf_P(strTime, PSTR("%02d:%02d%s"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60), ampm.c_str());
+    return String(strTime);
+}
+String timeToStr24(time_t t) {
+    char  strTime[10];
+    uint16_t minutesFromMidnight = t % 86400UL / 60;
+    sprintf_P(strTime, PSTR("%02d:%02d"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60));
     return String(strTime);
 }
 // callback function that is called by Web server in case if /ajax_input?...
@@ -243,37 +257,18 @@ void ajaxInputs() {
     String cArg = "SOCG8";
     if (server.hasArg(cArg)) {
       String v = server.arg(cArg);
-      if (v == "110") {
-        setWave(SINGLE);
-        setWave(PULSE);  
-      } else if (v == "121") {
-        setWave(DOUBLE);
-        setWave(PULSE);
-      } else if (v == "122") {
-        setWave(DOUBLE);
-        setWave(ALTERNATIVE);        
-      } else if (v == "123") {
-        setWave(DOUBLE);
-        setWave(SERIES);      
-      } else if (v == "124") {
-        setWave(DOUBLE);
-        setWave(RANDOM);      
-      } else if (v == "141") {
-        setWave(QUAD);
-        setWave(PULSE);        
-      } else if (v == "142") {
-        setWave(QUAD);
-        setWave(ALTERNATIVE);        
-      } else if (v == "143") {
-        setWave(QUAD);
-        setWave(SERIES);              
-      } else if (v == "144") {
-        setWave(QUAD);
-        setWave(RANDOM);                    
-      } else {
-        setWave(NONE);
-      }
+      if (pump != v)
+        setPump(v),
+        wave.on(wave.period);
     }   
+  }
+  {
+    String cArg = "W";
+    if (server.hasArg(cArg)) {
+      time_t t = strToTime24(server.arg(cArg));
+      if (wave.period != t)
+        wave.on(t/600);
+    }
   }
   String res = "";
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
@@ -305,24 +300,24 @@ void ajaxInputs() {
     res += data;
   }
   sprintf_P(data, PSTR("<Switch>%s</Switch>"),
-              (feed->mode==SON)?"1":(feed->mode==SOFF)?"0":"2"
+              (feed->mode==SON)?"on":(feed->mode==SOFF)?"off":"default"
               );
   res += data;
   for (i = 0; i < GROUP_COUNT; i++) {
     sprintf_P(data, PSTR("<Switch>%s</Switch>"),
-              (group[i]->mode==SON)?"1":(group[i]->mode==SOFF)?"0":"2"
+              (group[i]->mode==SON)?"on":(group[i]->mode==SOFF)?"off":"default"
               );
     res += data;
   }
   for (i = 0; i < SOCKET_COUNT; i++) {
     sprintf_P(data, PSTR("<Switch>%s</Switch>"),
-              (socket[i]->mode==SON)?"1":(socket[i]->mode==SOFF)?"0":"2"
+              (socket[i]->mode==SON)?"on":(socket[i]->mode==SOFF)?"off":"default"
               );
     res += data;
   }
-  for (i = 0; i < GROUP_COUNT; i++) {
+  for (i = 0; i < SOCKET_COUNT; i++) {
     sprintf_P(data, PSTR("<Switch>%s</Switch>"),
-              (socket[i]->feedOverride==SON)?"1":(socket[i]->feedOverride==SOFF)?"0":"2"
+              (socket[i]->feedOverride==SON)?"on":(socket[i]->feedOverride==SOFF)?"off":"default"
               );
     res += data;
   }
@@ -335,13 +330,12 @@ void ajaxInputs() {
               timeToStr(feedSchedule.schedule2.off).c_str()
               );
   res += data;
-
-  for (i = 0; i < GROUP_COUNT; i++) {
-    
-  }
+  sprintf_P(data, PSTR("<Wave>%s</Wave><Pump>%s</Pump>"),
+              timeToStr24(wave.period*600).c_str(), pump.c_str());
+  res += data;
   res += "</state>";
   server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
-                                                                    // 200 - means Success html result code
+                                                          // 200 - means Success html result code
 }
 // callback function that is called by Web server if no sutable callback function fot URL found
 void indexFile() {

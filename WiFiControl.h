@@ -12,9 +12,9 @@ OverrideMode operator ! (OverrideMode m) {
   return SNA;
 }
 
-enum LastChanged { SOCKET, GROUP };
-enum WaveSocket { NONE, SINGLE, DOUBLE, QUAD };
-enum WaveType { PULSE, ALTERNATIVE, SERIES, RANDOM };
+enum LastChanged  { SOCKET, GROUP };
+enum WaveSocket   { NONE, SINGLE, DOUBLE, QUAD };
+enum WaveType     { PULSE, ALTERNATIVE, SERIES, RANDOM };
 
 // Override and task to manage override duration
 class Override {
@@ -90,7 +90,7 @@ class Schedule {
 };
 
 //#define DEFAULT_WAVE 30
-#define DEFAULT_WAVE 3
+#define DEFAULT_WAVE 30
 #define WAVE_SOC1 2
 #define WAVE_SOC2 1
 #define WAVE_SOC3 3
@@ -141,6 +141,7 @@ class Socket: public DoubleSchedule, public Override {
   OverrideMode  feedOverride = SNA;
   OverrideMode  schedule = SNA;
   Wave*         wave = NULL;
+  String        waveType = "100";      
   DoubleSchedule times;
   void turn(OverrideMode state) {
     if (state == SON) {
@@ -356,4 +357,40 @@ uint32_t initSockets() {
   feed = new Override(feedTask);
   taskAdd(socketsTask);
   return RUN_DELETE;
+}
+
+String pump = PUMP_NONE;
+void setPump(String v) {
+  pump = v;
+      if (v == PUMP_SINGLE) {
+        setWave(SINGLE);
+        setWave(PULSE);  
+      } else if (v == PUMP_DOUBLE_PULSE) {
+        setWave(DOUBLE);
+        setWave(PULSE);
+      } else if (v == PUMP_DOUBLE_ALT) {
+        setWave(DOUBLE);
+        setWave(ALTERNATIVE);        
+      } else if (v == PUMP_DOUBLE_SER) {
+        setWave(DOUBLE);
+        setWave(SERIES);      
+      } else if (v == PUMP_DOUBLE_RND) {
+        setWave(DOUBLE);
+        setWave(RANDOM);      
+      } else if (v == PUMP_QUAD_PULSE) {
+        setWave(QUAD);
+        setWave(PULSE);        
+      } else if (v == PUMP_QUAD_ALT) {
+        setWave(QUAD);
+        setWave(ALTERNATIVE);        
+      } else if (v == PUMP_QUAD_SER) {
+        setWave(QUAD);
+        setWave(SERIES);              
+      } else if (v == PUMP_QUAD_RND) {
+        setWave(QUAD);
+        setWave(RANDOM);                    
+      } else {
+        setWave(NONE);
+        pump = PUMP_NONE;
+      }
 }
