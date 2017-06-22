@@ -288,19 +288,22 @@ void ajaxInputs() {
         continue; 
       }
     }
-    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<Group>%d</Group>"),
+    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<Group>%d</Group>\n<Override>%lu</Override>"),
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
               timeToStr(socket[i]->schedule1.on).c_str(),
               timeToStr(socket[i]->schedule1.off).c_str(),
               timeToStr(socket[i]->schedule2.on).c_str(),
               timeToStr(socket[i]->schedule2.off).c_str(),
-              gr
+              gr,
+              taskRemainder(socketTasks[i])
               );
     res += data;
   }
-  sprintf_P(data, PSTR("<Switch>%s</Switch>"),
-              (feed->mode==SON)?"on":(feed->mode==SOFF)?"off":"default"
+  //Global feed mode
+  sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override>"),
+              (feed->mode==SON)?"on":(feed->mode==SOFF)?"off":"default",
+              taskRemainder(feedTask)/1000
               );
   res += data;
   for (i = 0; i < GROUP_COUNT; i++) {
