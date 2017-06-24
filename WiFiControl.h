@@ -107,6 +107,7 @@ class Wave: public Override {
   }
   WaveSocket to;
   WaveType type;
+  Override waveSet[4];
 };
 // Compilation of two Schedule classes
 class DoubleSchedule {
@@ -220,6 +221,7 @@ uint32_t feedTask() {
 
 // Wave
 Wave wave;
+uint8_t waveSoc = 0;
 uint32_t wavePulse() {
   wave.mode  = !wave.mode;
   return wave.period * 1000;
@@ -229,6 +231,17 @@ uint32_t waveAlt() {
   return wave.period * 1000;  
 }
 uint32_t waveSeries() {
+/*  waveSoc++;
+  if (wave.type = DOUBLE) {
+    if (waveSoc >= 4) {
+      waveSoc = 0;
+    }    
+  } else if (wave.type = QUAD) {
+    if (waveSoc >= 4) {
+      waveSoc = 0;
+    }
+  }
+  */
   wave.mode  = !wave.mode;
   return wave.period * 1000;
 
@@ -290,9 +303,9 @@ void setWave(WaveSocket t) {
 // Switching sockets according to overrides, schedules and waves
 // Should be run in main loop
 uint32_t socketsTask() {
-//  for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
-uint8_t i = 2;
-{
+  for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
+//uint8_t i = 2;
+//{
     bool switched = false;
     if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
       if (socket[i]->mode != SNA) {
@@ -333,8 +346,9 @@ uint8_t i = 2;
       switched = true;
     }
     if (!switched) {
-      Serial.println("ELSE");
-      socket[i]->turn(SON);
+      Serial.print("ELSE: ");
+      Serial.print(socket[i]->mode);
+      socket[i]->turn(socket[i]->mode);
     }
   }
   return 500;

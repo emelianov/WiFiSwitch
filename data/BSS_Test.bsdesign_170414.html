@@ -635,7 +635,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="00" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -838,7 +838,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="00" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -1024,7 +1024,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="00" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -1210,7 +1210,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="00" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -1396,7 +1396,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="12" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -1582,7 +1582,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="12" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -1768,7 +1768,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="12" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -1954,7 +1954,7 @@
 								<div class="device_group"><span><strong>Device Group</strong></span>
 									<div>
 										<select class="selectpicker" data-style="btn-primary" data-width="110px">
-											<option value="12" selected="">No Group</option>
+											<option value="0" selected="">No Group</option>
 											<option value="11" data-content="<span class='label label-info'>Group 1</span>">Group 1</option>
 											<option value="12" data-content="<span class='label label-info'>Group 2</span>">Group 2</option>
 											<option value="13" data-content="<span class='label label-info'>Group 3</span>">Group 3</option>
@@ -2412,9 +2412,10 @@
 					currentDate = new Date();
 					
 					 console.log(data_time);
+			/*		 
 					if(my_btn_id == "#modal1"){
 						end = new Date(currentDate.getTime() + (data_time * 60 * 1000));
-						//timer = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end); }, 1000);
+						timer = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end); }, 1000);
 					}else if(my_btn_id == "#modal2"){
 						end1 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
 						timer1 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end1); }, 1000);
@@ -2455,12 +2456,12 @@
 						end14 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
 						timer14 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end14); }, 1000);
 					}
-					
+				*/	
 				}else if($(model_id+" .modal-body .candlestick-bg").hasClass("candlestick-bg grab off")){
 					
 					$(my_btn_id).removeClass("btn-info").removeClass("btn-success").addClass("btn-danger");
 					currentDate = new Date();
-					
+				/*	
 					if(my_btn_id == "#modal1"){
 						end = new Date(currentDate.getTime() + (data_time * 60 * 1000));
 						timer = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end); }, 1000);
@@ -2504,6 +2505,7 @@
 						end14 = new Date(currentDate.getTime() + (data_time * 60 * 1000));
 						timer14 = setInterval(function() { showRemaining(my_btn_id,datatext,datavar,end14); }, 1000);
 					}
+					*/
 				}else {
 					$(my_btn_id).removeClass("btn-danger").removeClass("btn-success").addClass("btn-info");
 				}

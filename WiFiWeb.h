@@ -65,7 +65,7 @@ String timeToStr24(time_t t) {
 }
 // callback function that is called by Web server in case if /ajax_input?...
 void ajaxInputs() {
-  char data[400];   // sprintf buffer
+  char data[1024];   // sprintf buffer
   uint8_t i;
   char  strTime[4][8];    // Schedule time strings buffer
   uint16_t  minutesFromMidnight;
@@ -273,6 +273,21 @@ void ajaxInputs() {
   String res = "";
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
   res += data;
+  //Global feed mode
+  sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
+              (feed->mode==SON)?"on":(feed->mode==SOFF)?"off":"default",
+              taskRemainder(feedTask)/1000,
+              (feed->modeWaiting==SON)?"on":(feed->modeWaiting==SOFF)?"off":"default"
+              );
+  res += data;
+  for (i = 0; i < GROUP_COUNT; i++) {
+    sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
+              (group[i]->mode==SON)?"on":(group[i]->mode==SOFF)?"off":"default",
+              taskRemainder(groupOverride[i])/1000,
+              (group[i]->modeWaiting==SON)?"on":(group[i]->modeWaiting==SOFF)?"off":"default"
+              );
+    res += data;
+  }
   // Socket switch state
   for (i = 0; i < SOCKET_COUNT; i++) {
     sprintf_P(data, PSTR("<Socket>%s</Socket>\n"), socket[i]->isOn()?"checked":"unckecked");
@@ -296,25 +311,14 @@ void ajaxInputs() {
               timeToStr(socket[i]->schedule2.on).c_str(),
               timeToStr(socket[i]->schedule2.off).c_str(),
               gr,
-              taskRemainder(socketTasks[i])
-              );
-    res += data;
-  }
-  //Global feed mode
-  sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override>"),
-              (feed->mode==SON)?"on":(feed->mode==SOFF)?"off":"default",
-              taskRemainder(feedTask)/1000
-              );
-  res += data;
-  for (i = 0; i < GROUP_COUNT; i++) {
-    sprintf_P(data, PSTR("<Switch>%s</Switch>"),
-              (group[i]->mode==SON)?"on":(group[i]->mode==SOFF)?"off":"default"
+              taskRemainder(socketTasks[i]) / 1000
               );
     res += data;
   }
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Switch>%s</Switch>"),
-              (socket[i]->mode==SON)?"on":(socket[i]->mode==SOFF)?"off":"default"
+    sprintf_P(data, PSTR("<Switch>%s</Switch><Waiting>%s</Waiting>"),
+              (socket[i]->mode==SON)?"on":(socket[i]->mode==SOFF)?"off":"default",
+              (socket[i]->modeWaiting==SON)?"on":(socket[i]->modeWaiting==SOFF)?"off":"default"
               );
     res += data;
   }

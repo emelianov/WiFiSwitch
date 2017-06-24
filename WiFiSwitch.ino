@@ -5,7 +5,6 @@
 #include <WiFiManager.h>
 #define RUN_TASKS 32
 #include <Run.h>
-#include <FS.h>
 
 #define RESET_PIN D8
 
@@ -16,6 +15,7 @@ struct events {
  uint16_t turnOffAllSockets= 0;
  uint16_t keyPressed      = 0;
  uint16_t keyReleased     = 0;
+ uint16_t saveParams      = 0;
 };
 struct statuses {
  bool wifiConnected	= false;
@@ -39,7 +39,12 @@ statuses status;
 uint32_t wifiStart() {
   WiFi.mode(WIFI_STA);
   if (!dhcp) {
-   //WiFi.config();
+   IPAddress _ip, _gw, _mask, _dns;
+   _ip.fromString(ip);
+   _gw.fromString(gw);
+   _mask.fromString(mask);
+   _dns.fromString(dns);
+   WiFi.config(_ip, _gw, _mask, _dns);
   }
   WiFi.begin();
   Serial.print("Connecting to ");
@@ -66,31 +71,16 @@ uint32_t wifiWait() {
   }
   return RUN_DELETE;
 }
-void cbSaveParams(WiFiManager *wfm) {
-  if (!dhcp) {
-   IPAddress _ip, _gw, _mask;
-   _ip.fromString(ip);
-   _gw.fromString(gw);
-   _mask.fromString(mask);
-   wfm->setSTAStaticIPConfig(_ip, _gw, _mask);
-  }
+void cbSaveParams() {
+  event.saveParams++;
 }
 void cbConnected(WiFiManager *wfm) {
 }
+
 uint32_t wifiManager() {
-  WiFiManagerParameter pNet("IP/Mask/Gw/DNS");
-  WiFiManagerParameter pIp("ip", "IP", ip.c_str(), 16);
-  WiFiManagerParameter pMask("mask", "Network mask", mask.c_str(), 16);
-  WiFiManagerParameter pGw("gw", "Default gateway", gw.c_str(), 16);
-  WiFiManagerParameter pDns("dns", "DNS", dns.c_str(), 16);
-  WiFiManagerParameter pNtp("NTP Servers");
-  WiFiManagerParameter pNtp1("ntp1", "NTP server", ntp1.c_str(), 40);
-  WiFiManagerParameter pNtp2("ntp2", "NTP server", ntp2.c_str(), 40);
-  WiFiManagerParameter pNtp3("ntp3", "NTP server", ntp3.c_str(), 40);
-  WiFiManagerParameter pTz("tz", "Time Zone", tz.c_str(), 4);
-  
   WiFiManager wifiManager;
-  //wifiManager.resetSettings();
+  wifiManager.setSaveConfigCallback(cbSaveParams);
+  wifiManager.resetSettings();
   wifiManager.setTimeout(180);
   wifiManager.addParameter(&pNet);
   wifiManager.addParameter(&pIp);
@@ -175,6 +165,7 @@ void setup() {
   digitalWrite(D0, HIGH); //For debug
   Serial.begin(74880);    //For debug
   SPIFFS.begin();
+  readConfig();
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
@@ -185,6 +176,7 @@ void setup() {
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event
   taskAddWithSemaphore(keyReleased, &event.keyReleased);// Run keyReleased() on keyRelease event
+  taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
 }
 void loop(void) {
   taskExec();
