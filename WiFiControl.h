@@ -132,7 +132,6 @@ class Socket: public DoubleSchedule, public Override {
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
     wave = w;
-//    times = new DoubleSchedule();
   }
   String        name = "";
   LastChanged   overrideBy = SOCKET;

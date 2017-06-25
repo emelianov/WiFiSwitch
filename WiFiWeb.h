@@ -30,10 +30,11 @@ String getContentType(String filename) {
 
 // callback function that is called by Web server in case if /ajax_input?...
 void ajaxInputs() {
-  char data[1024];   // sprintf buffer
+  char data[400];   // sprintf buffer
   uint8_t i;
   char  strTime[4][8];    // Schedule time strings buffer
   uint16_t  minutesFromMidnight;
+  bool save = false;
   server.sendHeader("Connection", "close");                         // Headers to free connection ASAP and 
   server.sendHeader("Cache-Control", "no-store, must-revalidate");  // Don't cache response
   // Check if got Socket on/off switching or Schedule changes
@@ -53,12 +54,12 @@ void ajaxInputs() {
     String tm13 =   "TIM"+String(i*4+2);  // e.g. ?TIM10=12:00PM
     String tm14 =   "TIM"+String(i*4+3);  // e.g. ?TIM11=21:45PM
     if (server.hasArg(sched1)) {          // First Schedule switch updateed
-      Serial.println(server.arg(sched1));
       if (server.arg(sched1) == "1") {    // Switch is turned On 
         socket[i]->schedule1.act=true;
       } else {                            // Switch is turned Off
         socket[i]->schedule1.act=false;
       }
+      save = true;
     }
     if (server.hasArg(sched2)) {        // Second Schedule Switch updated
       if (server.arg(sched2) == "1") {
@@ -66,18 +67,23 @@ void ajaxInputs() {
       } else {
         socket[i]->schedule2.act=false;
       }
+      save = true;
     }
     if (server.hasArg(tm11)) {          // First Schedule Start time is updated
       socket[i]->schedule1.on = strToTime(server.arg(tm11));
+      save = true;
     }
     if (server.hasArg(tm12)) {          // First Schedule Stop time is updated
       socket[i]->schedule1.off = strToTime(server.arg(tm12));
+      save = true;
     }
     if (server.hasArg(tm13)) {          // Second Schedule Start time is updated
       socket[i]->schedule2.on = strToTime(server.arg(tm13));
+      save = true;
     }
     if (server.hasArg(tm14)) {          // Second Schedule Stop time is updated
       socket[i]->schedule2.off = strToTime(server.arg(tm14));
+      save = true;
     }   
   }
   // Check if Feed Schedule changes
@@ -95,6 +101,7 @@ void ajaxInputs() {
       } else {                          // Off
         feedSchedule.schedule1.act=false;
       }
+      save = true;
     }
     if (server.hasArg(sched2)) {    // Second Schedule Switch is updated
       if (server.arg(sched2) == "1") {  // On
@@ -102,18 +109,23 @@ void ajaxInputs() {
       } else {                          // Off
         feedSchedule.schedule2.act=false;
       }
+      save = true;
     }
     if (server.hasArg(tm11)) {      // Set First Schedule Start time
       feedSchedule.schedule1.on = strToTime(server.arg(tm11));
+      save = true;
     }
     if (server.hasArg(tm12)) {      // Set First Schedule Stop time
       feedSchedule.schedule1.off = strToTime(server.arg(tm12));
+      save = true;
     }
     if (server.hasArg(tm13)) {      // Set Second Schedule Start time
       feedSchedule.schedule2.on = strToTime(server.arg(tm13));
+      save = true;
     }
     if (server.hasArg(tm14)) {    // Set Second Schedule Stop time
       feedSchedule.schedule2.off = strToTime(server.arg(tm14));
+      save = true;
     }   
   }
   // Check if Socket Schedule Feed Override mode is changed
@@ -151,6 +163,7 @@ void ajaxInputs() {
       } else {  // otherway set No Group
         socket[i]->setGroup();
       }
+      save = true;
     }   
   }
   // Check if Socket override mode or time is changed
@@ -225,7 +238,8 @@ void ajaxInputs() {
       if (pump != v)
         setPump(v),
         wave.on(wave.period);
-    }   
+    }
+    save = true;
   }
   {
     String cArg = "W";
@@ -233,6 +247,7 @@ void ajaxInputs() {
       time_t t = strToTime24(server.arg(cArg));
       if (wave.period != t)
         wave.on(t/600);
+      save = true;
     }
   }
   String res = "";
@@ -307,9 +322,9 @@ void ajaxInputs() {
   res += "</state>";
   server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
                                                           // 200 - means Success html result code
-  if (server.args() > 0) {
-    taskDel(saveState);
-    taskAddWithDelay(saveState, SAVE_DELAY);
+  if (save) {           // If save flag set true queue save state
+    taskDel(saveState); // Remove previous save request if any
+    taskAddWithDelay(saveState, SAVE_DELAY);  // save in SAVE_DELAY mS
   }
 }
 // callback function that is called by Web server if no sutable callback function fot URL found

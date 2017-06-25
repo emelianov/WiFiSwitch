@@ -155,14 +155,14 @@ uint32_t saveState() {
     char buf[400];
     sprintf_P(buf, PSTR("<?xml version = \"1.0\" ?>\n<state>\n"));
     configFile.write((uint8_t*)buf, strlen(buf));
-      sprintf_P(buf, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
+    sprintf_P(buf, PSTR("<FSwitch>%s</FSwitch><FOverride>%lu</FOverride><FWaiting>%s</FWaiting>"),
               (feed->mode==SON)?"on":(feed->mode==SOFF)?"off":"default",
               taskRemainder(feedTask)/1000,
               (feed->modeWaiting==SON)?"on":(feed->modeWaiting==SOFF)?"off":"default"
               );
     configFile.write((uint8_t*)buf, strlen(buf));
     for (i = 0; i < GROUP_COUNT; i++) {
-      sprintf_P(buf, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
+      sprintf_P(buf, PSTR("<GSwitch>%s</GSwitch><GOverride>%lu</GOverride><GWaiting>%s</GWaiting>"),
               (group[i]->mode==SON)?"on":(group[i]->mode==SOFF)?"off":"default",
               taskRemainder(groupOverride[i])/1000,
               (group[i]->modeWaiting==SON)?"on":(group[i]->modeWaiting==SOFF)?"off":"default"
@@ -180,8 +180,9 @@ uint32_t saveState() {
       }
     }
     sprintf_P(buf, PSTR("<Socket>%s</Socket>\n\
-<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n\
-<Group>%d</Group>\n<Override>%lu</Override><Switch>%s</Switch><Waiting>%s</Waiting><FSwitch>%s</FSwitch>"),
+<TimerCheckbox1>%s</TimerCheckbox1>\n<TimerCheckbox2>%s</TimerCheckbox2>\n<TimerValue1on>%s</TimerValue1on>\n<TimerValue1off>%s</TimerValue1off>\n\
+<TimerValue2on>%s</TimerValue2on>\n<TimerValue2off>%s</TimerValue2off>\n\
+<Group>%d</Group>\n<Override>%lu</Override><Switch>%s</Switch><Waiting>%s</Waiting><SwitchF>%s</SwitchF>"),
               socket[i]->isOn()?"checked":"unckecked",
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
@@ -197,11 +198,79 @@ uint32_t saveState() {
               );
           configFile.write((uint8_t*)buf, strlen(buf));
     }
-    sprintf_P(buf, PSTR("</config>\n"));
+    sprintf_P(buf, PSTR("</state>\n"));
     configFile.write((uint8_t*)buf, strlen(buf));
 
     configFile.close();
    }
    return RUN_DELETE;    
+}
+uint32_t readState() {
+  xml.reset();
+  xmlTag = "";
+  xmlOpen = "";
+  File configFile = SPIFFS.open(F(STATE), "r");
+  if (configFile) {
+   char c;
+   uint8_t t1s = 0;
+   uint8_t t2s = 0;
+   uint8_t t1on = 0;
+   uint8_t t1off = 0;
+   uint8_t t2on = 0;
+   uint8_t t2off = 0;
+   uint8_t g = 0;
+   uint8_t f = 0;
+   while (configFile.read((uint8_t*)&c, 1) == 1) {
+    xml.processChar(c);
+    if (xmlTag != "") {
+       if 
+      (xmlTag.endsWith(F("/TimerCheckbox1"))) {
+        socket[t1s]->schedule1.act = (xmlData == "checked");
+        if (t1s < SOCKET_COUNT - 1) t1s++;
+       } else if 
+      (xmlTag.endsWith(F("/TimerCheckbox2"))) {
+        socket[t2s]->schedule2.act = (xmlData == "checked");
+        if (t2s < SOCKET_COUNT - 1) t2s++;
+       } else if 
+      (xmlTag.endsWith(F("/TimerValue1on"))) {
+        socket[t1on]->schedule1.on = strToTime(xmlData);
+        if (t1on < SOCKET_COUNT - 1) t1on++;
+       } else if 
+      (xmlTag.endsWith(F("/TimerValue1off"))) {
+        socket[t1off]->schedule1.off = strToTime(xmlData);
+        if (t1off < SOCKET_COUNT - 1) t1off++;
+       } else if 
+      (xmlTag.endsWith(F("/TimerValue2on"))) {
+        socket[t2on]->schedule2.on = strToTime(xmlData);
+        if (t2on < SOCKET_COUNT - 1) t2on++;
+       }  else if 
+      (xmlTag.endsWith(F("/Timervalue2off"))) {
+        socket[t2off]->schedule2.off = strToTime(xmlData);
+        if (t2off < SOCKET_COUNT - 1) t2off++;
+       } else if 
+      (xmlTag.endsWith(F("/Group"))) {
+        uint8_t _g = xmlData.toInt() - GROUP_HTML_BASE;
+        Serial.println(_g);
+        if (_g >= 0 && _g < GROUP_COUNT) socket[g]->setGroup(group[_g]);
+        if (g < SOCKET_COUNT - 1) g++;
+       } else if 
+      (xmlTag.endsWith(F("/SwitchF"))) {
+        if (xmlData == "on") socket[f]->feedOverride = SON;
+        if (xmlData == "off") socket[f]->feedOverride = SOFF;
+        if (f < SOCKET_COUNT - 1) f++;
+       } else if 
+      (xmlTag.endsWith(F("/ntp3"))) {
+        ;
+       } else if 
+      (xmlTag.endsWith(F("/timezone"))) {
+        ;
+       }
+      xmlTag = "";
+      xmlData = "";
+    }
+   }
+   configFile.close();
+  }
+  return RUN_DELETE;
 }
 

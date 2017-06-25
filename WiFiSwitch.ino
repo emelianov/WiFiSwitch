@@ -94,6 +94,7 @@ uint32_t wifiWait() {
   } else {
     Serial.println(WiFi.localIP());
     event.wifiConnected++;
+    Serial.println(WiFi.localIP().toString());
   }
   return RUN_DELETE;
 }
@@ -118,7 +119,8 @@ uint32_t wifiManager() {
   wifiManager.addParameter(&pNtp2);
   wifiManager.addParameter(&pNtp3);
   wifiManager.addParameter(&pTz);
-  wifiManager.setConnectTimeout(WIFI_CHECK_DELAY * WIFI_CHECK_COUNT);
+  //wifiManager.setConnectTimeout(WIFI_CHECK_DELAY * WIFI_CHECK_COUNT);
+  /*
   if (!dhcp) {
    IPAddress _ip, _gw, _mask;
    _ip.fromString(ip);
@@ -126,13 +128,16 @@ uint32_t wifiManager() {
    _mask.fromString(mask);
    wifiManager.setSTAStaticIPConfig(_ip, _gw, _mask);
   }
-  while(wifiManager.startConfigPortal(WIFI_SETUP_AP)) {
-    Serial.print("Connected to ");
-    Serial.println(WiFi.SSID());
-    event.wifiConnected++;
-  } 
+  */
+  //while(
+    wifiManager.startConfigPortal(WIFI_SETUP_AP);//) {
+  //  Serial.print("Connected to ");
+  //  Serial.println(WiFi.SSID());
+    //event.wifiConnected++;
+  //} 
   //if you get here you have connected to the WiFi
   Serial.println("connected...yeey :)");
+  if (event.saveParams) saveConfig();
   RUN_DELETE;
 }
 
@@ -191,7 +196,9 @@ void setup() {
   digitalWrite(D0, HIGH); //For debug
   Serial.begin(74880);    //For debug
   SPIFFS.begin();
+  xml.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
+  //readState();
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
@@ -202,7 +209,8 @@ void setup() {
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event
   taskAddWithSemaphore(keyReleased, &event.keyReleased);// Run keyReleased() on keyRelease event
-  taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
+  //taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
+  taskAdd(readState);
 }
 void loop(void) {
   taskExec();

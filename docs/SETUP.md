@@ -2,11 +2,9 @@
 
 ## Setup page
 
-### Network settings (readonly filled with current IP if DHCP is on)
+### Network settings
 
-* Get from DHCP on/off
-
-* IP Address 
+* IP Address (use DHCP if blank) 
 
 * IP Mask
 
@@ -14,7 +12,7 @@
 
 * DNS server
 
-### Network settings (read/write)
+### Network settings
 
 * NTP server 1
 
@@ -23,5 +21,3 @@
 * NTP server 3
 
 * TimeZone
-
-Save/Cancel/Reset to defaults buttons
