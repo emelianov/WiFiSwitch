@@ -48,7 +48,8 @@ time_t strToTime(String tm) {
 //Format 00:00
 time_t strToTime24(String tm) {
   if (tm.length() >= 5) {
-    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L);
+    //return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L);
+    return (tm.substring(0,2).toInt()*60L + tm.substring(3,5).toInt());
   } else {
     return 0;
   }
@@ -67,7 +68,7 @@ String timeToStr(time_t t) {
 }
 String timeToStr24(time_t t) {
     char  strTime[10];
-    uint16_t minutesFromMidnight = t % 86400UL / 60;
+    uint16_t minutesFromMidnight = t % 86400UL;
     sprintf_P(strTime, PSTR("%02d:%02d"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60));
     return String(strTime);
 }
@@ -198,7 +199,8 @@ uint32_t saveState() {
               );
           configFile.write((uint8_t*)buf, strlen(buf));
     }
-    sprintf_P(buf, PSTR("</state>\n"));
+    sprintf_P(buf, PSTR("<wave>%s</wave><pump>%s</pump></state>\n"),
+              timeToStr24(wave.period).c_str(), pump.c_str());
     configFile.write((uint8_t*)buf, strlen(buf));
 
     configFile.close();
@@ -259,11 +261,14 @@ uint32_t readState() {
         if (xmlData == "off") socket[f]->feedOverride = SOFF;
         if (f < SOCKET_COUNT - 1) f++;
        } else if 
-      (xmlTag.endsWith(F("/ntp3"))) {
-        ;
+      (xmlTag.endsWith(F("/wave"))) {
+        wave.on(strToTime24(xmlData));
        } else if 
-      (xmlTag.endsWith(F("/timezone"))) {
-        ;
+      (xmlTag.endsWith(F("/pump"))) {
+        if (pump != xmlData) {
+          setPump(xmlData);
+          wave.on(wave.period);
+        }
        }
       xmlTag = "";
       xmlData = "";

@@ -246,12 +246,13 @@ void ajaxInputs() {
     if (server.hasArg(cArg)) {
       time_t t = strToTime24(server.arg(cArg));
       if (wave.period != t)
-        wave.on(t/600);
+        wave.on(t);
       save = true;
     }
   }
   String res = "";
-  sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d</analog>\n"), analogRead(A0));
+  String an = String(current());
+  sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog>\n"), an.c_str());
   res += data;
   //Global feed mode
   sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
@@ -317,7 +318,7 @@ void ajaxInputs() {
               );
   res += data;
   sprintf_P(data, PSTR("<Wave>%s</Wave><Pump>%s</Pump>"),
-              timeToStr24(wave.period*600).c_str(), pump.c_str());
+              timeToStr24(wave.period).c_str(), pump.c_str());
   res += data;
   res += "</state>";
   server.send(200, "text/xml", res);                      // Send string as XML document to cliend.

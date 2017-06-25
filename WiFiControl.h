@@ -40,9 +40,11 @@ class Override {
   void start(OverrideMode m, time_t t) {
     mode = m;
     period = t;
-    taskDel(overrideTask);
-    if (t > 0 && mode != SNA) {
-      taskAddWithDelay(overrideTask, t * 1000);
+    if (overrideTask != NULL) {
+      taskDel(overrideTask);
+      if (t > 0 && mode != SNA) {
+        taskAddWithDelay(overrideTask, t * 1000);
+      }
     }
   }
   void stop() {
@@ -50,6 +52,7 @@ class Override {
     taskDel(overrideTask);
   }
   void on(time_t t=0) {
+    Serial.println(t);
     start(SON, t);
   }
   void off(time_t t=0) {
@@ -60,7 +63,7 @@ class Override {
   }
   OverrideMode mode = SNA;        // Current socket/switch mode
   OverrideMode modeWaiting = SNA; // Temp mode storage
-  time_t period = 0;              // Override dutation
+  time_t period = 0;              // Override dutation (Sec)
   task overrideTask;              // Callback function
 };
 
@@ -91,10 +94,10 @@ class Schedule {
 
 //#define DEFAULT_WAVE 30
 #define DEFAULT_WAVE 30
-#define WAVE_SOC1 2
+#define WAVE_SOC1 0
 #define WAVE_SOC2 1
-#define WAVE_SOC3 3
-#define WAVE_SOC4 4
+#define WAVE_SOC3 2
+#define WAVE_SOC4 3
 
 uint32_t wavePulse(); // Forward declaration
 
@@ -102,9 +105,9 @@ uint32_t wavePulse(); // Forward declaration
 // Only one instance allowable to be used
 class Wave: public Override {
   public:
-  Wave() : Override(wavePulse) {
-    start(SON, DEFAULT_WAVE);
-  }
+//  Wave() : Override(wavePulse) {
+//    start(SON, DEFAULT_WAVE);
+//  }
   WaveSocket to;
   WaveType type;
   Override waveSet[4];
@@ -127,7 +130,7 @@ class DoubleSchedule {
 // Socket implementation
 class Socket: public DoubleSchedule, public Override {
   public:
-  Socket(uint8_t hwpin, task t = NULL, Wave* w = NULL): Override(t) {
+  Socket(uint8_t hwpin, task t = NULL, Override* w = NULL): Override(t) {
     pin = hwpin;
     pinMode(pin, OUTPUT);
     digitalWrite(pin, LOW);
@@ -140,22 +143,22 @@ class Socket: public DoubleSchedule, public Override {
   //OverrideMode  groupOverride;
   OverrideMode  feedOverride = SNA;
   OverrideMode  schedule = SNA;
-  Wave*         wave = NULL;
+  Override*         wave = NULL;
   String        waveType = "100";      
   DoubleSchedule times;
   void turn(OverrideMode state) {
     if (state == SON) {
       if (wave != NULL) {
         if (wave->isOn()) {
-          Serial.println("ON");
+          Serial.println("ON (Wave)");
           digitalWrite(pin, HIGH);
         }
         if (wave->isOff()) {
-          Serial.println("OFF");
+          Serial.println("OFF (Wave)");
           digitalWrite(pin, LOW);
         }
       } else {
-        Serial.println("WAVE OFF");
+        Serial.println("ON");
         digitalWrite(pin, HIGH);
       }
     } else {
@@ -223,31 +226,35 @@ Wave wave;
 uint8_t waveSoc = 0;
 uint32_t wavePulse() {
   wave.mode  = !wave.mode;
+  wave.waveSet[0].mode = wave.mode;
+  wave.waveSet[1].mode = wave.mode;
+  wave.waveSet[2].mode = wave.mode;
+  wave.waveSet[3].mode = wave.mode;
   return wave.period * 1000;
 }
 uint32_t waveAlt() {
-  wave.mode  = !wave.mode;
-  return wave.period * 1000;  
 }
 uint32_t waveSeries() {
-/*  waveSoc++;
-  if (wave.type = DOUBLE) {
-    if (waveSoc >= 4) {
+  waveSoc++;
+  if (wave.to == DOUBLE) {
+    if (waveSoc >= 2) {
       waveSoc = 0;
     }    
-  } else if (wave.type = QUAD) {
+  } else {
     if (waveSoc >= 4) {
       waveSoc = 0;
     }
   }
-  */
   wave.mode  = !wave.mode;
+  wave.waveSet[0].mode = SOFF;
+  wave.waveSet[1].mode = SOFF;
+  wave.waveSet[2].mode = SOFF;
+  wave.waveSet[3].mode = SOFF;
+  wave.waveSet[waveSoc].mode = SON;  
   return wave.period * 1000;
 
 }
 uint32_t waveRandom() {
-  wave.mode  = !wave.mode;
-  return wave.period * 1000;
 }
 
 void setWave(WaveType t) {
@@ -279,24 +286,25 @@ void setWave(WaveSocket t) {
         socket[WAVE_SOC4]->wave = NULL;
       break;
       case SINGLE:
-        socket[WAVE_SOC1]->wave = &wave;
+        socket[WAVE_SOC1]->wave = &(wave.waveSet[0]);
         socket[WAVE_SOC2]->wave = NULL;
         socket[WAVE_SOC3]->wave = NULL;
         socket[WAVE_SOC4]->wave = NULL;
       break;
       case DOUBLE:
-        socket[WAVE_SOC1]->wave = &wave;
-        socket[WAVE_SOC2]->wave = &wave;
+        socket[WAVE_SOC1]->wave = &(wave.waveSet[0]);
+        socket[WAVE_SOC2]->wave = &(wave.waveSet[1]);
         socket[WAVE_SOC3]->wave = NULL;
         socket[WAVE_SOC4]->wave = NULL;
       break;
       case QUAD:
-        socket[WAVE_SOC1]->wave = &wave;
-        socket[WAVE_SOC2]->wave = &wave;
-        socket[WAVE_SOC3]->wave = &wave;
-        socket[WAVE_SOC4]->wave = &wave;
+        socket[WAVE_SOC1]->wave = &(wave.waveSet[0]);
+        socket[WAVE_SOC2]->wave = &(wave.waveSet[1]);
+        socket[WAVE_SOC3]->wave = &(wave.waveSet[2]);
+        socket[WAVE_SOC4]->wave = &(wave.waveSet[3]);
       break;
     }
+    //wave.start(SON, wave.period);
 }
 
 // Switching sockets according to overrides, schedules and waves
@@ -407,3 +415,9 @@ void setPump(String v) {
         pump = PUMP_NONE;
       }
 }
+
+// Rerurn current value from ACS712 & A0
+float current() {
+  return (float)30/512 * (float)(analogRead(A0)-511);
+}
+
