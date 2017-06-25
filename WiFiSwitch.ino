@@ -27,10 +27,36 @@ struct statuses {
 events event;
 statuses status;
 
-#include "WiFiConfig.h"
+#define PUMP_NONE         "100"
+#define PUMP_SINGLE       "110"
+#define PUMP_DOUBLE_PULSE "121"
+#define PUMP_DOUBLE_ALT   "122"
+#define PUMP_DOUBLE_SER   "123"
+#define PUMP_DOUBLE_RND   "124"
+#define PUMP_QUAD_PULSE   "141"
+#define PUMP_QUAD_ALT     "142"
+#define PUMP_QUAD_SER     "143"
+#define PUMP_QUAD_RND     "144"
+
+#define GROUP_HTML_BASE 11
+
+bool   dhcp = true;
+String ip   = "192.168.20.99";
+String mask = "255.255.255.0";
+String gw   = "192.168.20.2";
+String dns  = "192.168.20.2";
+String ntp1 = "192.168.30.30";
+String ntp2 = "192.168.30.4";
+String ntp3 = "pool1.ntp.org";
+String tz   = "5";
+String admin = "admin";
+String pass = "password";
+
 #include "WiFiTime.h"
 #include "WiFiControl.h"
+#include "WiFiConfig.h"
 #include "WiFiWeb.h"
+//#include "WiFiConfig.h"
 
 #define WIFI_SETUP_AP "AutoConnectAP"
 #define WIFI_CHECK_DELAY 1000

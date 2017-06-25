@@ -6,6 +6,7 @@
 //#undef UPLOADPASS
 #define BUSY ;
 #define IDLE ;
+#define SAVE_DELAY 5000
 
 ESP8266WebServer server(80);      // create a server at port 80
 
@@ -26,43 +27,7 @@ String getContentType(String filename) {
   else if(filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
-//Format 00:00PM
-time_t strToTime(String tm) {
-  if (tm.length() >= 7) {
-    Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
-    Serial.println(tm.substring(0,2).toInt());
-    Serial.println(tm.substring(3,5).toInt());
-    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) + ((tm.substring(5,7)=="PM")?12*3600L:0);
-  } else {
-    return 0;
-  }
-}
-//Format 00:00
-time_t strToTime24(String tm) {
-  if (tm.length() >= 5) {
-    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L);
-  } else {
-    return 0;
-  }
-}
-String timeToStr(time_t t) {
-    String ampm = "AM";
-    char  strTime[10];
-    uint16_t minutesFromMidnight = t % 86400UL / 60;
-    if (minutesFromMidnight >= 720) {
-      ampm = "PM";
-      if (minutesFromMidnight >= 780)
-        minutesFromMidnight -= 720;
-    }
-    sprintf_P(strTime, PSTR("%02d:%02d%s"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60), ampm.c_str());
-    return String(strTime);
-}
-String timeToStr24(time_t t) {
-    char  strTime[10];
-    uint16_t minutesFromMidnight = t % 86400UL / 60;
-    sprintf_P(strTime, PSTR("%02d:%02d"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60));
-    return String(strTime);
-}
+
 // callback function that is called by Web server in case if /ajax_input?...
 void ajaxInputs() {
   char data[1024];   // sprintf buffer
@@ -294,7 +259,6 @@ void ajaxInputs() {
     res += data;
   }
   // Socket override timers state and group
-  #define GROUP_HTML_BASE 11
   for (i = 0; i < SOCKET_COUNT; i++) {
     uint8_t gr = 0;
     for (uint8_t j = 0; j < GROUP_COUNT; j++) {
@@ -343,6 +307,10 @@ void ajaxInputs() {
   res += "</state>";
   server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
                                                           // 200 - means Success html result code
+  if (server.args() > 0) {
+    taskDel(saveState);
+    taskAddWithDelay(saveState, SAVE_DELAY);
+  }
 }
 // callback function that is called by Web server if no sutable callback function fot URL found
 void indexFile() {
