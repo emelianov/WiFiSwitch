@@ -164,7 +164,17 @@ void ajaxInputs() {
         socket[i]->setGroup();
       }
       save = true;
-    }   
+    }
+  }
+  // Check if got assign Socket Name
+  // Assign First Socket name ?N0=First
+  // Assign Third Socket name ?N2=Third
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    String nArg = "N" + String(i);
+    if (server.hasArg(nArg)) {
+      socket[i]->name = server.arg(nArg);
+      save = true;
+    }
   }
   // Check if Socket override mode or time is changed
   // Second Socket override to off ?C6=0 
@@ -283,7 +293,7 @@ void ajaxInputs() {
         continue; 
       }
     }
-    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<Group>%d</Group>\n<Override>%lu</Override>"),
+    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<Group>%d</Group>\n<Override>%lu</Override><name>%s</name>"),
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
               timeToStr(socket[i]->schedule1.on).c_str(),
@@ -291,7 +301,8 @@ void ajaxInputs() {
               timeToStr(socket[i]->schedule2.on).c_str(),
               timeToStr(socket[i]->schedule2.off).c_str(),
               gr,
-              taskRemainder(socketTasks[i]) / 1000
+              taskRemainder(socketTasks[i]) / 1000,
+              socket[i]->name.c_str()
               );
     res += data;
   }
@@ -383,8 +394,8 @@ void handleFile() {
   server.send(200, "text/plain", "OK");  
 }
 // File upload. Called on data received
+File fsUploadFile;
 void handleFileUpload(){
-  File fsUploadFile;
   Serial.println("UPLOAD");
 #ifdef UPLOADPASS
   if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {

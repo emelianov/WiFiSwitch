@@ -183,7 +183,7 @@ uint32_t saveState() {
     sprintf_P(buf, PSTR("<Socket>%s</Socket>\n\
 <TimerCheckbox1>%s</TimerCheckbox1>\n<TimerCheckbox2>%s</TimerCheckbox2>\n<TimerValue1on>%s</TimerValue1on>\n<TimerValue1off>%s</TimerValue1off>\n\
 <TimerValue2on>%s</TimerValue2on>\n<TimerValue2off>%s</TimerValue2off>\n\
-<Group>%d</Group>\n<Override>%lu</Override><Switch>%s</Switch><Waiting>%s</Waiting><SwitchF>%s</SwitchF>"),
+<Group>%d</Group>\n<Override>%lu</Override><Switch>%s</Switch><Waiting>%s</Waiting><SwitchF>%s</SwitchF><name>%s</name>"),
               socket[i]->isOn()?"checked":"unckecked",
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
@@ -195,10 +195,20 @@ uint32_t saveState() {
               taskRemainder(socketTasks[i]) / 1000,
               (socket[i]->mode==SON)?"on":(socket[i]->mode==SOFF)?"off":"default",
               (socket[i]->modeWaiting==SON)?"on":(socket[i]->modeWaiting==SOFF)?"off":"default",
-              (socket[i]->feedOverride==SON)?"on":(socket[i]->feedOverride==SOFF)?"off":"default"
+              (socket[i]->feedOverride==SON)?"on":(socket[i]->feedOverride==SOFF)?"off":"default",
+              socket[i]->name.c_str()
               );
-          configFile.write((uint8_t*)buf, strlen(buf));
+      configFile.write((uint8_t*)buf, strlen(buf));
     }
+    sprintf_P(buf, PSTR("<FTimerCheckbox1>%s</FTimerCheckbox1>\n<FTimerCheckbox2>%s</FTimerCheckbox2>\n<FTimerValue1on>%s</FTimerValue1on>\n<FTimerValue1off>%s</FTimerValue1off>\n<FTimerValue2on>%s</FTimerValue2on>\n<FTimerValue2off>%s</FTimerValue2off>\n"),
+              feedSchedule.schedule1.active()?"checked":"unckecked",
+              feedSchedule.schedule2.active()?"checked":"unckecked",
+              timeToStr(feedSchedule.schedule1.on).c_str(),
+              timeToStr(feedSchedule.schedule1.off).c_str(),
+              timeToStr(feedSchedule.schedule2.on).c_str(),
+              timeToStr(feedSchedule.schedule2.off).c_str()
+              );
+    configFile.write((uint8_t*)buf, strlen(buf));
     sprintf_P(buf, PSTR("<wave>%s</wave><pump>%s</pump></state>\n"),
               timeToStr24(wave.period).c_str(), pump.c_str());
     configFile.write((uint8_t*)buf, strlen(buf));
@@ -222,6 +232,7 @@ uint32_t readState() {
    uint8_t t2off = 0;
    uint8_t g = 0;
    uint8_t f = 0;
+   uint8_t n = 0;
    while (configFile.read((uint8_t*)&c, 1) == 1) {
     xml.processChar(c);
     if (xmlTag != "") {
@@ -261,6 +272,10 @@ uint32_t readState() {
         if (xmlData == "off") socket[f]->feedOverride = SOFF;
         if (f < SOCKET_COUNT - 1) f++;
        } else if 
+      (xmlTag.endsWith(F("/name"))) {
+        socket[n]->name = xmlData;
+        if (n < SOCKET_COUNT - 1) n++;
+       } else if 
       (xmlTag.endsWith(F("/wave"))) {
         wave.on(strToTime24(xmlData));
        } else if 
@@ -269,6 +284,24 @@ uint32_t readState() {
           setPump(xmlData);
           wave.on(wave.period);
         }
+       } else if 
+      (xmlTag.endsWith(F("/FTimerCheckbox1"))) {
+        feedSchedule.schedule1.act = (xmlData == "checked");
+       } else if 
+      (xmlTag.endsWith(F("/FTimerCheckbox2"))) {
+        feedSchedule.schedule2.act = (xmlData == "checked");
+       } else if 
+      (xmlTag.endsWith(F("/FTimerValue1on"))) {
+        feedSchedule.schedule1.on = strToTime(xmlData);
+       } else if 
+      (xmlTag.endsWith(F("/FTimerValue1off"))) {
+        feedSchedule.schedule1.off = strToTime(xmlData);
+       } else if 
+      (xmlTag.endsWith(F("/FTimerValue2on"))) {
+        feedSchedule.schedule2.on = strToTime(xmlData);
+       }  else if 
+      (xmlTag.endsWith(F("/FTimervalue2off"))) {
+        feedSchedule.schedule2.off = strToTime(xmlData);
        }
       xmlTag = "";
       xmlData = "";
