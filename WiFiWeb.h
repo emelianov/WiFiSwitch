@@ -383,8 +383,8 @@ void handleFile() {
   server.send(200, "text/plain", "OK");  
 }
 // File upload. Called on data received
+File fsUploadFile;
 void handleFileUpload(){
-  File fsUploadFile;
   Serial.println("UPLOAD");
 #ifdef UPLOADPASS
   if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
