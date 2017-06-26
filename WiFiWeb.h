@@ -396,7 +396,7 @@ void handleFile() {
 // File upload. Called on data received
 File fsUploadFile;
 void handleFileUpload(){
-  Serial.println("UPLOAD");
+  //Serial.println("UPLOAD");
 #ifdef UPLOADPASS
   if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
     return server.requestAuthentication();
@@ -503,7 +503,7 @@ uint32_t webHandle() {
   return 100;
 }
 uint32_t initWeb() {
-  Serial.println("Init WebServer");
+  //Serial.println("Init WebServer");
     server.on("/ajax_inputs", HTTP_GET, ajaxInputs);  // call function ajaxInputs() if Web Server gets request http://192.168.1.20/ajax_inputs?LED1=0...
     // You can add multiple server.on(url...) to handle different url by specific routines
     server.on(INDEX, HTTP_GET, indexFile); // call function indexFile() on GET <INDEX>

@@ -1,7 +1,7 @@
 #pragma once
-//#define PINS D0, D1, D4, D5, D6, D7, D9, D10
+#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 // Don't use RX/TX during debug -----D9--D10
-#define PINS D0, D1, D4, D5, D6, D7, D6, D7
+//#define PINS D0, D1, D4, D5, D6, D7, D6, D7
 
 // Define enumeration type for convinient override manipulations
 enum OverrideMode { SON, SOFF, SNA };
@@ -52,7 +52,7 @@ class Override {
     taskDel(overrideTask);
   }
   void on(time_t t=0) {
-    Serial.println(t);
+    //Serial.println(t);
     start(SON, t);
   }
   void off(time_t t=0) {
@@ -150,19 +150,19 @@ class Socket: public DoubleSchedule, public Override {
     if (state == SON) {
       if (wave != NULL) {
         if (wave->isOn()) {
-          Serial.println("ON (Wave)");
+          //Serial.println("ON (Wave)");
           digitalWrite(pin, HIGH);
         }
         if (wave->isOff()) {
-          Serial.println("OFF (Wave)");
+          //Serial.println("OFF (Wave)");
           digitalWrite(pin, LOW);
         }
       } else {
-        Serial.println("ON");
+        //Serial.println("ON");
         digitalWrite(pin, HIGH);
       }
     } else {
-      Serial.println("OFF");
+      //Serial.println("OFF");
       digitalWrite(pin, LOW);
     }
   }
@@ -193,7 +193,7 @@ Socket* socket[SOCKET_COUNT];
 // Template to generate callback functions for each socket
 template <int I>
 uint32_t socketTask() {
-  Serial.println(I);
+  //Serial.println(I);
   socket[I]->mode = SNA;
   socket[I]->overrideBy = GROUP;
   return RUN_DELETE;
@@ -316,26 +316,26 @@ uint32_t socketsTask() {
     bool switched = false;
     if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
       if (socket[i]->mode != SNA) {
-        Serial.print("SOCKET: ");
-        Serial.println(socket[i]->group == NULL?"No grpup":"Override");
+        //Serial.print("SOCKET: ");
+        //Serial.println(socket[i]->group == NULL?"No grpup":"Override");
         socket[i]->turn(socket[i]->mode);
         switched = true;
       }
     } else { //.overrideBy == GROUP
       if (socket[i]->group != NULL && socket[i]->group->mode != SNA) {
-        Serial.print("GROUP ");
-        Serial.println(socket[i]->group->mode == SNA?"NA":"ON/OFF");
+        //Serial.print("GROUP ");
+        //Serial.println(socket[i]->group->mode == SNA?"NA":"ON/OFF");
         socket[i]->turn(socket[i]->group->mode);
         switched = true;
       }
     }
     if (!switched && feed->mode != SNA) {
-      Serial.println("GLOBAL FEED");
+      //Serial.println("GLOBAL FEED");
       socket[i]->turn(feed->mode);
       switched = true;
     }
     if (!switched && socket[i]->feedOverride != SNA && feedSchedule.active()) {
-      Serial.println("SCHED FEED");
+      //Serial.println("SCHED FEED");
       if (feedSchedule.active(getTime())) {
         socket[i]->turn(socket[i]->feedOverride);
       } else {
@@ -344,7 +344,7 @@ uint32_t socketsTask() {
       switched = true;
     }
     if (!switched && socket[i]->active()) {
-      Serial.println("SCHED SOCKET");
+      //Serial.println("SCHED SOCKET");
       if (socket[i]->active(getTime())) {
         socket[i]->turn(SON);
       } else {
@@ -353,8 +353,8 @@ uint32_t socketsTask() {
       switched = true;
     }
     if (!switched) {
-      Serial.print("ELSE: ");
-      Serial.print(socket[i]->mode);
+      //Serial.print("ELSE: ");
+      //Serial.print(socket[i]->mode);
       socket[i]->turn(socket[i]->mode);
     }
   }

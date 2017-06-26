@@ -73,8 +73,8 @@ uint32_t wifiStart() {
    WiFi.config(_ip, _gw, _mask, _dns);
   }
   WiFi.begin();
-  Serial.print("Connecting to ");
-  Serial.println(WiFi.SSID());
+  //Serial.print("Connecting to ");
+  //Serial.println(WiFi.SSID());
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
   return RUN_DELETE;
 }
@@ -82,7 +82,7 @@ uint8_t waitWF = 1;
 uint32_t wifiWait() {
   if(WiFi.status() != WL_CONNECTED) {
     if (waitWF <= WIFI_CHECK_COUNT) {
-      Serial.println("Waiting Wi-Fi");
+      //Serial.println("Waiting Wi-Fi");
       if (waitWF > 0) {
         waitWF++;
       }
@@ -92,9 +92,9 @@ uint32_t wifiWait() {
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
     }
   } else {
-    Serial.println(WiFi.localIP());
+    //Serial.println(WiFi.localIP());
     event.wifiConnected++;
-    Serial.println(WiFi.localIP().toString());
+    //Serial.println(WiFi.localIP().toString());
   }
   return RUN_DELETE;
 }
@@ -136,13 +136,13 @@ uint32_t wifiManager() {
     //event.wifiConnected++;
   //} 
   //if you get here you have connected to the WiFi
-  Serial.println("connected...yeey :)");
+  //Serial.println("connected...yeey :)");
   if (event.saveParams) saveConfig();
   RUN_DELETE;
 }
 
 uint32_t printTime() {
-  Serial.println((uint32_t)getTime());
+  //Serial.println((uint32_t)getTime());
   return 10000;  
 }
 // Query Reset Key ststus change and flag events
@@ -192,9 +192,9 @@ uint32_t initDbg2() {
   return RUN_DELETE;
 }
 void setup() {
-  pinMode(D0, OUTPUT);    //For debug
-  digitalWrite(D0, HIGH); //For debug
-  Serial.begin(74880);    //For debug
+  //pinMode(D0, OUTPUT);    //For debug
+  //digitalWrite(D0, HIGH); //For debug
+  //Serial.begin(74880);    //For debug
   SPIFFS.begin();
   xml.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();

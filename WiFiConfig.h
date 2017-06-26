@@ -37,9 +37,9 @@ void XML_callback(uint8_t statusflags, char* tagName, uint16_t tagNameLen, char*
 //Format 00:00PM
 time_t strToTime(String tm) {
   if (tm.length() >= 7) {
-    Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
-    Serial.println(tm.substring(0,2).toInt());
-    Serial.println(tm.substring(3,5).toInt());
+    //Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
+    //Serial.println(tm.substring(0,2).toInt());
+    //Serial.println(tm.substring(3,5).toInt());
     return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) + ((tm.substring(5,7)=="PM")?12*3600L:0);
   } else {
     return 0;
@@ -263,7 +263,7 @@ uint32_t readState() {
        } else if 
       (xmlTag.endsWith(F("/Group"))) {
         uint8_t _g = xmlData.toInt() - GROUP_HTML_BASE;
-        Serial.println(_g);
+        //Serial.println(_g);
         if (_g >= 0 && _g < GROUP_COUNT) socket[g]->setGroup(group[_g]);
         if (g < SOCKET_COUNT - 1) g++;
        } else if 
