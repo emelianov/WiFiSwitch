@@ -6,7 +6,10 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
+// Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
+// Current query interval (mS)
+#define A0_DELAY 1000
 
 struct events {
  uint16_t wifiConnected		= 0;
@@ -51,6 +54,7 @@ String ntp3 = "pool1.ntp.org";
 String tz   = "5";
 String admin = "admin";
 String pass = "password";
+float amps = 0;     // Current value from A0
 
 #include "WiFiTime.h"
 #include "WiFiControl.h"
@@ -177,8 +181,8 @@ uint32_t keyLongPressed() {
   return RUN_DELETE;
 }
 uint32_t initDbg() {
-  socket[2]->na();
-  socket[2]->wave = &wave;
+  //socket[2]->na();
+  //socket[2]->wave = &wave;
   //feedSchedule.schedule1.act = true;
   //feedSchedule.schedule1.on = 8*60;
   //feedSchedule.schedule1.off = 8*60+20;
@@ -191,6 +195,7 @@ uint32_t initDbg2() {
   socket[2]->off(15);
   return RUN_DELETE;
 }
+
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
@@ -211,6 +216,7 @@ void setup() {
   taskAddWithSemaphore(keyReleased, &event.keyReleased);// Run keyReleased() on keyRelease event
   //taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
   taskAdd(readState);
+  taskAdd(queryA0);
 }
 void loop(void) {
   taskExec();
