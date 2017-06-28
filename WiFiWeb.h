@@ -9,7 +9,7 @@
 #define SAVE_DELAY 5000
 
 ESP8266WebServer server(80);      // create a server at port 80
-
+uint32_t sequence = 0;
 // Determinating conternt type header attribute depending on file extension
 String getContentType(String filename) {
   if(server.hasArg("download")) return "application/octet-stream";
@@ -260,6 +260,22 @@ void ajaxInputs() {
       save = true;
     }
   }
+  {
+    String cArg = "W";
+    if (server.hasArg(cArg)) {
+      time_t t = strToTime24(server.arg(cArg));
+      if (wave.period != t)
+        wave.on(t);
+      save = true;
+    }
+  }
+  {
+    String cArg = "SEQ";
+    if (server.hasArg(cArg)) {
+      sequence = server.arg(cArg).toInt();
+    }
+  }
+  // Assemble current state xml
   String res = "";
   String an = String(current());
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog>\n"), an.c_str());
@@ -328,8 +344,8 @@ void ajaxInputs() {
               timeToStr(feedSchedule.schedule2.off).c_str()
               );
   res += data;
-  sprintf_P(data, PSTR("<Wave>%s</Wave><Pump>%s</Pump>"),
-              timeToStr24(wave.period).c_str(), pump.c_str());
+  sprintf_P(data, PSTR("<Wave>%s</Wave><Pump>%s</Pump><time>%s</time><sequence>%lu</sequence>"),
+              timeToStr24(wave.period).c_str(), pump.c_str(), timeToStr(getTime()).c_str(), sequence);
   res += data;
   res += "</state>";
   server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
