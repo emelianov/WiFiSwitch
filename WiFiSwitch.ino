@@ -50,7 +50,7 @@ String gw   = "192.168.20.2";
 String dns  = "192.168.20.2";
 String ntp1 = "192.168.30.30";
 String ntp2 = "192.168.30.4";
-String ntp3 = "pool1.ntp.org";
+String ntp3 = "pool.ntp.org";
 String tz   = "5";
 String admin = "admin";
 String pass = "password";
@@ -141,7 +141,10 @@ uint32_t wifiManager() {
   //} 
   //if you get here you have connected to the WiFi
   //Serial.println("connected...yeey :)");
-  if (event.saveParams) saveConfig();
+  if (event.saveParams > 0) {
+     saveConfig();
+     //ESP.reset();
+  }
   RUN_DELETE;
 }
 
@@ -192,7 +195,7 @@ uint32_t initDbg() {
   return RUN_DELETE;
 }
 uint32_t initDbg2() {
-  socket[2]->off(15);
+  //socket[2]->off(15);
   return RUN_DELETE;
 }
 
@@ -207,10 +210,10 @@ void setup() {
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
-  taskAdd(initDbg);
+  //taskAdd(initDbg);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
-  taskAdd(printTime);     //For debug
+  //taskAdd(printTime);     //For debug
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event
   taskAddWithSemaphore(keyReleased, &event.keyReleased);// Run keyReleased() on keyRelease event

@@ -22,7 +22,7 @@ String xmlTag;
 String xmlData;
 String xmlAttrib;
 TinyXML xml;
-uint8_t buffer[150];
+uint8_t buffer[300];
 void XML_callback(uint8_t statusflags, char* tagName, uint16_t tagNameLen, char* data, uint16_t dataLen) {
   if
   (statusflags & STATUS_TAG_TEXT) {
@@ -60,10 +60,11 @@ String timeToStr(time_t t) {
     uint16_t minutesFromMidnight = t % 86400UL / 60;
     if (minutesFromMidnight >= 720) {
       ampm = "PM";
-      if (minutesFromMidnight >= 780)
+      if (minutesFromMidnight >= 720)
         minutesFromMidnight -= 720;
     }
-    sprintf_P(strTime, PSTR("%02d:%02d%s"), (uint8_t)(minutesFromMidnight / 60), (uint8_t)(minutesFromMidnight % 60), ampm.c_str());
+    uint8_t hh = (uint8_t)(minutesFromMidnight / 60);
+    sprintf_P(strTime, PSTR("%02d:%02d%s"), (hh == 0)?12:hh, (uint8_t)(minutesFromMidnight % 60), ampm.c_str());
     return String(strTime);
 }
 String timeToStr24(time_t t) {
@@ -91,8 +92,10 @@ uint32_t readConfig() {
         pass = xmlData;
        } else if 
       (xmlTag.endsWith(F("/ip"))) {
-        dhcp = false;
-        ip = xmlData;
+        if (xmlData.length() > 7) {
+            dhcp = false;
+            ip = xmlData;
+        }
        } else if 
       (xmlTag.endsWith(F("/mask"))) {
         mask = xmlData;

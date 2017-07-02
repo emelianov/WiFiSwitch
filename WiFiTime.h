@@ -8,10 +8,13 @@
 #define NTP_CHECK_DELAY 30000;
 
 RTC_DS3231 rtc;
-uint16_t timeZone;
+int32_t timeZone;
 //Update time from NTP server
 uint32_t initNTP() {
   timeZone = atoi(tz.c_str()) * 3600;
+  //Serial.println(ntp1);
+  //Serial.println(ntp2);
+  //Serial.println(ntp3);
   if (time(NULL) == 0) {
     configTime(timeZone, 0, ntp1.c_str(), ntp2.c_str(), ntp3.c_str());
     return NTP_CHECK_DELAY;
