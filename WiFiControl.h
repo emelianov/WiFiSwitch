@@ -255,13 +255,14 @@ uint32_t waveSeries() {
   wave.waveSet[3].mode = SOFF;
   wave.waveSet[waveSoc].mode = SON;  
   return wave.period * 1000;
-
 }
 uint32_t waveRandom() {
 }
 
 void setWave(WaveType t) {
+  //if (wave.type != t) {
     wave.type = t;
+    wave.stop();
     switch (t) {
       case PULSE:
         wave.overrideTask = wavePulse;
@@ -278,8 +279,11 @@ void setWave(WaveType t) {
       default:
         wave.overrideTask = wavePulse;
     }
+    //taskAdd(wave.oveddideTask);
+  //}
 }
 void setWave(WaveSocket t) {
+  //if (wave.to != t) {
     wave.to = t;
     switch (t) {
       case NONE:
@@ -307,6 +311,7 @@ void setWave(WaveSocket t) {
         socket[WAVE_SOC4]->wave = &(wave.waveSet[3]);
       break;
     }
+ // }
     //wave.start(SON, wave.period);
 }
 
@@ -357,7 +362,7 @@ uint32_t socketsTask() {
     }
     if (!switched) {
       //Serial.print("ELSE: ");
-      //Serial.print(socket[i]->mode);
+      //Serial.println(socket[i]->mode);
       socket[i]->turn(socket[i]->mode);
     }
   }

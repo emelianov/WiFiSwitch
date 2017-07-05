@@ -212,8 +212,8 @@ uint32_t saveState() {
               timeToStr(feedSchedule.schedule2.off).c_str()
               );
     configFile.write((uint8_t*)buf, strlen(buf));
-    sprintf_P(buf, PSTR("<wave>%s</wave><pump>%s</pump></state>\n"),
-              timeToStr24(wave.period).c_str(), pump.c_str());
+    sprintf_P(buf, PSTR("<pump>%s</pump><wave>%s</wave></state>\n"),
+              pump.c_str(), timeToStr24(wave.period).c_str());
     configFile.write((uint8_t*)buf, strlen(buf));
 
     configFile.close();
@@ -280,13 +280,18 @@ uint32_t readState() {
         if (n < SOCKET_COUNT - 1) n++;
        } else if 
       (xmlTag.endsWith(F("/wave"))) {
-        wave.on(strToTime24(xmlData));
-       } else if 
+        time_t t = strToTime24(xmlData);
+        //Serial.print(t);
+        //if (wave.period != t)
+          wave.on(t);
+      } else if 
       (xmlTag.endsWith(F("/pump"))) {
-        if (pump != xmlData) {
+        //if (pump != xmlData) {
           setPump(xmlData);
+          //Serial.print("Pump: ");
+          //Serial.println(wave.period);
           wave.on(wave.period);
-        }
+        //}
        } else if 
       (xmlTag.endsWith(F("/FTimerCheckbox1"))) {
         feedSchedule.schedule1.act = (xmlData == "checked");

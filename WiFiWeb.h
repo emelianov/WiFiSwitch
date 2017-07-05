@@ -245,28 +245,20 @@ void ajaxInputs() {
     String cArg = "SOCG8";
     if (server.hasArg(cArg)) {
       String v = server.arg(cArg);
-      if (pump != v)
-        setPump(v),
+      //if (pump != v && taskExists(wave.overrideTask))
+        setPump(v);
         wave.on(wave.period);
-    }
-    save = true;
-  }
-  {
-    String cArg = "W";
-    if (server.hasArg(cArg)) {
-      time_t t = strToTime24(server.arg(cArg));
-      if (wave.period != t)
-        wave.on(t);
-      save = true;
+        save = true;
     }
   }
   {
     String cArg = "W";
     if (server.hasArg(cArg)) {
       time_t t = strToTime24(server.arg(cArg));
-      if (wave.period != t)
+      //if (wave.period != t && taskExists(wave.overrideTask)) {
         wave.on(t);
-      save = true;
+        save = true;
+      //}
     }
   }
   {
@@ -344,16 +336,16 @@ void ajaxInputs() {
               timeToStr(feedSchedule.schedule2.off).c_str()
               );
   res += data;
-  sprintf_P(data, PSTR("<Wave>%s</Wave><Pump>%s</Pump><time>%s</time><sequence>%lu</sequence>"),
-              timeToStr24(wave.period).c_str(), pump.c_str(), timeToStr(getTime()).c_str(), sequence);
+  sprintf_P(data, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>"),
+              pump.c_str(), timeToStr24(wave.period).c_str(), timeToStr(getTime()).c_str(), sequence);
   res += data;
   res += "</state>";
-  server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
-                                                          // 200 - means Success html result code
   if (save) {           // If save flag set true queue save state
     taskDel(saveState); // Remove previous save request if any
     taskAddWithDelay(saveState, SAVE_DELAY);  // save in SAVE_DELAY mS
   }
+  server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
+                                                          // 200 - means Success html result code
 }
 // callback function that is called by Web server if no sutable callback function fot URL found
 void indexFile() {
