@@ -5,6 +5,7 @@
 #include <WiFiManager.h>
 #define RUN_TASKS 32
 #include <Run.h>
+#include <Filters.h>
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -220,6 +221,7 @@ void setup() {
   //taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
   taskAdd(readState);
   taskAdd(queryA0);
+  inputStats.setWindowSecs(windowLength);
 }
 void loop(void) {
   taskExec();
