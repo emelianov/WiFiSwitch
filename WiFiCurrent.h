@@ -24,7 +24,7 @@ uint32_t initA0() {
 }
 
 uint32_t queryA0() {
-
+return 0;
 	previousMillis = millis();
 
 	boolean ampLoopflag = true;
