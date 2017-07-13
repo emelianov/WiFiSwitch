@@ -58,10 +58,10 @@ String pass = "password";
 float amps = 0;     // Current value from A0
 
 #include "WiFiTime.h"
+#include "WiFiCurrent.h"
 #include "WiFiControl.h"
 #include "WiFiConfig.h"
 #include "WiFiWeb.h"
-//#include "WiFiConfig.h"
 
 #define WIFI_SETUP_AP "AutoConnectAP"
 #define WIFI_CHECK_DELAY 1000
