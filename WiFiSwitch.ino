@@ -5,7 +5,8 @@
 #include <WiFiManager.h>
 #define RUN_TASKS 32
 #include <Run.h>
-#include <Filters.h>
+
+#define AC_SIMPLE
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -58,7 +59,11 @@ String pass = "password";
 float amps = 0;     // Current value from A0
 
 #include "WiFiTime.h"
-#include "WiFiCurrent.h"
+#ifdef AC_SIMPLE
+ #include "WiFiACSimple.h"
+#else
+ #include "WiFiCurrent.h"
+#endif
 #include "WiFiControl.h"
 #include "WiFiConfig.h"
 #include "WiFiWeb.h"
@@ -211,6 +216,7 @@ void setup() {
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
+  taskAdd(initA0);        // Add task to initialize ADC query
   //taskAdd(initDbg);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
@@ -221,7 +227,7 @@ void setup() {
   //taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
   taskAdd(readState);
   taskAdd(queryA0);
-  inputStats.setWindowSecs(windowLength);
+//  inputStats.setWindowSecs(windowLength);
 }
 void loop(void) {
   taskExec();

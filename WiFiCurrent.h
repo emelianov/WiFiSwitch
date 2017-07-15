@@ -1,4 +1,5 @@
 #pragma once
+#include <Filters.h>
 
 // relative digital zero of the arudino input from ACS712 (could make this a variable and auto-adjust it)
 #define ADC_ZERO 515
@@ -20,11 +21,11 @@ unsigned long printPeriod = 300; // in milliseconds
 unsigned long previousMillis = 0;
 
 uint32_t initA0() {
+  inputStats.setWindowSecs(windowLength);
 	return RUN_DELETE;
 }
 
 uint32_t queryA0() {
-return 0;
 	previousMillis = millis();
 
 	boolean ampLoopflag = true;
