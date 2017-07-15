@@ -30,3 +30,5 @@ Actualy only schedule settings, feed reaction and group membership saved as it c
 * Wave function time set looks line hours:minutes set but really it's interpretated as minutes:seconds
 
 * Sockets 1-4 affected by Wave function
+
+* SPIFFS should be set to 3M (1M if not enought)
