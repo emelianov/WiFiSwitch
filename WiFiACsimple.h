@@ -1,8 +1,10 @@
 #pragma once
 
-int mVperAmp = 185; //  5A
+
+// Select constant according to ACS model
+//int mVperAmp = 185; //  5A
 //int mVperAmp = 100; // 20A
-//int mVperAmp = 66;  // 30A
+const int mVperAmp = 66;  // 30A
 
 uint32_t initA0() {
   return RUN_DELETE;

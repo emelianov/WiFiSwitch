@@ -6,8 +6,6 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define AC_SIMPLE
-
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
 // Current query interval (mS)
@@ -58,12 +56,11 @@ String admin = "admin";
 String pass = "password";
 float amps = 0;     // Current value from A0
 
-#include "WiFiTime.h"
-#ifdef AC_SIMPLE
+//Select one of following AC current read implementations
  #include "WiFiACSimple.h"
-#else
- #include "WiFiCurrent.h"
-#endif
+ //#include "WiFiCurrent.h"
+ //#include "WiFiACRMS.h"
+#include "WiFiTime.h"
 #include "WiFiControl.h"
 #include "WiFiConfig.h"
 #include "WiFiWeb.h"

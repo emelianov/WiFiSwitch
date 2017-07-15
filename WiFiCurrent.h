@@ -1,10 +1,6 @@
 #pragma once
 #include <Filters.h>
 
-// relative digital zero of the arudino input from ACS712 (could make this a variable and auto-adjust it)
-#define ADC_ZERO 515
-#define MAX_AMPS 50
-
 float testFrequency = 60;                     // test signal frequency (Hz)
 float windowLength = 20.0 / testFrequency;     // how long to average the signal, for statistist
 int sensorValue = 0;
