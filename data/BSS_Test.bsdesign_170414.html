@@ -5,15 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.9">
     <title>BSS_Test.bsdesign_170414</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css">
-    <link rel="stylesheet" href="http://weareoutman.github.io/clockpicker/dist/jquery-clockpicker.min.css">
-    <link rel="stylesheet" href="https://weareoutman.github.io/clockpicker/assets/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css">
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/css/bootstrap-select.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/css/bootstrap-slider.css">
-    <link rel="stylesheet" href="styles.min.css">
+    <link rel="stylesheet" href="all.css">
 	
 		<!---- chart live css--*/-->
 	<style>
@@ -2167,13 +2159,7 @@
 	</div>
 
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-    <script src="http://weareoutman.github.io/clockpicker/dist/jquery-clockpicker.min.js"></script>
-    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.2/js/bootstrap-select.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.7.2/bootstrap-slider.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+    <script src="all.js"></script>
     <script src="script.min.js"></script>
 	<script src="custom.js"></script>
 	
@@ -2181,9 +2167,9 @@
         
         $(document).ready(function() {
         
-            $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js',function(){
-			  $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.pie.min.js',function(){
-				$.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.resize.min.js',function(){
+            $.getScript('jquery.flot.min.js',function(){
+			  $.getScript('jquery.flot.pie.min.js',function(){
+				$.getScript('jquery.flot.resize.min.js',function(){
 						
 				  // styles for all charts
 				  gridStyle = {borderColor:'#ddd',borderWidth:1,hoverable:true,clickable:true};
@@ -2213,9 +2199,9 @@
 					  var y = document.getElementsByClassName("analog")[0].innerHTML;
 					  if (y < 0)
 						y = 0;
-					  if (y > 100)
-						y = 100;
-					  data.push(Math.round(y*100)/100);
+					  if (y > 20)
+						y = 20;
+					  data.push(Math.round(y*20)/20);
 					}
 				  
 					// zip the generated y values with the x values
@@ -2247,10 +2233,10 @@
 					grid:gridStyle,
 					//series:{shadowSize:0,lines:{show:true,fill:true,fillColor:'rgba(40,200,40,.5)'},color:'#5cb85c'},
 					series:{shadowSize:0,lines:{show:true,fill:true,fillColor:'rgba(200,220,200,.6)'},color:'#99bb99'},       
-					yaxis:{min:0,max:100,font:'#ddd'},
+					yaxis:{min:0,max:20,font:'#ddd'},
 					//xaxis:{show:true}
 					  xaxis: {
-						ticks: [[0,'0 min'],[30,'0:30min'],[60,'1:00 min'] ,[90,'1:30 min'],[120,'2:00 min'],[150,'4:00 min'],[180,'5:00 min']]
+						ticks: [[0,'65 sec'],[30,'55 sec'],[60,'45 sec'] ,[90,'35 sec'],[120,'25 sec'],[150,'15 sec'],[180,'5 sec']]
 					  }
 				  };
 				   

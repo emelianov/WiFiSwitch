@@ -56,11 +56,14 @@ String admin = "admin";
 String pass = "password";
 float amps = 0;     // Current value from A0
 
+//Select one of following AC current read implementations
+ #include "WiFiACSimple.h"
+ //#include "WiFiCurrent.h"
+ //#include "WiFiACRMS.h"
 #include "WiFiTime.h"
 #include "WiFiControl.h"
 #include "WiFiConfig.h"
 #include "WiFiWeb.h"
-//#include "WiFiConfig.h"
 
 #define WIFI_SETUP_AP "AutoConnectAP"
 #define WIFI_CHECK_DELAY 1000
@@ -210,6 +213,7 @@ void setup() {
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
+  taskAdd(initA0);        // Add task to initialize ADC query
   //taskAdd(initDbg);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
@@ -220,6 +224,7 @@ void setup() {
   //taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
   taskAdd(readState);
   taskAdd(queryA0);
+//  inputStats.setWindowSecs(windowLength);
 }
 void loop(void) {
   taskExec();

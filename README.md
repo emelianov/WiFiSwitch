@@ -8,6 +8,7 @@
 * [TinyXML](https://github.com/adafruit/TinyXML)
 * [A fork of Jeelab's fantastic RTC library](https://github.com/adafruit/RTClib)
 * [ESP8266 WiFi Connection manager with web captive portal](https://github.com/tzapu/WiFiManager)
+* [A realtime digital signal processing (DSP) library for Arduino](https://github.com/JonHub/Filters)
 
 ### Release notes
 
@@ -29,3 +30,5 @@ Actualy only schedule settings, feed reaction and group membership saved as it c
 * Wave function time set looks line hours:minutes set but really it's interpretated as minutes:seconds
 
 * Sockets 1-4 affected by Wave function
+
+* SPIFFS should be set to 3M (1M if not enought)
