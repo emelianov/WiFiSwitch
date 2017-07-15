@@ -1,10 +1,10 @@
 #pragma once
 // For D1 R2 and mini
-#define PINS D0, D1, D4, D5, D6, D7, RX, TX
+//#define PINS D0, D1, D4, D5, D6, D7, RX, TX
 // For NodeMCU
 //#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 // For DEBUG. Leave RX/TX used for Serial
-//#define PINS D0, D1, D4, D5, D6, D7, D6, D7
+#define PINS D0, D1, D4, D5, D6, D7, D6, D7
 
 // Define enumeration type for convinient override manipulations
 enum OverrideMode { SON, SOFF, SNA };
