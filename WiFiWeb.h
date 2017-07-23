@@ -172,7 +172,11 @@ void ajaxInputs() {
   for (i = 0; i < SOCKET_COUNT; i++) {
     String nArg = "N" + String(i);
     if (server.hasArg(nArg)) {
-      socket[i]->name = server.arg(nArg);
+      String name = server.arg(nArg);
+      name.replace("<",  "&lt;");
+      name.replace(">",  "&gt");
+      name.replace("\"", "&quot;");
+      socket[i]->name = name;
       save = true;
     }
   }

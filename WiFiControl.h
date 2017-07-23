@@ -337,17 +337,24 @@ uint32_t socketsTask() {
         switched = true;
       }
     }
+    /*
     if (!switched && feed->mode != SNA) {
       //Serial.println("GLOBAL FEED");
       socket[i]->turn(feed->mode);
       switched = true;
     }
+    */
     if (!switched && socket[i]->feedOverride != SNA && feedSchedule.active()) {
       //Serial.println("SCHED FEED");
-      if (feedSchedule.active(getTime())) {
-        socket[i]->turn(socket[i]->feedOverride);
+      if (feed->mode != SNA) {
+        //Serial.println("GLOBAL FEED");
+        socket[i]->turn(feed->mode);
       } else {
-        socket[i]->turn(!socket[i]->feedOverride);
+        if (feedSchedule.active(getTime())) {
+          socket[i]->turn(socket[i]->feedOverride);
+        } else {
+          socket[i]->turn(!socket[i]->feedOverride);
+        }
       }
       switched = true;
     }

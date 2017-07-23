@@ -57,9 +57,11 @@ String pass = "password";
 float amps = 0;     // Current value from A0
 
 //Select one of following AC current read implementations
+// ---------------------------
  #include "WiFiACSimple.h"
  //#include "WiFiCurrent.h"
  //#include "WiFiACRMS.h"
+// ---------------------------
 #include "WiFiTime.h"
 #include "WiFiControl.h"
 #include "WiFiConfig.h"
@@ -180,10 +182,10 @@ uint32_t keyReleased() {
 }
 // Called if Key Pressed for KEY_LONG_TIME mS
 uint32_t keyLongPressed() {
-  digitalWrite(D0, HIGH);
+  //digitalWrite(D0, HIGH);
   turnOffAllSockets();
   wifiManager();
-  digitalWrite(D0, LOW);
+  //digitalWrite(D0, LOW);
   return RUN_DELETE;
 }
 uint32_t initDbg() {
