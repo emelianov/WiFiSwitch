@@ -1,5 +1,5 @@
 #pragma once
-
+//No calibration is needed
 
 // Select constant according to ACS model
 //int mVperAmp = 185; //  5A
