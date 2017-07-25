@@ -6,6 +6,14 @@
 // For DEBUG. Leave RX/TX used for Serial
 //#define PINS D0, D1, D4, D5, D6, D7, D6, D7
 
+#define DEFAULT_WAVE 30
+// Position of pins affected by Wave function in list
+// If not changed from default that means D0, D1, D4, D5
+#define WAVE_SOC1 0
+#define WAVE_SOC2 1
+#define WAVE_SOC3 2
+#define WAVE_SOC4 3
+
 // Define enumeration type for convinient override manipulations
 enum OverrideMode { SON, SOFF, SNA };
 // Override <not> operator way: !SON=SOFF, !SOFF=SON, SNA=SNA 
@@ -94,13 +102,6 @@ class Schedule {
     act = true;
   }
 };
-
-//#define DEFAULT_WAVE 30
-#define DEFAULT_WAVE 30
-#define WAVE_SOC1 0
-#define WAVE_SOC2 1
-#define WAVE_SOC3 2
-#define WAVE_SOC4 3
 
 uint32_t wavePulse(); // Forward declaration
 
