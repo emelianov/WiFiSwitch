@@ -40,7 +40,7 @@ time_t strToTime(String tm) {
     //Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
     //Serial.println(tm.substring(0,2).toInt());
     //Serial.println(tm.substring(3,5).toInt());
-    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) + ((tm.substring(5,7)=="PM")?12*3600L:0);
+    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) - ((tm.substring(5,7)=="AM")?12*3600L:0);
   } else {
     return 0;
   }

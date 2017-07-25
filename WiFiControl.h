@@ -97,7 +97,7 @@ class Schedule {
 
 //#define DEFAULT_WAVE 30
 #define DEFAULT_WAVE 30
-#define WAVE_SOC1 0
+#define WAVE_SOC1 4
 #define WAVE_SOC2 1
 #define WAVE_SOC3 2
 #define WAVE_SOC4 3
@@ -322,6 +322,7 @@ uint32_t socketsTask() {
 //uint8_t i = 2;
 //{
     bool switched = false;
+    // Socket override
     if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
       if (socket[i]->mode != SNA) {
         //Serial.print("SOCKET: ");
@@ -329,6 +330,7 @@ uint32_t socketsTask() {
         socket[i]->turn(socket[i]->mode);
         switched = true;
       }
+    // Group override
     } else { //.overrideBy == GROUP
       if (socket[i]->group != NULL && socket[i]->group->mode != SNA) {
         //Serial.print("GROUP ");
@@ -337,27 +339,23 @@ uint32_t socketsTask() {
         switched = true;
       }
     }
-    /*
-    if (!switched && feed->mode != SNA) {
+    // Feed override
+    if (!switched && feed->mode != SNA && (feed->mode == socket[i]->feedOverride) ) {
       //Serial.println("GLOBAL FEED");
       socket[i]->turn(feed->mode);
       switched = true;
     }
-    */
+    // Feed schedule
     if (!switched && socket[i]->feedOverride != SNA && feedSchedule.active()) {
       //Serial.println("SCHED FEED");
-      if (feed->mode != SNA) {
-        //Serial.println("GLOBAL FEED");
-        socket[i]->turn(feed->mode);
+      if (feedSchedule.active(getTime())) {
+        socket[i]->turn(socket[i]->feedOverride);
       } else {
-        if (feedSchedule.active(getTime())) {
-          socket[i]->turn(socket[i]->feedOverride);
-        } else {
-          socket[i]->turn(!socket[i]->feedOverride);
-        }
+        socket[i]->turn(!socket[i]->feedOverride);
       }
       switched = true;
     }
+    // Socket schedule
     if (!switched && socket[i]->active()) {
       //Serial.println("SCHED SOCKET");
       if (socket[i]->active(getTime())) {
