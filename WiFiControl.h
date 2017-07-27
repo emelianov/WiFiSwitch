@@ -6,13 +6,14 @@
 // For DEBUG. Leave RX/TX used for Serial
 //#define PINS D0, D1, D4, D5, D6, D7, D6, D7
 
-#define DEFAULT_WAVE 30
 // Position of pins affected by Wave function in list
 // If not changed from default that means D0, D1, D4, D5
 #define WAVE_SOC1 0
 #define WAVE_SOC2 1
 #define WAVE_SOC3 2
 #define WAVE_SOC4 3
+
+#define DEFAULT_WAVE 30
 
 // Define enumeration type for convinient override manipulations
 enum OverrideMode { SON, SOFF, SNA };
@@ -340,21 +341,22 @@ uint32_t socketsTask() {
         switched = true;
       }
     }
+    /*
     // Feed override
     if (!switched && feed->mode != SNA && (feed->mode == socket[i]->feedOverride) ) {
       //Serial.println("GLOBAL FEED");
       socket[i]->turn(feed->mode);
       switched = true;
-    }
+    }*/
     // Feed schedule
-    if (!switched && socket[i]->feedOverride != SNA && feedSchedule.active()) {
+    if (!switched && socket[i]->feedOverride != SNA && (feedSchedule.active() || feed->mode != SNA)) {
       //Serial.println("SCHED FEED");
-      if (feedSchedule.active(getTime())) {
+      if (feed->mode == SON || (feedSchedule.active(getTime()) && feed->mode != SOFF)) {
         socket[i]->turn(socket[i]->feedOverride);
-      } else {
+        switched = true;
+      }/* else {
         socket[i]->turn(!socket[i]->feedOverride);
-      }
-      switched = true;
+      }*/
     }
     // Socket schedule
     if (!switched && socket[i]->active()) {
@@ -372,7 +374,7 @@ uint32_t socketsTask() {
       socket[i]->turn(socket[i]->mode);
     }
   }
-  return 500;
+  return 100;
 }
 
 void turnOffAllSockets() {

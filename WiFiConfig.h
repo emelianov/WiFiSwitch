@@ -40,7 +40,8 @@ time_t strToTime(String tm) {
     //Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
     //Serial.println(tm.substring(0,2).toInt());
     //Serial.println(tm.substring(3,5).toInt());
-    return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L) - ((tm.substring(5,7)=="AM")?12*3600L:0);
+    uint8_t hh = tm.substring(0,2).toInt();
+    return ((hh==12?0:hh)*3600L + tm.substring(3,5).toInt()*60L) + (tm.substring(5,7)=="PM"?12*3600L:0);
   } else {
     return 0;
   }
@@ -60,7 +61,7 @@ String timeToStr(time_t t) {
     uint16_t minutesFromMidnight = t % 86400UL / 60;
     if (minutesFromMidnight >= 720) {
       ampm = "PM";
-      if (minutesFromMidnight >= 720)
+//      if (minutesFromMidnight >= 720)
         minutesFromMidnight -= 720;
     }
     uint8_t hh = (uint8_t)(minutesFromMidnight / 60);
