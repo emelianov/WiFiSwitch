@@ -157,7 +157,7 @@ uint32_t saveState() {
    uint8_t i;
    File configFile = SPIFFS.open(F(STATE), "w");
    if (configFile) {
-    char buf[400];
+    char buf[512];
     sprintf_P(buf, PSTR("<?xml version = \"1.0\" ?>\n<state>\n"));
     configFile.write((uint8_t*)buf, strlen(buf));
     sprintf_P(buf, PSTR("<FSwitch>%s</FSwitch><FOverride>%lu</FOverride><FWaiting>%s</FWaiting>"),
@@ -184,10 +184,11 @@ uint32_t saveState() {
         continue; 
       }
     }
-    sprintf_P(buf, PSTR("<Socket>%s</Socket>\n\
+    sprintf_P(buf, PSTR("<Manual>%s</Manual><Socket>%s</Socket>\n\
 <TimerCheckbox1>%s</TimerCheckbox1>\n<TimerCheckbox2>%s</TimerCheckbox2>\n<TimerValue1on>%s</TimerValue1on>\n<TimerValue1off>%s</TimerValue1off>\n\
 <TimerValue2on>%s</TimerValue2on>\n<TimerValue2off>%s</TimerValue2off>\n\
 <Group>%d</Group>\n<Override>%lu</Override><Switch>%s</Switch><Waiting>%s</Waiting><SwitchF>%s</SwitchF><name>%s</name>"),
+              (socket[i]->manual == SON)?"checked":"unchecked",
               socket[i]->isOn()?"checked":"unckecked",
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
@@ -228,6 +229,7 @@ uint32_t readState() {
   File configFile = SPIFFS.open(F(STATE), "r");
   if (configFile) {
    char c;
+   uint8_t m = 0;
    uint8_t t1s = 0;
    uint8_t t2s = 0;
    uint8_t t1on = 0;
@@ -240,7 +242,11 @@ uint32_t readState() {
    while (configFile.read((uint8_t*)&c, 1) == 1) {
     xml.processChar(c);
     if (xmlTag != "") {
-       if 
+       if
+      (xmlTag.endsWith(F("/Manual"))) {
+        socket[m]->manual = (xmlData == "checked")?SON:SOFF;
+        if (m < SOCKET_COUNT - 1) m++;
+       } else if 
       (xmlTag.endsWith(F("/TimerCheckbox1"))) {
         socket[t1s]->schedule1.act = (xmlData == "checked");
         if (t1s < SOCKET_COUNT - 1) t1s++;

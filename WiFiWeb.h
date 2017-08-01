@@ -42,9 +42,11 @@ void ajaxInputs() {
     String soc = "SOC"+String(i);
     if (server.hasArg(soc)) {
       if (server.arg(soc) == "1") {
-        socket[i]->on();
+        //socket[i]->on();
+        socket[i]->manual = SON;
       } else {
-        socket[i]->na();
+        socket[i]->manual = SOFF;
+        //socket[i]->na();
       }
     }
     String sched1 = "TCB"+String(i*2);    // e.g. ?TCB2=1
@@ -293,7 +295,7 @@ void ajaxInputs() {
   }
   // Socket switch state
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Socket>%s</Socket>\n"), socket[i]->isOn()?"checked":"unckecked");
+    sprintf_P(data, PSTR("<Manual>%s</Manual><Socket>%s</Socket>\n"), (socket[i]->manual == SON)?"checked":"unckecked", socket[i]->isOn()?"checked":"unckecked");
     res += data;
   }
   // Socket override timers state and group

@@ -1,10 +1,10 @@
 #pragma once
 // For D1 R2 and mini
-#define PINS D0, D1, D4, D5, D6, D7, RX, TX
+//#define PINS D0, D1, D4, D5, D6, D7, RX, TX
 // For NodeMCU
 //#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 // For DEBUG. Leave RX/TX used for Serial
-//#define PINS D0, D1, D4, D5, D6, D7, D6, D7
+#define PINS D0, D1, D4, D5, D6, D7, D6, D7
 
 // Position of pins affected by Wave function in list
 // If not changed from default that means D0, D1, D4, D5
@@ -141,15 +141,16 @@ class Socket: public DoubleSchedule, public Override {
     digitalWrite(pin, LOW);
     wave = w;
   }
-  String        name = "";
-  LastChanged   overrideBy = SOCKET;
+  String        name        = "";
+  LastChanged   overrideBy  = SOCKET;
   //OverrideMode  socketOverride;
-  Override*     group = NULL;
+  Override*     group       = NULL;
   //OverrideMode  groupOverride;
   OverrideMode  feedOverride = SNA;
-  OverrideMode  schedule = SNA;
-  Override*         wave = NULL;
-  String        waveType = "100";      
+  OverrideMode  schedule    = SNA;
+  OverrideMode  manual      = SNA;
+  Override*     wave        = NULL;
+  String        waveType    = "100";      
   DoubleSchedule times;
   void turn(OverrideMode state) {
     if (state == SON) {
@@ -341,14 +342,7 @@ uint32_t socketsTask() {
         switched = true;
       }
     }
-    /*
-    // Feed override
-    if (!switched && feed->mode != SNA && (feed->mode == socket[i]->feedOverride) ) {
-      //Serial.println("GLOBAL FEED");
-      socket[i]->turn(feed->mode);
-      switched = true;
-    }*/
-    // Feed schedule
+    // Feed
     if (!switched && socket[i]->feedOverride != SNA && (feedSchedule.active() || feed->mode != SNA)) {
       //Serial.println("SCHED FEED");
       if (feed->mode == SON || (feedSchedule.active(getTime()) && feed->mode != SOFF)) {
@@ -358,6 +352,12 @@ uint32_t socketsTask() {
         socket[i]->turn(!socket[i]->feedOverride);
       }*/
     }
+    /*
+    if (!switched && socket[i]->manual == SON) {
+      socket[i]->turn(SON);
+      switched = true;
+    }
+    */
     // Socket schedule
     if (!switched && socket[i]->active()) {
       //Serial.println("SCHED SOCKET");
@@ -371,7 +371,8 @@ uint32_t socketsTask() {
     if (!switched) {
       //Serial.print("ELSE: ");
       //Serial.println(socket[i]->mode);
-      socket[i]->turn(socket[i]->mode);
+      //socket[i]->turn(socket[i]->mode); was before add manual mode
+      socket[i]->turn(socket[i]->manual);
     }
   }
   return 100;
