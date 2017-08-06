@@ -2340,13 +2340,12 @@
 			
 			
 			/* for timer disable on off*/
-			$(document).on("click",".socket_iner_btn_1 .toggle.btn ",function(){
+			$(document).on("change",".socket_iner_btn_1 .toggle.btn ",function(){
 				if($(this).hasClass("toggle btn btn-xs ios btn-primary")){
 					$(this).closest('.socket_tog').find(".socket_inner_div_1 .clockpicker").removeClass("off_d"); //enable
 					$(this).closest('.socket_tog').find("div .socket_iner_btn_2 input").bootstrapToggle('enable'); //enable
 					$(this).closest('.custom-well-socket').find(".socket_toggle #check_sockets ").addClass('none'); //enable
-					$(this).closest('.custom-well-socket').find(".buton_replace_socket ").removeClass('none'); //enable
-			
+					$(this).closest('.custom-well-socket').find(".buton_replace_socket ").removeClass('none'); //enable		
 				}else{
 					$(this).closest('.socket_tog').find("div .clockpicker").addClass("off_d"); //disable
 					$(this).closest('.socket_tog').find("div .socket_iner_btn_2 input").bootstrapToggle('off').bootstrapToggle('disable');
@@ -2356,7 +2355,7 @@
 				}
 			});
 			
-			$(document).on("click",".socket_iner_btn_2 .toggle.btn ",function(){
+			$(document).on("change",".socket_iner_btn_2 .toggle.btn ",function(){
 				if($(this).hasClass("toggle btn btn-xs ios btn-primary")){
 					$(this).closest('.socket_tog').find(".socket_inner_div_2 .clockpicker").removeClass("off_d"); //enable
 			
@@ -2595,9 +2594,9 @@
 			if (dif1 < 10) dif1 = '0' + dif1;
 			if (dif2 < 10) dif2 = '0' + dif2;
 			result = dif1 + ':' + dif2;
-			fone = dif1;
-			foneone = dif2;
-			runtime.text(result);
+			//fone = dif1;
+			//foneone = dif2;
+			//runtime.text(result);
 			
 			var ttl_minute1 = (dif1*60)+ parseInt(dif2) ;
 			
@@ -2638,6 +2637,7 @@
 			var end = convert($('.clockpicker.end.t11').find('input')[0].value);
 			var dif1 = parseInt(end) - parseInt(start);
 			var dif2 = parseInt(end.substr(3)) - parseInt(start.substr(3));
+			/*
 			var result1 = '00:00';
 			if (dif1 < 0) {
 				dif1 = 24 + dif1;
@@ -2676,7 +2676,7 @@
 			
 			end_1 = new Date(currentDate.getTime() + (ttl_minute1 * 60 * 1000));
 			timer_1 = setInterval(function() { showRemaining(".count_down1",'','',end_1); }, 1000);
-			
+			*/
 		
 		});
 	});
@@ -3663,6 +3663,7 @@ $(document).ready(function(){
 		var ends = new Date(currentDates.getTime() + (50 * 60 * 1000));
 		
 		function showRemainings() {
+		return false;
 			var startDates = new Date();
 			var distance = ends - startDates;
 			if (distance < 0) {
@@ -3681,7 +3682,7 @@ $(document).ready(function(){
 		}
 		
 		$(document).ready(function(){
-			timers = setInterval(showRemainings, 1000);
+			//timers = setInterval(showRemainings, 1000);
 			initArduinoIO();
 		});
 

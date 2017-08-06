@@ -27,7 +27,9 @@ String getContentType(String filename) {
   else if(filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
-
+String swState(OverrideMode o) {
+  return (o==SON)?"on":(o==SOFF)?"off":"default";
+}
 // callback function that is called by Web server in case if /ajax_input?...
 void ajaxInputs() {
   char data[400];   // sprintf buffer
@@ -295,7 +297,7 @@ void ajaxInputs() {
   }
   // Socket switch state
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Manual>%s</Manual><Socket>%s</Socket>\n"), (socket[i]->manual == SON)?"checked":"unckecked", socket[i]->isOn()?"checked":"unckecked");
+    sprintf_P(data, PSTR("<Manual>%s</Manual><Socket>%s</Socket>\n"), (socket[i]->manual == SON)?"checked":"unckecked", swState(socket[i]->mode).c_str());
     res += data;
   }
   // Socket override timers state and group
@@ -307,13 +309,14 @@ void ajaxInputs() {
         continue; 
       }
     }
-    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<Group>%d</Group>\n<Override>%lu</Override><name>%s</name>"),
+    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n<Group>%d</Group>\n<Override>%lu</Override><name>%s</name>"),
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
               timeToStr(socket[i]->schedule1.on).c_str(),
               timeToStr(socket[i]->schedule1.off).c_str(),
               timeToStr(socket[i]->schedule2.on).c_str(),
               timeToStr(socket[i]->schedule2.off).c_str(),
+              timeToStr24(socket[i]->duration()/60).c_str(),
               gr,
               taskRemainder(socketTasks[i]) / 1000,
               socket[i]->name.c_str()
@@ -321,8 +324,9 @@ void ajaxInputs() {
     res += data;
   }
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Switch>%s</Switch><Waiting>%s</Waiting>"),
+    sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
               (socket[i]->mode==SON)?"on":(socket[i]->mode==SOFF)?"off":"default",
+              taskRemainder(socketTasks[i])/1000,
               (socket[i]->modeWaiting==SON)?"on":(socket[i]->modeWaiting==SOFF)?"off":"default"
               );
     res += data;

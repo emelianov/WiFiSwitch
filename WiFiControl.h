@@ -1,10 +1,10 @@
 #pragma once
 // For D1 R2 and mini
-//#define PINS D0, D1, D4, D5, D6, D7, RX, TX
+#define PINS D0, D1, D4, D5, D6, D7, RX, TX
 // For NodeMCU
 //#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 // For DEBUG. Leave RX/TX used for Serial
-#define PINS D0, D1, D4, D5, D6, D7, D6, D7
+//#define PINS D0, D1, D4, D5, D6, D7, D6, D7
 
 // Position of pins affected by Wave function in list
 // If not changed from default that means D0, D1, D4, D5
@@ -102,6 +102,13 @@ class Schedule {
     off = toff;
     act = true;
   }
+  uint32_t duration() {
+    if (!active()) return 0;
+    if (on < off)  // |   |T1|####|T2|   |
+        return off - on;
+      else                  // |###|T1|   |T2|###|
+        return on - off;
+  }
 };
 
 uint32_t wavePulse(); // Forward declaration
@@ -128,6 +135,9 @@ class DoubleSchedule {
     if (schedule1.active()) r = r || schedule1.active(t);
     if (schedule2.active()) r = r || schedule2.active(t);
     return r;
+  }
+  uint32_t duration() {
+    return schedule1.duration() + schedule2.duration();
   }
   Schedule schedule1;
   Schedule schedule2;

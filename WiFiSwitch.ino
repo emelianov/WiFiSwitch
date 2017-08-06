@@ -138,17 +138,17 @@ uint32_t wifiManager() {
    wifiManager.setSTAStaticIPConfig(_ip, _gw, _mask);
   }
   */
-  //while(
-    wifiManager.startConfigPortal(WIFI_SETUP_AP);//) {
+  while(
+    wifiManager.startConfigPortal(WIFI_SETUP_AP)) {
   //  Serial.print("Connected to ");
   //  Serial.println(WiFi.SSID());
     //event.wifiConnected++;
-  //} 
+  } 
   //if you get here you have connected to the WiFi
   //Serial.println("connected...yeey :)");
   if (event.saveParams > 0) {
      saveConfig();
-     //ESP.reset();
+     ESP.reset();
   }
   RUN_DELETE;
 }
