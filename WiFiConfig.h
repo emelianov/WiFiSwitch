@@ -5,10 +5,14 @@
 #define STATE "/state.xml"
 
 WiFiManagerParameter pNet("IP/Mask/Gw/DNS");
+/*
 WiFiManagerParameter pIp("ip", "IP", ip.c_str(), 16);
 WiFiManagerParameter pMask("mask", "Network mask", mask.c_str(), 16);
 WiFiManagerParameter pGw("gw", "Default gateway", gw.c_str(), 16);
 WiFiManagerParameter pDns("dns", "DNS", dns.c_str(), 16);
+*/
+WiFiManagerParameter pNameT("Device name");
+WiFiManagerParameter pName("name", "DEVICE NAME", name.c_str(), 40);
 WiFiManagerParameter pNtp("NTP Servers");
 WiFiManagerParameter pNtp1("ntp1", "NTP server", ntp1.c_str(), 40);
 WiFiManagerParameter pNtp2("ntp2", "NTP server", ntp2.c_str(), 40);
@@ -92,7 +96,7 @@ uint32_t readConfig() {
       (xmlTag.endsWith(F("/adminpass"))) {
         pass = xmlData;
        } else if 
-      (xmlTag.endsWith(F("/ip"))) {
+/*      (xmlTag.endsWith(F("/ip"))) {
         if (xmlData.length() > 7) {
             dhcp = false;
             ip = xmlData;
@@ -106,7 +110,7 @@ uint32_t readConfig() {
        }  else if 
       (xmlTag.endsWith(F("/dns"))) {
         dns = xmlData;
-       } else if 
+       } else if */
       (xmlTag.endsWith(F("/ntp1"))) {
         ntp1 = xmlData;
        } else if 
@@ -129,10 +133,11 @@ uint32_t readConfig() {
 }
 
 uint32_t saveConfig() {
-   ip = pIp.getValue();
-   mask = pMask.getValue();
-   gw = pGw.getValue();
-   dns = pDns.getValue();
+//   ip = pIp.getValue();
+//   mask = pMask.getValue();
+//   gw = pGw.getValue();
+//   dns = pDns.getValue();
+   name = pName.getValue();
    ntp1 = pNtp1.getValue();
    ntp2 = pNtp2.getValue();
    ntp3 = pNtp3.getValue();
@@ -142,11 +147,11 @@ uint32_t saveConfig() {
     char buf[400];
     sprintf_P(buf, PSTR("<?xml version = \"1.0\" ?>\n<config>\n"));
     configFile.write((uint8_t*)buf, strlen(buf));
-    if (ip.length() >= 8) {
-      sprintf_P(buf, PSTR("<ip>%s</ip><mask>%s</mask>\n<gw>%s</gw>\n<dns>%s</dns>"), ip.c_str(), mask.c_str(), gw.c_str(), dns.c_str());
-      configFile.write((uint8_t*)buf, strlen(buf));
-    }
-    sprintf_P(buf, PSTR("<ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone></config>"), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt());
+  //  if (ip.length() >= 8) {
+  //    sprintf_P(buf, PSTR("<ip>%s</ip><mask>%s</mask>\n<gw>%s</gw>\n<dns>%s</dns>"), ip.c_str(), mask.c_str(), gw.c_str(), dns.c_str());
+  //    configFile.write((uint8_t*)buf, strlen(buf));
+  //  }
+    sprintf_P(buf, PSTR("<name>%s</name><ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone></config>"), name.c_str(), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt());
     configFile.write((uint8_t*)buf, strlen(buf));
     configFile.close();
    }

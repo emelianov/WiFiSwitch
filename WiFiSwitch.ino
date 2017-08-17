@@ -42,12 +42,13 @@ statuses status;
 #define PUMP_QUAD_RND     "144"
 
 #define GROUP_HTML_BASE 11
-
+/*
 bool   dhcp = true;
 String ip   = "192.168.20.99";
 String mask = "255.255.255.0";
 String gw   = "192.168.20.2";
 String dns  = "192.168.20.2";
+*/
 String ntp1 = "192.168.30.30";
 String ntp2 = "192.168.30.4";
 String ntp3 = "pool.ntp.org";
@@ -55,7 +56,7 @@ String tz   = "5";
 String admin = "admin";
 String pass = "password";
 float amps = 0;     // Current value from A0
-
+String name = "socket";
 //Select one of following AC current read implementations
 // ---------------------------
  #include "WiFiACSimple.h"
@@ -66,6 +67,8 @@ float amps = 0;     // Current value from A0
 #include "WiFiControl.h"
 #include "WiFiConfig.h"
 #include "WiFiWeb.h"
+#include "discovery.h"
+#include "update.h"
 
 #define WIFI_SETUP_AP "AutoConnectAP"
 #define WIFI_CHECK_DELAY 1000
@@ -73,6 +76,7 @@ float amps = 0;     // Current value from A0
 
 uint32_t wifiStart() {
   WiFi.mode(WIFI_STA);
+/*
   if (!dhcp) {
    IPAddress _ip, _gw, _mask, _dns;
    _ip.fromString(ip);
@@ -81,6 +85,7 @@ uint32_t wifiStart() {
    _dns.fromString(dns);
    WiFi.config(_ip, _gw, _mask, _dns);
   }
+*/
   WiFi.begin();
   //Serial.print("Connecting to ");
   //Serial.println(WiFi.SSID());
@@ -117,6 +122,7 @@ uint32_t wifiManager() {
   WiFiManager wifiManager;
   wifiManager.setSaveConfigCallback(cbSaveParams);
   wifiManager.resetSettings();
+  /*
   wifiManager.setTimeout(180);
   wifiManager.addParameter(&pNet);
   wifiManager.addParameter(&pIp);
@@ -128,6 +134,8 @@ uint32_t wifiManager() {
   wifiManager.addParameter(&pNtp2);
   wifiManager.addParameter(&pNtp3);
   wifiManager.addParameter(&pTz);
+  */
+  wifiManager.addParameter(&pName);
   //wifiManager.setConnectTimeout(WIFI_CHECK_DELAY * WIFI_CHECK_COUNT);
   /*
   if (!dhcp) {
@@ -207,7 +215,7 @@ uint32_t initDbg2() {
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
-  //Serial.begin(74880);    //For debug
+  Serial.begin(74880);    //For debug
   SPIFFS.begin();
   xml.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
@@ -219,6 +227,8 @@ void setup() {
   //taskAdd(initDbg);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
+  taskAddWithSemaphore(discovery, &event.wifiConnected);
+  taskAddWithSemaphore(initUpdate, &event.wifiConnected);
   //taskAdd(printTime);     //For debug
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event

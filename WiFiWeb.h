@@ -518,7 +518,7 @@ void handleOverride() {
 
 uint32_t webHandle() {
   server.handleClient();
-  return 100;
+  return 1;
 }
 uint32_t initWeb() {
   //Serial.println("Init WebServer");
