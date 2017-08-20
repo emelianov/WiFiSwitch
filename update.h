@@ -35,6 +35,10 @@ void tarEof() {
   //Serial.setDebugOutput(false);
 }
 
+uint32_t restartESP() {
+  ESP.restart();
+  return RUN_DELETE;
+}
 uint32_t initUpdate(){
     tar.onFile(tarFile);
     tar.onData(tarData);
@@ -43,7 +47,8 @@ uint32_t initUpdate(){
     server.on("/update", HTTP_POST, [](){
       server.sendHeader("Connection", "close");
       server.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
-      ESP.restart();
+      taskAddWithDelay(restartESP, 2000);
+      //ESP.restart();
     },[](){
       HTTPUpload& upload = server.upload();
       if(upload.status == UPLOAD_FILE_START){

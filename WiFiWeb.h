@@ -375,8 +375,45 @@ void listFile() {
   }
 #endif
   String output = "<html><head><meta charset='utf-8'>\
-  <title>ESP8266 - File operations</title>\
+  <title>WiFiSocket - Maintains</title>\
+\
+ <style>\
+.well{background-image:-webkit-linear-gradient(top,#e8e8e8 0,#f5f5f5 100%);\
+background-image:-o-linear-gradient(top,#e8e8e8 0,#f5f5f5 100%);\
+background-image:-webkit-gradient(linear,left top,left bottom,from(#e8e8e8),to(#f5f5f5));\
+background-image:linear-gradient(to bottom,#e8e8e8 0,#f5f5f5 100%);\
+filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffe8e8e8', endColorstr='#fff5f5f5', GradientType=0);\
+background-repeat:repeat-x;\
+border-color:#dcdcdc;\
+-webkit-box-shadow:inset 0 1px 3px rgba(0,0,0,.05),0 1px 0 rgba(255,255,255,.1);\
+box-shadow:inset 0 1px 3px rgba(0,0,0,.05),0 1px 0 rgba(255,255,255,.1)}\
+.well{min-height:20px;padding:19px;margin-bottom:20px;background-color:#f5f5f5;border:1px solid #e3e3e3;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.05);box-shadow:inset 0 1px 1px rgba(0,0,0,.05)}\
+.well blockquote{border-color:#ddd;border-color:rgba(0,0,0,.15)}\
+.container{padding-right:15px;padding-left:15px;margin-right:auto;margin-left:auto}\
+.col-xs-9{position:relative;min-height:1px;padding-right:15px;padding-left:15px}\
+body{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}\
+h4,h4{font-size:18px}\
+ </style>\
+\
+  </head>\
   <body>\
+\
+<div class='col-xs-9'><h4>Wifi Socket Control - Maintains</h4></div>\
+ <div class='container'><div class='well'>\
+ <b>Network settings</b>\
+ <hr>\
+ <form method='POST' action='/net' enctype='multipart/form-data'>\
+  <table>\
+  <tr><td>IP</td><td>...</td></tr>\
+  <tr><td>Mask</td><td>255.255.255.0</td></tr>\
+  <input type='submit' value='Apply'>\
+  </table>\
+ </form>\
+ </div></div>\
+\
+<div class='container'><div class='well'>\
+ <b>Local file system</b>\
+ <hr>\
   <form method='POST' action='/edit' enctype='multipart/form-data'>\
   Upload file to local filesystem:<br>\
    <input type='file' name='update'>\
@@ -392,7 +429,16 @@ void listFile() {
     output += "<br>";
     entry.close();
   }
-  output += "</body><html>";
+  output += "</div></div>\
+\
+<div class='container'><div class='well'>\
+ <b>Firmware update</b>\
+ <hr>\
+ Current version: ";
+ output += VERSION;
+ output += "\
+  <form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update' accept='.tar'><input type='submit' value='Update'></form>\
+  </div></div></body><html>";
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.sendHeader("Access-Control-Allow-Origin", "*");

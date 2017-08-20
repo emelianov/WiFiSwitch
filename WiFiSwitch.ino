@@ -6,6 +6,8 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
+#define VERSION "0.5.0"
+
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
 // Current query interval (mS)

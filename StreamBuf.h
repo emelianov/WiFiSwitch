@@ -46,6 +46,20 @@ class StreamBuf : public Stream {
   void flush() {
     pos = length;
   }
+  /*
+  // Needs to be implemented for speed-up
+  size_t Stream::readBytes(char *buffer, size_t length)
+  {
+    size_t count = 0;
+    while (count < length) {
+      int c = timedRead();
+      if (c < 0) break;
+      *buffer++ = (char)c;
+      count++;
+    }
+    return count;
+  }
+  */
   private:
   size_t pos;
   uint8_t* buff;
