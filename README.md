@@ -9,16 +9,20 @@
 * [A fork of Jeelab's fantastic RTC library](https://github.com/adafruit/RTClib)
 * [ESP8266 WiFi Connection manager with web captive portal](https://github.com/tzapu/WiFiManager)
 * [A realtime digital signal processing (DSP) library for Arduino](https://github.com/JonHub/Filters)
+* [Extremely simple tar extractor Arduino library](https://github.com/emelianov/untarArduino)
+
 
 ### Release notes
 
-* To reset network configuration and activate open Access Point mode Pull Up D8 for 3 seconds. Warning! Socket switching operations are suspended while configuration mode is active
+* Current version is tested only with ESP8266 Core for Arduino 2.4RC1. To build with previous releases comment `MACOS` definition in `discoverh.h`.
+
+* Pull Up D8 for 3 seconds startst network configuration and activate open Access Point. Warning! Socket switching operations are suspended while configuration mode is active.
+
+* Pull Up D8 shortly initiates firmware reboot.
+
+* To access web-front use `http://socket.local` for macOS or `http://socket` for Windows. Name can be changed under network configuration.
 
 * Default IP in Access Point mode is 192.168.4.1
-
-* Set IP address field to blank to use DHCP settings
-
-* After configuration click save and perform ESP reset to activate settings
 
 * Current configuration settings is stored in `config.xml` file
 
@@ -31,4 +35,4 @@ Actualy only schedule settings, feed reaction and group membership saved as it c
 
 * Sockets 1-4 affected by Wave function
 
-* SPIFFS should be set to 3M (1M if not enought)
+\

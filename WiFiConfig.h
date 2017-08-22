@@ -13,11 +13,11 @@ WiFiManagerParameter pDns("dns", "DNS", dns.c_str(), 16);
 */
 WiFiManagerParameter pNameT("Device name");
 WiFiManagerParameter pName("name", "DEVICE NAME", name.c_str(), 40);
-WiFiManagerParameter pNtp("NTP Servers");
-WiFiManagerParameter pNtp1("ntp1", "NTP server", ntp1.c_str(), 40);
-WiFiManagerParameter pNtp2("ntp2", "NTP server", ntp2.c_str(), 40);
-WiFiManagerParameter pNtp3("ntp3", "NTP server", ntp3.c_str(), 40);
-WiFiManagerParameter pTz("tz", "Time Zone", tz.c_str(), 4);
+//WiFiManagerParameter pNtp("NTP Servers");
+//WiFiManagerParameter pNtp1("ntp1", "NTP server", ntp1.c_str(), 40);
+//WiFiManagerParameter pNtp2("ntp2", "NTP server", ntp2.c_str(), 40);
+//WiFiManagerParameter pNtp3("ntp3", "NTP server", ntp3.c_str(), 40);
+//WiFiManagerParameter pTz("tz", "Time Zone", tz.c_str(), 4);
 
 
 //XML processor settings
@@ -122,6 +122,9 @@ uint32_t readConfig() {
        } else if 
       (xmlTag.endsWith(F("/timezone"))) {
         tz = xmlData.toInt();
+       } else if 
+      (xmlTag.endsWith(F("/name"))) {
+        name = xmlData;
        }
       xmlTag = "";
       xmlData = "";
@@ -138,10 +141,10 @@ uint32_t saveConfig() {
 //   gw = pGw.getValue();
 //   dns = pDns.getValue();
    name = pName.getValue();
-   ntp1 = pNtp1.getValue();
-   ntp2 = pNtp2.getValue();
-   ntp3 = pNtp3.getValue();
-   tz = pTz.getValue();
+//   ntp1 = pNtp1.getValue();
+//   ntp2 = pNtp2.getValue();
+//   ntp3 = pNtp3.getValue();
+//   tz = pTz.getValue();
    File configFile = SPIFFS.open(F(CFG), "w");
    if (configFile) {
     char buf[400];

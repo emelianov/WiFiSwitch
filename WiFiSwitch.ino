@@ -121,11 +121,15 @@ void cbConnected(WiFiManager *wfm) {
 }
 
 uint32_t wifiManager() {
+  server.stop();
   WiFiManager wifiManager;
+  WiFi.mode(WIFI_OFF);
+  delay(1000);
   wifiManager.setSaveConfigCallback(cbSaveParams);
-  wifiManager.resetSettings();
+  //wifiManager.resetSettings();
+  wifiManager.setBreakAfterConfig(true);
+  wifiManager.setTimeout(60);
   /*
-  wifiManager.setTimeout(180);
   wifiManager.addParameter(&pNet);
   wifiManager.addParameter(&pIp);
   wifiManager.addParameter(&pMask);
@@ -148,17 +152,20 @@ uint32_t wifiManager() {
    wifiManager.setSTAStaticIPConfig(_ip, _gw, _mask);
   }
   */
-  while(
-    wifiManager.startConfigPortal(WIFI_SETUP_AP)) {
+  //while(
+  //  wifiManager.autoConnect()) {
+    wifiManager.startConfigPortal(WIFI_SETUP_AP);//) {
   //  Serial.print("Connected to ");
   //  Serial.println(WiFi.SSID());
     //event.wifiConnected++;
-  } 
+  //} 
   //if you get here you have connected to the WiFi
-  //Serial.println("connected...yeey :)");
+  Serial.println("config done");
   if (event.saveParams > 0) {
      saveConfig();
-     ESP.reset();
+     Serial.println("save done");
+     delay(1000);
+     ESP.restart();
   }
   RUN_DELETE;
 }
@@ -188,11 +195,13 @@ uint32_t keyPressed() {
 // Called on Key Release Event
 uint32_t keyReleased() {
   taskDel(keyLongPressed);
+  ESP.reset();
   return RUN_NEVER;
 }
 // Called if Key Pressed for KEY_LONG_TIME mS
 uint32_t keyLongPressed() {
   //digitalWrite(D0, HIGH);
+  taskDel(keyReleased);
   turnOffAllSockets();
   wifiManager();
   //digitalWrite(D0, LOW);

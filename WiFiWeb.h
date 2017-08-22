@@ -12,7 +12,7 @@ ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
 // Determinating conternt type header attribute depending on file extension
 String getContentType(String filename) {
-  if(server.hasArg("download")) return "application/octet-stream";
+  if(server.hasArg("download")) return F("application/octet-stream");
   else if(filename.endsWith(".htm")) return "text/html";
   else if(filename.endsWith(".html")) return "text/html";
   else if(filename.endsWith(".css")) return "text/css";
@@ -374,7 +374,7 @@ void listFile() {
     return server.requestAuthentication();
   }
 #endif
-  String output = "<html><head><meta charset='utf-8'>\
+  String output = F("<html><head><meta charset='utf-8'>\
   <title>WiFiSocket - Maintains</title>\
 \
  <style>\
@@ -404,8 +404,25 @@ h4,h4{font-size:18px}\
  <hr>\
  <form method='POST' action='/net' enctype='multipart/form-data'>\
   <table>\
-  <tr><td>IP</td><td>...</td></tr>\
-  <tr><td>Mask</td><td>255.255.255.0</td></tr>\
+  <tr><td>IP</td><td>");
+  output += WiFi.localIP().toString();
+  output += F("</td></tr>\
+  <tr><td>Unit Name</td><td>");
+  output += name;
+  output += F("</td></tr>\
+  <tr><td>NTP Server 1</td><td>");
+  output += ntp1;
+  output += F("</td></tr>\
+  <tr><td>NTP Server 2</td><td>");
+  output += ntp2;
+  output += F("</td></tr>\
+  <tr><td>NTP Server 3</td><td>");
+  output += ntp3;
+  output += F("</td></tr>\
+  <tr><td>TimeZone</td><td>");
+  output += tz;
+  output += F("</td></tr>\
+  </table>\
   <input type='submit' value='Apply'>\
   </table>\
  </form>\
@@ -418,7 +435,7 @@ h4,h4{font-size:18px}\
   Upload file to local filesystem:<br>\
    <input type='file' name='update'>\
    <input type='submit' value='Upload file'>\
-  </form>";
+  </form>");
   String path = server.hasArg("dir")?server.arg("dir"):"/";
   Dir dir = SPIFFS.openDir(path);
   while(dir.next()){
