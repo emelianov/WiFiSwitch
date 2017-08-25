@@ -4,9 +4,7 @@
 #define MACOS
 #ifdef MACOS
 #include <ESP8266mDNS.h>
-#ifdef ESP8266LLMNR_H
 #include <ESP8266LLMNR.h>
-#endif
 #else
 #include <ESP8266SSDP.h>
 #endif
@@ -20,11 +18,9 @@ uint32_t discovery() {
       MDNS.addService("http", "tcp", 80);  // Add service to MDNS-SD
       Serial.println("mDNS responder started");
     }
-    #ifdef ESP8266LLMNR_H
     // LLMNR
     LLMNR.begin(name.c_str());
     Serial.println("LLMNR reponder started");
-    #endif
 #else
     // SSPD
     server.on("/description.xml", HTTP_GET, [](){

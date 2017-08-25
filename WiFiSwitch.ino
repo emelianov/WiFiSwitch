@@ -128,7 +128,7 @@ uint32_t wifiManager() {
   wifiManager.setSaveConfigCallback(cbSaveParams);
   //wifiManager.resetSettings();
   wifiManager.setBreakAfterConfig(true);
-  wifiManager.setTimeout(60);
+  wifiManager.setTimeout(120);
   /*
   wifiManager.addParameter(&pNet);
   wifiManager.addParameter(&pIp);

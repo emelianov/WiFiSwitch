@@ -41,6 +41,10 @@ uint32_t queryA0() {
    // Subtract min from max
   Voltage =  ((maxValue - minValue) * 5.0)/1024.0;
   VRMS = (Voltage/2.0) *0.707;
-  amps = (VRMS * 1000)/mVperAmp;
+  amps = (VRMS * 1000) / mVperAmp - 0.09;
+  if (amps < 0) {
+    amps = 0.0;
+  }
   return A0_DELAY;
 }
+
