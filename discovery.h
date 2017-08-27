@@ -12,34 +12,32 @@
 uint32_t discovery() {
 #ifdef MACOS
     // MDNS
-    if (!MDNS.begin(name.c_str())) {
-      Serial.println("Error setting up MDNS responder!");
-    } else {
+    if (MDNS.begin(name.c_str())) {
       MDNS.addService("http", "tcp", 80);  // Add service to MDNS-SD
-      Serial.println("mDNS responder started");
+      //Serial.println("mDNS responder started");
     }
     // LLMNR
     LLMNR.begin(name.c_str());
-    Serial.println("LLMNR reponder started");
+    //Serial.println("LLMNR reponder started");
 #else
     // SSPD
     server.on("/description.xml", HTTP_GET, [](){
       SSDP.schema(http.client());
     });
-    Serial.printf("Starting SSDP...\n");
+    //Serial.printf("Starting SSDP...\n");
     SSDP.setSchemaURL("description.xml");
     SSDP.setHTTPPort(80);
-    SSDP.setName("EHSensor ModBus TCP Slave");
+    SSDP.setName("WiFiSwitch");
     SSDP.setSerialNumber(ESP.getChipId());
     SSDP.setURL("index.html");
-    SSDP.setModelName("EHSensor");
-    SSDP.setModelNumber("0.1");
-    SSDP.setModelURL("https://github.com/emelianov/ehsensor");
-    SSDP.setManufacturer("Alexander Emelianov");
-    SSDP.setManufacturerURL("http://github.com/emelianov");
+    SSDP.setModelName("WiFiSwitch-8");
+    SSDP.setModelNumber("0.5.x");
+    SSDP.setModelURL("https://github.com/emelianov/WiFiSwitch");
+    SSDP.setManufacturer("-");
+    SSDP.setManufacturerURL("http://github.com/emelianov/WiFiSwitch");
     SSDP.setDeviceType("urn:schemas-upnp-org:device:SensorManagement:1");
     SSDP.begin();
-    Serial.printf("SSPD responder started\n");
+    //Serial.printf("SSPD responder started\n");
 #endif
     return RUN_DELETE;
 };

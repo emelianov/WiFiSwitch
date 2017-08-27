@@ -1,6 +1,6 @@
 #pragma once
 
-#define INDEX "/index.htm"
+#define INDEX "index.html"
 #define UPLOADUSER  "admin"
 #define UPLOADPASS "password"
 //#undef UPLOADPASS
@@ -581,19 +581,19 @@ void handleOverride() {
 
 uint32_t webHandle() {
   server.handleClient();
-  return 1;
+  return 100;
 }
 uint32_t initWeb() {
   //Serial.println("Init WebServer");
     server.on("/ajax_inputs", HTTP_GET, ajaxInputs);  // call function ajaxInputs() if Web Server gets request http://192.168.1.20/ajax_inputs?LED1=0...
     // You can add multiple server.on(url...) to handle different url by specific routines
-    server.on(INDEX, HTTP_GET, indexFile); // call function indexFile() on GET <INDEX>
+    //server.on(INDEX, HTTP_GET, indexFile);                    // call function indexFile() on GET <INDEX>
     server.on("/list", HTTP_GET, listFile);                   // List/Upload/Delete page
-    server.on("/delete", HTTP_GET, handleDelete);                   // Delete File
+    server.on("/delete", HTTP_GET, handleDelete);             // Delete File
     server.on("/edit", HTTP_POST, handleFile, handleFileUpload);    // Upload file
-    server.onNotFound(anyFile);         // call function anyFile() on any other requests
+    server.onNotFound(anyFile);                               // call function anyFile() on any other requests
     server.on("/socket", HTTP_GET, handleOverride);
-    server.begin();                     // start to listen for clients 
+    server.begin();                                           // start to listen for clients 
     taskAdd(webHandle);
     return RUN_DELETE;
 }

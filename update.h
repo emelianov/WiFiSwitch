@@ -1,13 +1,14 @@
 #pragma once
+#define TAR_SILENT
 #include <untar.h>
 #include "StreamBuf.h"
 
-const char* serverIndex = "<form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update'><input type='submit' value='Update'></form>";
 Tar<FS> tar(&SPIFFS);
 StreamBuf sb;
 char* fwfile = "firmware.bin";
 bool isFW = false;
 
+// TAR Callback. Called on every file.
 bool tarFile(char* b) {
   if (strcmp(b, fwfile) == 0) {
     isFW = true;
@@ -15,24 +16,18 @@ bool tarFile(char* b) {
   }
   return true;
 }
-
+// TAR Callback. Called on each data block.
 void tarData(char* b, size_t s) {
   if(isFW) {
-    if(Update.write((uint8_t*)b, s) != s){
-      Update.printError(Serial);
-    }
+    Update.write((uint8_t*)b, s);
+//    if(Update.write((uint8_t*)b, s) != s){
+//      Update.printError(Serial);
+//    }
   }
 }
-
+// TAR Callback. Called on each file end.
 void tarEof() {
   isFW = false;
-  Serial.println("EOF");
-  //if(Update.end(true)){ //true to set the size to the current progress
-  //  Serial.printf("Update Success: %u\nRebooting...\n", 0);
-  //} else {
-  //  Update.printError(Serial);
-  //}
-  //Serial.setDebugOutput(false);
 }
 
 uint32_t restartESP() {
@@ -40,44 +35,56 @@ uint32_t restartESP() {
   return RUN_DELETE;
 }
 uint32_t initUpdate(){
+    sb.setTimeout(1);     // Minimize read delay
     tar.onFile(tarFile);
     tar.onData(tarData);
     tar.onEof(tarEof);
     tar.dest("/");
     server.on("/update", HTTP_POST, [](){
+      #ifdef UPLOADPASS
+      if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
+        return server.requestAuthentication();
+      }
+      #endif
       server.sendHeader("Connection", "close");
-      server.send(200, "text/plain", (Update.hasError())?"FAIL":"OK");
-      taskAddWithDelay(restartESP, 2000);
-      //ESP.restart();
+      server.sendHeader("Refresh", "5; url=/list");
+      server.send(200, "text/plain", (Update.hasError())?"Update failed. Rebooting...":"Update OK. Rebooting...");
+      taskAddWithDelay(restartESP, 1000);
     },[](){
+      #ifdef UPLOADPASS
+      if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
+        return server.requestAuthentication();
+      }
+      #endif
       HTTPUpload& upload = server.upload();
       if(upload.status == UPLOAD_FILE_START){
-        Serial.setDebugOutput(true);
+        //Serial.setDebugOutput(true);
         WiFiUDP::stopAll();
-        Serial.printf("Update: %s\n", upload.filename.c_str());
+        //Serial.printf("Update: %s\n", upload.filename.c_str());
         uint32_t maxSketchSpace = (ESP.getFreeSketchSpace() - 0x1000) & 0xFFFFF000;
         if(!Update.begin(maxSketchSpace)){//start with max available size
-          Serial.println(maxSketchSpace);
-          Update.printError(Serial);
+          //Serial.println(maxSketchSpace);
+          //Update.printError(Serial);
         }
         tar.open((Stream*)&sb);
       } else if(upload.status == UPLOAD_FILE_WRITE){
           //Serial.print("Block: ");
           //Serial.println(upload.currentSize);
-          Serial.print(".");
+          //Serial.print(".");
           sb.open((uint8_t*)&upload.buf, upload.currentSize);
           tar.extract();
-          //if(Update.write(upload.buf, upload.currentSize) != upload.currentSize){
-          //  Update.printError(Serial);
-          //}
+          //Serial.print("o");
       }
       if(upload.status == UPLOAD_FILE_END){
+        Update.end(true);
+      /*
         if(Update.end(true)){ //true to set the size to the current progress
           Serial.printf("Update Success: %u\nRebooting...\n", upload.totalSize);
         } else {
           Update.printError(Serial);
        }
-        Serial.setDebugOutput(false);
+       Serial.setDebugOutput(false);
+      */
       }
     });
 }
