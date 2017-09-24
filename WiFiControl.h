@@ -4,7 +4,7 @@
 // For NodeMCU
 //#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 // For DEBUG. Leave RX/TX used for Serial
-#define PINS D0, D1, D4, D5, D6, D7, D6, D7
+#define PINS D7, D1, D4, D5, D6, D7, D6, D7
 
 // Position of pins affected by Wave function in list
 // If not changed from default that means D0, D1, D4, D5
@@ -162,23 +162,29 @@ class Socket: public DoubleSchedule, public Override {
   Override*     wave        = NULL;
   String        waveType    = "100";      
   DoubleSchedule times;
+  bool enabled              = true;
+  OverrideMode  actualState = SOFF;
   void turn(OverrideMode state) {
     if (state == SON) {
       if (wave != NULL) {
         if (wave->isOn()) {
           //Serial.println("ON (Wave)");
+          actualState = SON;
           digitalWrite(pin, LOW);
         }
         if (wave->isOff()) {
           //Serial.println("OFF (Wave)");
+          actualState = SOFF;
           digitalWrite(pin, HIGH);
         }
       } else {
         //Serial.println("ON");
+        actualState = SON;
         digitalWrite(pin, LOW);
       }
     } else {
       //Serial.println("OFF");
+      actualState = SOFF;
       digitalWrite(pin, HIGH);
     }
   }
@@ -334,6 +340,7 @@ uint32_t socketsTask() {
   for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
 //uint8_t i = 2;
 //{
+    socket[i]->enabled = true;
     bool switched = false;
     // Socket override
     if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
@@ -349,6 +356,7 @@ uint32_t socketsTask() {
         //Serial.print("GROUP ");
         //Serial.println(socket[i]->group->mode == SNA?"NA":"ON/OFF");
         socket[i]->turn(socket[i]->group->mode);
+        socket[i]->enabled = false;
         switched = true;
       }
     }
@@ -357,6 +365,7 @@ uint32_t socketsTask() {
       //Serial.println("SCHED FEED");
       if (feed->mode == SON || (feedSchedule.active(getTime()) && feed->mode != SOFF)) {
         socket[i]->turn(socket[i]->feedOverride);
+        socket[i]->enabled = false;
         switched = true;
       }/* else {
         socket[i]->turn(!socket[i]->feedOverride);

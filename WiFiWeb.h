@@ -287,6 +287,7 @@ void ajaxInputs() {
               (feed->modeWaiting==SON)?"on":(feed->modeWaiting==SOFF)?"off":"default"
               );
   res += data;
+  res += "\n";
   for (i = 0; i < GROUP_COUNT; i++) {
     sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
               (group[i]->mode==SON)?"on":(group[i]->mode==SOFF)?"off":"default",
@@ -295,9 +296,10 @@ void ajaxInputs() {
               );
     res += data;
   }
+  res += "\n";
   // Socket switch state
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Manual>%s</Manual><Socket>%s</Socket>\n"), (socket[i]->manual == SON)?"checked":"unckecked", swState(socket[i]->mode).c_str());
+    sprintf_P(data, PSTR("<Manual>%s</Manual><Socket>%s</Socket><Enabled>%s</Enabled><SState>%s</SState>\n"), (socket[i]->manual == SON)?"checked":"unckecked", swState(socket[i]->mode).c_str(), socket[i]->enabled?"1":"0", socket[i]->actualState==SON?"1":"0");
     res += data;
   }
   // Socket override timers state and group

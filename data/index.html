@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=0.9">
-    <title>BSS_Test.bsdesign_170414</title>
+    <title>Wi-Fi Switch</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="http://weareoutman.github.io/clockpicker/dist/jquery-clockpicker.min.css">
@@ -2353,7 +2353,7 @@ $(window).on('scroll', function() {
 						changeStateWave=!0
 						sequence++;
 						});
-	GetArduinoIO()
+	GetArduinoIO();
 }
 
 function GetArduinoIO(){
@@ -2364,8 +2364,6 @@ function GetArduinoIO(){
 					4==this.readyState&&200==this.status&&null!=this.responseXML&&(this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue>=sequence)&&
 																					(AnalogXMLupdate(this.responseXML.getElementsByTagName("analog")),
 																					TimerToggleXMLupdate(this.responseXML.getElementsByTagName("TimerCheckbox")),
-																					SocketXMLupdate(this.responseXML.getElementsByTagName("Socket"),
-																									this.responseXML.getElementsByTagName("Manual")),
 																					TimerValueXMLupdate(this.responseXML.getElementsByTagName("TimerValue")),
 																					CheckBoxUpdate(this.responseXML.getElementsByTagName("Switch"),
 																									this.responseXML.getElementsByTagName("Waiting")),
@@ -2376,7 +2374,12 @@ function GetArduinoIO(){
 																								this.responseXML.getElementsByTagName("Switch")),
 																					NameUpdate(this.responseXML.getElementsByTagName("name")),
 																					TimeUpdate(this.responseXML.getElementsByTagName("time")),
-																					DuratonUpdate(this.responseXML.getElementsByTagName("Duration")))
+																					DuratonUpdate(this.responseXML.getElementsByTagName("Duration")),
+																					SocketXMLupdate(this.responseXML.getElementsByTagName("Socket"),
+																									this.responseXML.getElementsByTagName("Manual"),
+																									this.responseXML.getElementsByTagName("Enabled"),
+																									this.responseXML.getElementsByTagName("SState"))
+																					)
 									};
 	var n="";
 	if(gotState){
@@ -2479,32 +2482,55 @@ function AnalogXMLupdate(x){
 	for(e=0;e<t;e++)
 		document.getElementsByClassName("analog")[e].innerHTML=x[e].childNodes[0].nodeValue
 }
-function SocketXMLupdate(x, y){
+function SocketXMLupdate(x, y, z, a){
 	var e= x.length;
-	$(docSockets).prop("disabled",!1),
+	//$(docSockets).prop("disabled",!1),
 	gotState=!0;
 	var t,i="";
-	for(t=0;t<e&&t<docSockets.length;t++)
-		"checked"===y[t].childNodes[0].nodeValue?(docSockets[t].checked||($(docSockets[t]).prop("checked",!0),
-		$(docSockets[t]).bootstrapToggle("on")),i+="1"):(docSockets[t].checked&&($(docSockets[t]).prop("checked",!1),
-		$(docSockets[t]).bootstrapToggle("off")),i+="0");
+	for(t=0;t<e&&t<docSockets.length;t++) {
+		var my_btn_id = "#modal" + (t+6);
+		if (z[t].childNodes[0].nodeValue != "1") {
+			if (a[t].childNodes[0].nodeValue == "1") {
+				//$(docSockets[t]).bootstrapToggle("on");
+				$(docSockets[t]).data("bs.toggle").on(true);
+				$(my_btn_id).removeClass("btn-danger").removeClass("btn-info").addClass("btn-success");
+			} else {
+				//$(docSockets[t]).bootstrapToggle("off");
+				$(docSockets[t]).data("bs.toggle").off(true);
+				$(my_btn_id).removeClass("btn-success").removeClass("btn-info").addClass("btn-danger");
+			}
+			$(docSockets[t]).bootstrapToggle("disable");
+			$(my_btn_id).prop("disabled", !0);
+		} else {
+			$(docSockets[t]).bootstrapToggle("enable");
+			$(my_btn_id).prop("disabled", !1);
+			"checked"===y[t].childNodes[0].nodeValue?$(docSockets[t]).data("bs.toggle").on(true):$(docSockets[t]).data("bs.toggle").off(true);
+			"checked"===y[t].childNodes[0].nodeValue?(docSockets[t].checked||($(docSockets[t]).prop("checked",!0),
+			$(docSockets[t]).bootstrapToggle("on"))):(docSockets[t].checked&&($(docSockets[t]).prop("checked",!1),
+			$(docSockets[t]).bootstrapToggle("off")));
+			
+		}
+	}
 }
 function TimerToggleXMLupdate(x){
 	var e= x.length;
-	$(docTimerCheckbox).prop("disabled",!1),
+	//$(docTimerCheckbox).prop("disabled",!1),
 	gotState=!0;
 	var t,i="";
-	for(t=0;t<e&&t<docTimerCheckbox.length;t++)
+	for(t=0;t<e&&t<docTimerCheckbox.length;t++) {
 		"checked"===x[t].childNodes[0].nodeValue?(docTimerCheckbox[t].checked||($(docTimerCheckbox[t]).prop("checked",!0),
 													$(docTimerCheckbox[t]).bootstrapToggle("on")),i+="1",$(docCandles[t].id).removeClass("btn-info").removeClass("btn-success").addClass("btn-danger"))
 												:(docTimerCheckbox[t].checked&&($(docTimerCheckbox[t]).prop("checked",!1),
 													$(docTimerCheckbox[t]).bootstrapToggle("off")),i+="0",$(docCandles[t].id).removeClass("btn-info").removeClass("btn-danger").addClass("btn-success"));
+		$($(docTimerCheckbox[t]).closest("div").find(".btn")[0]).removeClass("btn-danger").addClass("btn-success");
+	}
 }
 function TimerValueXMLupdate(x){
 	var e,
 	t= x.length;
-	for(e=0;e<t&&e<docTimer.length;e++)
+	for(e=0;e<t&&e<docTimer.length;e++) {
 		docTimer[e].value=x[e].childNodes[0].nodeValue;
+	}
 }
 $(".clockpicker.start,.clockpicker.end").clockpicker({twelvehour:!0}),
 $(".clockpicker.duration").clockpicker({}),

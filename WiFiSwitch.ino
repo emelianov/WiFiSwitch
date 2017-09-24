@@ -6,7 +6,7 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.2"
+#define VERSION "0.5.4"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
