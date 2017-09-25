@@ -2363,7 +2363,8 @@ function GetArduinoIO(){
 		function(){
 					4==this.readyState&&200==this.status&&null!=this.responseXML&&(this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue>=sequence)&&
 																					(AnalogXMLupdate(this.responseXML.getElementsByTagName("analog")),
-																					TimerToggleXMLupdate(this.responseXML.getElementsByTagName("TimerCheckbox")),
+																					TimerToggleXMLupdate(this.responseXML.getElementsByTagName("TimerCheckbox"),
+																											this.responseXML.getElementsByTagName("TimerActive")),
 																					TimerValueXMLupdate(this.responseXML.getElementsByTagName("TimerValue")),
 																					CheckBoxUpdate(this.responseXML.getElementsByTagName("Switch"),
 																									this.responseXML.getElementsByTagName("Waiting")),
@@ -2504,6 +2505,15 @@ function SocketXMLupdate(x, y, z, a){
 		} else {
 			$(docSockets[t]).bootstrapToggle("enable");
 			$(my_btn_id).prop("disabled", !1);
+			if (a[t].childNodes[0].nodeValue == "1") {
+				//$(docSockets[t]).bootstrapToggle("on");
+				//$(docSockets[t]).data("bs.toggle").on(true);
+				$(my_btn_id).removeClass("btn-danger").removeClass("btn-info").addClass("btn-success");
+			} else {
+				//$(docSockets[t]).bootstrapToggle("off");
+				//$(docSockets[t]).data("bs.toggle").off(true);
+				$(my_btn_id).removeClass("btn-success").removeClass("btn-info").addClass("btn-danger");
+			}
 			"checked"===y[t].childNodes[0].nodeValue?$(docSockets[t]).data("bs.toggle").on(true):$(docSockets[t]).data("bs.toggle").off(true);
 			"checked"===y[t].childNodes[0].nodeValue?(docSockets[t].checked||($(docSockets[t]).prop("checked",!0),
 			$(docSockets[t]).bootstrapToggle("on"))):(docSockets[t].checked&&($(docSockets[t]).prop("checked",!1),
@@ -2512,7 +2522,7 @@ function SocketXMLupdate(x, y, z, a){
 		}
 	}
 }
-function TimerToggleXMLupdate(x){
+function TimerToggleXMLupdate(x, y){
 	var e= x.length;
 	//$(docTimerCheckbox).prop("disabled",!1),
 	gotState=!0;
@@ -2522,7 +2532,11 @@ function TimerToggleXMLupdate(x){
 													$(docTimerCheckbox[t]).bootstrapToggle("on")),i+="1",$(docCandles[t].id).removeClass("btn-info").removeClass("btn-success").addClass("btn-danger"))
 												:(docTimerCheckbox[t].checked&&($(docTimerCheckbox[t]).prop("checked",!1),
 													$(docTimerCheckbox[t]).bootstrapToggle("off")),i+="0",$(docCandles[t].id).removeClass("btn-info").removeClass("btn-danger").addClass("btn-success"));
-		$($(docTimerCheckbox[t]).closest("div").find(".btn")[0]).removeClass("btn-danger").addClass("btn-success");
+		if (y[t].childNodes[0].nodeValue == "1") {
+			$($(docTimerCheckbox[t]).closest("div").find(".btn")[0]).removeClass("btn-default").removeClass("btn-danger").addClass("btn-success");
+		} else {
+			$($(docTimerCheckbox[t]).closest("div").find(".btn")[0]).removeClass("btn-danger").removeClass("btn-success").addClass("btn-default");
+		}
 	}
 }
 function TimerValueXMLupdate(x){

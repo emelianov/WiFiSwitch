@@ -311,7 +311,9 @@ void ajaxInputs() {
         continue; 
       }
     }
-    sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n<Group>%d</Group>\n<Override>%lu</Override><name>%s</name>"),
+    sprintf_P(data, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n<Group>%d</Group>\n<Override>%lu</Override><name>%s</name>"),
+              socket[i]->schedule1.active(getTime())?"1":"0",
+              socket[i]->schedule2.active(getTime())?"1":"0",
               socket[i]->schedule1.active()?"checked":"unckecked",
               socket[i]->schedule2.active()?"checked":"unckecked",
               timeToStr(socket[i]->schedule1.on).c_str(),
@@ -339,7 +341,9 @@ void ajaxInputs() {
               );
     res += data;
   }
-  sprintf_P(data, PSTR("<TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n"),
+  sprintf_P(data, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n"),
+              feedSchedule.schedule1.active(getTime())?"1":"0",
+              feedSchedule.schedule2.active(getTime())?"1":"0",
               feedSchedule.schedule1.active()?"checked":"unckecked",
               feedSchedule.schedule2.active()?"checked":"unckecked",
               timeToStr(feedSchedule.schedule1.on).c_str(),
