@@ -51,6 +51,7 @@ String mask = "255.255.255.0";
 String gw   = "192.168.20.2";
 String dns  = "192.168.20.2";
 */
+
 String ntp1 = "192.168.30.30";
 String ntp2 = "192.168.30.4";
 String ntp3 = "pool.ntp.org";
@@ -162,6 +163,7 @@ uint32_t wifiManager() {
   //if you get here you have connected to the WiFi
   Serial.println("config done");
   if (event.saveParams > 0) {
+     name = pName.getValue();
      saveConfig();
      Serial.println("save done");
      delay(1000);
