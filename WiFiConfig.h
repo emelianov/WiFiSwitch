@@ -140,7 +140,7 @@ uint32_t saveConfig() {
 //   mask = pMask.getValue();
 //   gw = pGw.getValue();
 //   dns = pDns.getValue();
-   name = pName.getValue();
+//   name = pName.getValue();
 //   ntp1 = pNtp1.getValue();
 //   ntp2 = pNtp2.getValue();
 //   ntp3 = pNtp3.getValue();

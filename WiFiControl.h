@@ -1,10 +1,10 @@
 #pragma once
 // For D1 R2 and mini
-//#define PINS D0, D4, TX, D5, D7, D1, D6, RX
+#define PINS D0, D4, TX, D5, D7, D1, D6, RX
 // For NodeMCU
 //#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 // For DEBUG. Leave RX/TX used for Serial
-#define PINS D7, D1, D4, D5, D6, D7, D6, D7
+//#define PINS D7, D1, D4, D5, D6, D7, D6, D7
 
 // Position of pins affected by Wave function in list
 // If not changed from default that means D0, D1, D4, D5
@@ -406,7 +406,7 @@ uint32_t initSockets() {
   uint8_t pins[SOCKET_COUNT] = { PINS };
   for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
     socket[i] = new Socket(pins[i], socketTasks[i]);
-    socket[i]->name = String(i);
+    socket[i]->name = "Socket " + String(i+1);
   }
   for (uint8_t i = 0; i < GROUP_COUNT; i++) {
     group[i] = new Override(groupOverride[i]);

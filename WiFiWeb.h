@@ -27,6 +27,7 @@ String getContentType(String filename) {
   else if(filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
 }
+uint32_t restartESP();
 String swState(OverrideMode o) {
   return (o==SON)?"on":(o==SOFF)?"off":"default";
 }
@@ -413,21 +414,29 @@ h4,h4{font-size:18px}\
   <tr><td>IP</td><td>");
   output += WiFi.localIP().toString();
   output += F("</td></tr>\
-  <tr><td>Unit Name</td><td>");
+  <tr><td>Unit Name</td><td><input name=\"name\" value=\"");
   output += name;
-  output += F("</td></tr>\
-  <tr><td>NTP Server 1</td><td>");
+  output += F("\"></td></tr>\
+  <tr><td>NTP Server 1</td><td><input name=\"ntp1\" value=\"");
   output += ntp1;
-  output += F("</td></tr>\
-  <tr><td>NTP Server 2</td><td>");
+  output += F("\"></td></tr>\
+  <tr><td>NTP Server 2</td><td><input name=\"ntp2\" value=\"");
   output += ntp2;
-  output += F("</td></tr>\
-  <tr><td>NTP Server 3</td><td>");
+  output += F("\"></td></tr>\
+  <tr><td>NTP Server 3</td><td><input name=\"ntp3\" value=\"");
   output += ntp3;
-  output += F("</td></tr>\
-  <tr><td>TimeZone</td><td>");
-  output += tz;
-  output += F("</td></tr>\
+  output += F("\"></td></tr>\
+  <tr><td>TimeZone</td><td><select name=\"tz\">");
+  for (int8_t t = -11; t <= 11; t++) {
+    output += F("<option");
+    if (String(t) == tz) {
+      output += F(" selected");
+    }
+    output += F(">");
+    output += t;
+    output += F("</option>");
+  }
+  output += F("</select></td></tr>\
   </table>\
   <input type='submit' value='Apply'>\
   </table>\
@@ -461,7 +470,16 @@ h4,h4{font-size:18px}\
  output += VERSION;
  output += "\
   <form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update' accept='.tar'><input type='submit' value='Update'></form>\
-  </div></div></body><html>";
+</div></div>\
+\
+<div class='container'><div class='well'>\
+ <b>Resets</b>\
+ <hr>\
+  <form method='POST' action='/list' enctype='multipart/form-data'>\
+  <input type='button' value='Reboot' onClick='if(confirm(\"Reboot device?\")) window.location=\"/reboot\";return true;'><br>\
+  <input type='button' value='Reset to defaults' onClick='if(confirm(\"Reset settings to defaults?\")) window.location=\"/default\";return true;'></form>\
+</div></div>\
+</body><html>";
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.sendHeader("Access-Control-Allow-Origin", "*");
@@ -559,6 +577,62 @@ void handleDelete() {
   IDLE
 }
 
+void handleReboot() {
+#ifdef UPLOADPASS
+  if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
+    return server.requestAuthentication();
+  }
+#endif
+  saveState();
+  server.sendHeader("Connection", "close");
+  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  server.sendHeader("Refresh", "5; url=/");
+  taskAddWithDelay(restartESP, 1000);
+  server.send(200, "text/plain", "Rebooting...");
+}
+
+void handleResetToDefaults() {
+#ifdef UPLOADPASS
+  if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
+    return server.requestAuthentication();
+  }
+#endif
+  server.sendHeader("Connection", "close");
+  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  server.sendHeader("Refresh", "5; url=http://socket/");
+  taskAddWithDelay(restartESP, 1000);
+  SPIFFS.remove(STATE);
+  SPIFFS.remove(CFG);
+  server.send(200, "text/plain", "Settings was reset. Rebooting...");
+}
+
+void handleNetwork() {
+#ifdef UPLOADPASS
+  if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
+    return server.requestAuthentication();
+  }
+#endif
+  server.sendHeader("Connection", "close");
+  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  server.sendHeader("Refresh", "5; url=/list");
+  if(server.hasArg("ntp1")) {
+    ntp1 = server.arg("ntp1");
+  }
+  if(server.hasArg("ntp2")) {
+    ntp2 = server.arg("ntp2");
+  }
+  if(server.hasArg("ntp3")) {
+    ntp3 = server.arg("ntp3");
+  }
+  if(server.hasArg("tz")) {
+    tz = server.arg("tz");
+  }
+  if(server.hasArg("name")) {
+    name = server.arg("name");
+  }
+  saveConfig();
+  server.send(200, "text/plain", "OK");
+}
 #define DEFAULT_OVERRIDE 10
 void handleOverride() {
   server.sendHeader("Connection", "close");
@@ -598,7 +672,10 @@ uint32_t initWeb() {
     server.on("/delete", HTTP_GET, handleDelete);             // Delete File
     server.on("/edit", HTTP_POST, handleFile, handleFileUpload);    // Upload file
     server.onNotFound(anyFile);                               // call function anyFile() on any other requests
-    server.on("/socket", HTTP_GET, handleOverride);
+    //server.on("/socket", HTTP_GET, handleOverride);
+    server.on("/net", HTTP_POST, handleNetwork);
+    server.on("/reboot", HTTP_GET, handleReboot);
+    server.on("/default", HTTP_GET, handleResetToDefaults);
     server.begin();                                           // start to listen for clients 
     taskAdd(webHandle);
     return RUN_DELETE;

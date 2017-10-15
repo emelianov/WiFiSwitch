@@ -2448,7 +2448,7 @@ function NameUpdate(x) {
 	t = Math.min(x.length, docName.length);
 	for(e=0;e<t;e++) {
 		$(document.getElementsByClassName("socket_name"))[e*2].innerHTML = x[e].childNodes[0].nodeValue.toString();
-		$(document.getElementsByClassName("socket_name"))[e].innerHTML = x[e].childNodes[0].nodeValue.toString();
+		$(document.getElementsByClassName("socket_name"))[e*2+1].innerHTML = x[e].childNodes[0].nodeValue.toString();
 		document.getElementsByClassName("editable"+(e+1))[0].innerHTML = x[e].childNodes[0].nodeValue.toString();
 	}
 }
