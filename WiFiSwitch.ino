@@ -6,7 +6,7 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.4"
+#define VERSION "0.5.6"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -111,6 +111,7 @@ uint32_t wifiWait() {
   } else {
     //Serial.println(WiFi.localIP());
     event.wifiConnected++;
+    randomSeed(millis());
     //Serial.println(WiFi.localIP().toString());
   }
   return RUN_DELETE;
@@ -209,26 +210,11 @@ uint32_t keyLongPressed() {
   //digitalWrite(D0, LOW);
   return RUN_DELETE;
 }
-uint32_t initDbg() {
-  //socket[2]->na();
-  //socket[2]->wave = &wave;
-  //feedSchedule.schedule1.act = true;
-  //feedSchedule.schedule1.on = 8*60;
-  //feedSchedule.schedule1.off = 8*60+20;
-  //socket[2]->feedOverride = SON;
-   // socket[2]->setGroup(&group[0]);
-  //taskAddWithDelay(initDbg2, 15000);
-  return RUN_DELETE;
-}
-uint32_t initDbg2() {
-  //socket[2]->off(15);
-  return RUN_DELETE;
-}
 
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
-  Serial.begin(74880);    //For debug
+  //Serial.begin(74880);    //For debug
   SPIFFS.begin();
   xml.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
@@ -237,7 +223,6 @@ void setup() {
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
   taskAdd(initA0);        // Add task to initialize ADC query
-  //taskAdd(initDbg);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAddWithSemaphore(discovery, &event.wifiConnected);

@@ -586,7 +586,7 @@ void handleReboot() {
   saveState();
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
-  server.sendHeader("Refresh", "5; url=/");
+  server.sendHeader("Refresh", "7; url=/");
   taskAddWithDelay(restartESP, 1000);
   server.send(200, "text/plain", "Rebooting...");
 }
@@ -599,7 +599,7 @@ void handleResetToDefaults() {
 #endif
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
-  server.sendHeader("Refresh", "5; url=http://socket/");
+  server.sendHeader("Refresh", "7; url=http://socket/");
   taskAddWithDelay(restartESP, 1000);
   SPIFFS.remove(STATE);
   SPIFFS.remove(CFG);

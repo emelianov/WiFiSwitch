@@ -2218,13 +2218,11 @@ pointer-events:auto !important;
 									</optgroup>
 									<optgroup label="Dual Pump Options">
 									<option value="121" name="dual_pulse">Dual Pump Pulse</option>
-									<option value="122" name="dual_alternate">Dual Pump Alternate</option>
 									<option value="123" name="dual_series">Dual Pump Series</option>
 									<option value="124" name="dual_random">Dual Pump Random</option>
 									</optgroup>
 									<optgroup label="Quad Pump Option">
 									<option value="141" name="quad_pulse">Quad Pump Pulse</option>
-									<option value="142" name="quad_alternate">Quad Pump Alternate</option>
 									<option value="143" name="quad_series">Quad Pump Series</option>
 									<option value="144" name="quad_random">Quad Pump Random</option>
 									</optgroup>
@@ -2410,7 +2408,7 @@ function GetArduinoIO(){
 function DuratonUpdate(x) {
 	var t = Math.min(x.length, 8);
 	for (var i = 0; i < t; i++) {
-		document.getElementsByClassName("duration"+(i+1)+(i+1))[0].innerHTML = x[0].childNodes[0].nodeValue;
+		document.getElementsByClassName("duration"+(i+1)+(i+1))[0].innerHTML = x[i].childNodes[0].nodeValue;
 	}
 }
 function TimeUpdate(x) {
