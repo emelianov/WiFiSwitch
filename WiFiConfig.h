@@ -275,7 +275,7 @@ uint32_t readState() {
         socket[t2on]->schedule2.on = strToTime(xmlData);
         if (t2on < SOCKET_COUNT - 1) t2on++;
        }  else if 
-      (xmlTag.endsWith(F("/Timervalue2off"))) {
+      (xmlTag.endsWith(F("/TimerValue2off"))) {
         socket[t2off]->schedule2.off = strToTime(xmlData);
         if (t2off < SOCKET_COUNT - 1) t2off++;
        } else if 

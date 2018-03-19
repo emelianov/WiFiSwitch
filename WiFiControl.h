@@ -1,10 +1,10 @@
 #pragma once
 // For D1 R2 and mini
-#define PINS D4, D0, TX, D5, RX, D6, D1, D7
+//#define PINS D4, D0, TX, D5, RX, D6, D1, D7
 // For NodeMCU
 //#define PINS D0, D1, D4, D5, D6, D7, D9, D10
 // For DEBUG. Leave RX/TX used for Serial
-//#define PINS D7, D1, D4, D5, D6, D7, D6, D7
+#define PINS D7, D1, D4, D5, D6, D7, D6, D7
 
 // Position of pins affected by Wave function in list
 // If not changed from default that means D0, D1, D4, D5
@@ -276,7 +276,12 @@ uint32_t waveSeries() {
   return wave.period * 1000;
 }
 uint32_t waveRandom() {
-  for (uint8_t i = 0; i < 4; i++) {
+  uint8_t count = 1;
+  if (wave.to == DOUBLE)
+    count = 2;
+  else if (wave.to == QUAD)
+    count = 4;
+  for (uint8_t i = 0; i < count; i++) {
     wave.waveSet[i].mode = random(0,2)==1?SON:SOFF;
   }
   return wave.period * 1000;

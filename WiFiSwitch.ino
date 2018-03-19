@@ -6,7 +6,7 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.6"
+#define VERSION "0.5.7"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -72,6 +72,7 @@ String name = "socket";
 #include "WiFiWeb.h"
 #include "discovery.h"
 #include "update.h"
+#include "WiFiaws.h"
 
 #define WIFI_SETUP_AP "AutoConnectAP"
 #define WIFI_CHECK_DELAY 1000
@@ -214,7 +215,7 @@ uint32_t keyLongPressed() {
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
-  //Serial.begin(74880);    //For debug
+  Serial.begin(74880);    //For debug
   SPIFFS.begin();
   xml.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
@@ -227,6 +228,7 @@ void setup() {
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAddWithSemaphore(discovery, &event.wifiConnected);
   taskAddWithSemaphore(initUpdate, &event.wifiConnected);
+  taskAddWithSemaphore(awsInit, &event.wifiConnected);
   //taskAdd(printTime);     //For debug
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event
