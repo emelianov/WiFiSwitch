@@ -60,11 +60,11 @@ time_t strToTime24(String tm) {
   }
 }
 String timeToStr(time_t t) {
-    String ampm = "AM";
+    String ampm = F("AM");
     char  strTime[10];
     uint16_t minutesFromMidnight = t % 86400UL / 60;
     if (minutesFromMidnight >= 720) {
-      ampm = "PM";
+      ampm = F("PM");
 //      if (minutesFromMidnight >= 720)
         minutesFromMidnight -= 720;
     }

@@ -3,13 +3,15 @@
 #include <untar.h>
 #include "StreamBuf.h"
 
+#define FWNAME "firmware.bin"
+
 Tar<FS> tar(&SPIFFS);
 StreamBuf sb;
-char* fwfile = "firmware.bin";
 bool isFW = false;
 
 // TAR Callback. Called on every file.
 bool tarFile(char* b) {
+  char* fwfile = FWNAME;
   if (strcmp(b, fwfile) == 0) {
     isFW = true;
     return false;
@@ -30,10 +32,6 @@ void tarEof() {
   isFW = false;
 }
 
-uint32_t restartESP() {
-  ESP.restart();
-  return RUN_DELETE;
-}
 uint32_t initUpdate(){
     sb.setTimeout(1);     // Minimize read delay
     tar.onFile(tarFile);

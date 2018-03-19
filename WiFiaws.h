@@ -22,11 +22,52 @@ int value = 0;
 
 uint32_t reconnect() {
   // Loop until we're reconnected
-  while (!client.connected()) {
-    Serial.print("Attempting MQTT connection...");
-
+espClient.stop();
   Serial.print("Heap: "); Serial.println(ESP.getFreeHeap());
 
+    
+  while (!client.connected()) {
+    Serial.print("Attempting MQTT connection...");
+    // Attempt to connect
+    if (client.connect("TEST")) {
+      Serial.println("connected");
+      // Once connected, publish an announcement...
+      client.publish("outTopic", "hello world");
+      // ... and resubscribe
+      client.subscribe("inTopic");
+      return RUN_DELETE;
+    } else {
+      Serial.println(ESP.getFreeHeap());
+      Serial.println(time(NULL));
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      Serial.println(" try again in 5 seconds");
+      // Wait 5 seconds before retrying
+      return 5000;
+    }
+  }
+}
+
+uint32_t awsLoop() {
+
+  if (!client.connected()) {
+    taskAdd(reconnect);
+  }
+  client.loop();
+
+  long now = millis();
+  if (now - lastMsg > 2000) {
+    lastMsg = now;
+    ++value;
+    snprintf (msg, 75, "hello world #%ld", value);
+    Serial.print("Publish message: ");
+    Serial.println(msg);
+    client.publish("outTopic", msg);
+    Serial.print("Heap: "); Serial.println(ESP.getFreeHeap()); //Low heap can cause problems
+  }
+}
+
+uint32_t awsInit() {
   // Load certificate file
   File cert = SPIFFS.open("/cert.der", "r"); //replace cert.crt eith your uploaded file name
   if (!cert) {
@@ -68,47 +109,8 @@ uint32_t reconnect() {
     else
     Serial.println("ca failed");
 */
-    
-    // Attempt to connect
-    if (client.connect("TEST")) {
-      Serial.println("connected");
-      // Once connected, publish an announcement...
-      client.publish("outTopic", "hello world");
-      // ... and resubscribe
-      client.subscribe("inTopic");
-      return RUN_DELETE;
-    } else {
-      Serial.println(ESP.getFreeHeap());
-      Serial.println(time(NULL));
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      return 5000;
-    }
-  }
-}
 
-uint32_t awsLoop() {
-
-  if (!client.connected()) {
-    taskAdd(reconnect);
-  }
-  client.loop();
-
-  long now = millis();
-  if (now - lastMsg > 2000) {
-    lastMsg = now;
-    ++value;
-    snprintf (msg, 75, "hello world #%ld", value);
-    Serial.print("Publish message: ");
-    Serial.println(msg);
-    client.publish("outTopic", msg);
-    Serial.print("Heap: "); Serial.println(ESP.getFreeHeap()); //Low heap can cause problems
-  }
-}
-
-uint32_t awsInit() {
+  
   espClient.allowSelfSignedCerts(); 
   Serial.print("Heap: "); Serial.println(ESP.getFreeHeap());
   taskAdd(awsLoop);

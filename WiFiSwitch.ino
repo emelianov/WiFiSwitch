@@ -123,6 +123,11 @@ void cbSaveParams() {
 void cbConnected(WiFiManager *wfm) {
 }
 
+uint32_t restartESP() {
+  ESP.restart();
+  return RUN_DELETE;
+}
+
 uint32_t wifiManager() {
   server.stop();
   WiFiManager wifiManager;
@@ -215,7 +220,7 @@ uint32_t keyLongPressed() {
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
-  Serial.begin(74880);    //For debug
+  //Serial.begin(74880);    //For debug
   SPIFFS.begin();
   xml.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
@@ -228,7 +233,7 @@ void setup() {
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAddWithSemaphore(discovery, &event.wifiConnected);
   taskAddWithSemaphore(initUpdate, &event.wifiConnected);
-  taskAddWithSemaphore(awsInit, &event.wifiConnected);
+  //taskAddWithSemaphore(awsInit, &event.wifiConnected);
   //taskAdd(printTime);     //For debug
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event

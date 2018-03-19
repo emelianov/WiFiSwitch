@@ -3,7 +3,7 @@
 #define INDEX "index.html"
 #define UPLOADUSER  "admin"
 #define UPLOADPASS "password"
-//#undef UPLOADPASS
+#undef UPLOADPASS
 #define BUSY ;
 #define IDLE ;
 #define SAVE_DELAY 5000
