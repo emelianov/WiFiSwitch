@@ -6,7 +6,7 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.7"
+#define VERSION "0.5.8"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -168,11 +168,11 @@ uint32_t wifiManager() {
     //event.wifiConnected++;
   //} 
   //if you get here you have connected to the WiFi
-  Serial.println("config done");
+  //Serial.println("config done");
   if (event.saveParams > 0) {
      name = pName.getValue();
      saveConfig();
-     Serial.println("save done");
+     //Serial.println("save done");
      delay(1000);
      ESP.restart();
   }
@@ -222,7 +222,7 @@ void setup() {
   //digitalWrite(D0, HIGH); //For debug
   //Serial.begin(74880);    //For debug
   SPIFFS.begin();
-  xml.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
+  //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
   //readState();
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code

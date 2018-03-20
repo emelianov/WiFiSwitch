@@ -25,8 +25,8 @@ String xmlOpen;
 String xmlTag;
 String xmlData;
 String xmlAttrib;
-TinyXML xml;
-uint8_t buffer[300];
+//TinyXML xmlo;
+//uint8_t buffer[300];
 void XML_callback(uint8_t statusflags, char* tagName, uint16_t tagNameLen, char* data, uint16_t dataLen) {
   if
   (statusflags & STATUS_TAG_TEXT) {
@@ -80,14 +80,17 @@ String timeToStr24(time_t t) {
 }
 
 uint32_t readConfig() {
-  xml.reset();
-  xmlTag = "";
-  xmlOpen = "";
   File configFile = SPIFFS.open(F(CFG), "r");
   if (configFile) {
+   TinyXML xmlo;
+   uint8_t buffer[300];
+   xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
+   xmlo.reset();
+   xmlTag = "";
+   xmlOpen = "";
    char c;
    while (configFile.read((uint8_t*)&c, 1) == 1) {
-    xml.processChar(c);
+    xmlo.processChar(c);
     if (xmlTag != "") {
        if 
       (xmlTag.endsWith(F("/admin"))) {
@@ -131,6 +134,11 @@ uint32_t readConfig() {
     }
    }
    configFile.close();
+    xmlOpen   = "";
+    xmlTag    = "";
+    xmlData   = "";
+    xmlAttrib = "";
+    //delete xmlo;
   }
   return RUN_DELETE;
 }
@@ -231,11 +239,14 @@ uint32_t saveState() {
    return RUN_DELETE;    
 }
 uint32_t readState() {
-  xml.reset();
-  xmlTag = "";
-  xmlOpen = "";
   File configFile = SPIFFS.open(F(STATE), "r");
   if (configFile) {
+   TinyXML xmlo;
+   uint8_t buffer[300];
+   xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
+   xmlo.reset();
+   xmlTag = "";
+   xmlOpen = "";
    char c;
    uint8_t m = 0;
    uint8_t t1s = 0;
@@ -248,7 +259,7 @@ uint32_t readState() {
    uint8_t f = 0;
    uint8_t n = 0;
    while (configFile.read((uint8_t*)&c, 1) == 1) {
-    xml.processChar(c);
+    xmlo.processChar(c);
     if (xmlTag != "") {
        if
       (xmlTag.endsWith(F("/Manual"))) {
@@ -331,6 +342,11 @@ uint32_t readState() {
     }
    }
    configFile.close();
+   xmlOpen   = "";
+   xmlTag    = "";
+   xmlData   = "";
+   xmlAttrib = "";
+   //delete xmlo;
   }
   return RUN_DELETE;
 }

@@ -19,7 +19,7 @@ PubSubClient client(AWS_endpoint, 8883, callback, espClient); //set  MQTT port n
 long lastMsg = 0;
 char msg[50];
 int value = 0;
-
+uint32_t awsLoop();
 uint32_t reconnect() {
   // Loop until we're reconnected
 espClient.stop();
@@ -35,6 +35,7 @@ espClient.stop();
       client.publish("outTopic", "hello world");
       // ... and resubscribe
       client.subscribe("inTopic");
+      taskAdd(awsLoop);
       return RUN_DELETE;
     } else {
       Serial.println(ESP.getFreeHeap());
@@ -52,19 +53,17 @@ uint32_t awsLoop() {
 
   if (!client.connected()) {
     taskAdd(reconnect);
+    return RUN_DELETE;
   }
   client.loop();
 
-  long now = millis();
-  if (now - lastMsg > 2000) {
-    lastMsg = now;
     ++value;
     snprintf (msg, 75, "hello world #%ld", value);
     Serial.print("Publish message: ");
     Serial.println(msg);
     client.publish("outTopic", msg);
     Serial.print("Heap: "); Serial.println(ESP.getFreeHeap()); //Low heap can cause problems
-  }
+    return 2000;
 }
 
 uint32_t awsInit() {

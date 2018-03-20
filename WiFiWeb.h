@@ -1,4 +1,5 @@
 #pragma once
+#include <detail/RequestHandlersImpl.h>
 
 #define INDEX "index.html"
 #define UPLOADUSER  "admin"
@@ -11,6 +12,7 @@
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
 // Determinating conternt type header attribute depending on file extension
+/*
 String getContentType(String filename) {
   if(server.hasArg("download")) return F("application/octet-stream");
   else if(filename.endsWith(".htm")) return "text/html";
@@ -26,7 +28,7 @@ String getContentType(String filename) {
   else if(filename.endsWith(".zip")) return "application/x-zip";
   else if(filename.endsWith(".gz")) return "application/x-gzip";
   return "text/plain";
-}
+} */
 uint32_t restartESP();
 String swState(OverrideMode o) {
   return (o==SON)?"on":(o==SOFF)?"off":"default";
@@ -342,7 +344,7 @@ void ajaxInputs() {
               );
     res += data;
   }
-  sprintf_P(data, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n"),
+  sprintf_P(data, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n"),
               feedSchedule.schedule1.active(getTime())?"1":"0",
               feedSchedule.schedule2.active(getTime())?"1":"0",
               feedSchedule.schedule1.active()?"checked":"unckecked",
@@ -350,7 +352,8 @@ void ajaxInputs() {
               timeToStr(feedSchedule.schedule1.on).c_str(),
               timeToStr(feedSchedule.schedule1.off).c_str(),
               timeToStr(feedSchedule.schedule2.on).c_str(),
-              timeToStr(feedSchedule.schedule2.off).c_str()
+              timeToStr(feedSchedule.schedule2.off).c_str(),
+              timeToStr24(feedSchedule.duration()/60).c_str()
               );
   res += data;
   sprintf_P(data, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>"),
@@ -527,7 +530,7 @@ void handleFileUpload(){
 // Read file routine. Used internaly
 bool fileRead(String path){
   if(path.endsWith("/")) path += INDEX;
-  String contentType = getContentType(path);
+  String contentType = StaticRequestHandler::getContentType(path);
   String pathWithGz = path + ".gz";
   if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
     if(SPIFFS.exists(pathWithGz))
