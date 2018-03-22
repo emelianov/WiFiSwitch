@@ -6,7 +6,7 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.8"
+#define VERSION "0.5.9"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -52,9 +52,9 @@ String gw   = "192.168.20.2";
 String dns  = "192.168.20.2";
 */
 
-String ntp1 = "192.168.30.30";
-String ntp2 = "192.168.30.4";
-String ntp3 = "pool.ntp.org";
+String ntp1 = "pool.ntp.org";
+String ntp2 = "time.nist.gov";
+String ntp3 = "time.apple.com";
 String tz   = "5";
 String admin = "admin";
 String pass = "password";
@@ -220,7 +220,7 @@ uint32_t keyLongPressed() {
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
-  //Serial.begin(74880);    //For debug
+  Serial.begin(74880);    //For debug
   SPIFFS.begin();
   //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
