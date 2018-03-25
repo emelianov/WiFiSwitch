@@ -42,7 +42,9 @@ time_t getTime() {
 
 uint32_t initRTC() {
   Wire.begin(SDA,SCL);
-  status.rtcPresent = rtc.begin();
+  rtc.begin();
+  Wire.beginTransmission(DS3231_ADDRESS);             // Check if RTC is 
+  status.rtcPresent = (Wire.endTransmission() == 0);  // present
   status.rtcValid = !rtc.lostPower();
   return RUN_DELETE;
 }

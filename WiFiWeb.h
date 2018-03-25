@@ -11,24 +11,32 @@
 
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
-// Determinating conternt type header attribute depending on file extension
-/*
-String getContentType(String filename) {
-  if(server.hasArg("download")) return F("application/octet-stream");
-  else if(filename.endsWith(".htm")) return "text/html";
-  else if(filename.endsWith(".html")) return "text/html";
-  else if(filename.endsWith(".css")) return "text/css";
-  else if(filename.endsWith(".js")) return "application/javascript";
-  else if(filename.endsWith(".png")) return "image/png";
-  else if(filename.endsWith(".gif")) return "image/gif";
-  else if(filename.endsWith(".jpg")) return "image/jpeg";
-  else if(filename.endsWith(".ico")) return "image/x-icon";
-  else if(filename.endsWith(".xml")) return "text/xml";
-  else if(filename.endsWith(".pdf")) return "application/x-pdf";
-  else if(filename.endsWith(".zip")) return "application/x-zip";
-  else if(filename.endsWith(".gz")) return "application/x-gzip";
-  return "text/plain";
-} */
+uint16_t _timeout = 500;
+void handleDebug() {
+  char data[400];
+  DateTime now = rtc.now();
+  IPAddress n1, n2, n3;
+  if (!WiFi.hostByName(ntp1.c_str(), n1, _timeout)) {
+    n1 =IPAddress(0,0,0,0);
+  }
+  if (!WiFi.hostByName(ntp2.c_str(), n2, _timeout)) {
+    n2 =IPAddress(0,0,0,0);
+  }
+  if (!WiFi.hostByName(ntp3.c_str(), n3, _timeout)) {
+    n3 =IPAddress(0,0,0,0);
+  }
+  sprintf(data,\
+          ("<?xml version = \"1.0\" encoding=\"UTF-8\" ?><private><heap>%d</heap><rssi>%d</rssi><uptime>%ld</uptime>\
+          <rtcinit>%s</rtcinit><rtcpower>%s</rtcpower><rtc>%ld</rtc><ntp>%ld</ntp><sys>%ld</sys><s1>%s</s1><s2>%s</s2><s3>%s</s3><n1>%s</n1><n2>%s</n2><n3>%s</n3></private>"),\
+          ESP.getFreeHeap(), WiFi.RSSI(), (uint32_t)millis()/1000,\
+          (!status.rtcPresent)?"Failed":"Ok", rtc.lostPower()?"Failed":"Ok", now.unixtime(), time(NULL), getTime(),\
+          ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), (n1.toString()).c_str(), (n2.toString()).c_str(), (n3.toString()).c_str()\
+          );
+  server.sendHeader("Connection", "close");
+  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  server.send(200, "text/xml", data);  
+}
+
 uint32_t restartESP();
 String swState(OverrideMode o) {
   return (o==SON)?"on":(o==SOFF)?"off":"default";
@@ -666,6 +674,7 @@ uint32_t webHandle() {
   server.handleClient();
   return 100;
 }
+
 uint32_t initWeb() {
   //Serial.println("Init WebServer");
     server.on("/ajax_inputs", HTTP_GET, ajaxInputs);  // call function ajaxInputs() if Web Server gets request http://192.168.1.20/ajax_inputs?LED1=0...
@@ -679,6 +688,7 @@ uint32_t initWeb() {
     server.on("/net", HTTP_POST, handleNetwork);
     server.on("/reboot", HTTP_GET, handleReboot);
     server.on("/default", HTTP_GET, handleResetToDefaults);
+    server.on("/debug", HTTP_GET, handleDebug);
     server.begin();                                           // start to listen for clients 
     taskAdd(webHandle);
     return RUN_DELETE;
