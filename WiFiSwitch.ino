@@ -6,7 +6,7 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.9"
+#define VERSION "0.5.11"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -46,12 +46,11 @@ statuses status;
 #define GROUP_HTML_BASE 11
 /*
 bool   dhcp = true;
-String ip   = "192.168.20.99";
+String ip   = "192.168.30.118";
 String mask = "255.255.255.0";
-String gw   = "192.168.20.2";
-String dns  = "192.168.20.2";
+String gw   = "192.168.30.4";
+String dns  = "192.168.30.4";
 */
-
 String ntp1 = "pool.ntp.org";
 String ntp2 = "time.nist.gov";
 String ntp3 = "time.apple.com";
@@ -81,14 +80,14 @@ String name = "socket";
 uint32_t wifiStart() {
   WiFi.mode(WIFI_STA);
 /*
-  if (!dhcp) {
+//  if (!dhcp) {
    IPAddress _ip, _gw, _mask, _dns;
    _ip.fromString(ip);
    _gw.fromString(gw);
    _mask.fromString(mask);
    _dns.fromString(dns);
    WiFi.config(_ip, _gw, _mask, _dns);
-  }
+//  }
 */
   WiFi.begin();
   //Serial.print("Connecting to ");
@@ -180,8 +179,8 @@ uint32_t wifiManager() {
 }
 
 uint32_t printTime() {
-  //Serial.println((uint32_t)getTime());
-  return 10000;  
+  Serial.println(getTime());
+  return 1000;  
 }
 // Query Reset Key ststus change and flag events
 uint32_t checkKey() {
@@ -220,7 +219,7 @@ uint32_t keyLongPressed() {
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
-  Serial.begin(74880);    //For debug
+  //Serial.begin(74880);    //For debug
   SPIFFS.begin();
   //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
@@ -229,6 +228,7 @@ void setup() {
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
   taskAdd(initA0);        // Add task to initialize ADC query
+  //taskAdd(initNTP);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAddWithSemaphore(discovery, &event.wifiConnected);

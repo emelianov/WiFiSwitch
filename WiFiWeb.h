@@ -11,9 +11,10 @@
 
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
-uint16_t _timeout = 500;
+
 void handleDebug() {
   char data[400];
+  uint16_t _timeout = 500;
   DateTime now = rtc.now();
   IPAddress n1, n2, n3;
   if (!WiFi.hostByName(ntp1.c_str(), n1, _timeout)) {
