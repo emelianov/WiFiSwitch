@@ -11,12 +11,11 @@
 * [A realtime digital signal processing (DSP) library for Arduino](https://github.com/JonHub/Filters)
 * [Extremely simple tar extractor Arduino library](https://github.com/emelianov/untarArduino)
 
-
 ### Release notes
 
-* Current version is tested only with ESP8266 Core for Arduino 2.4RC1. To build with previous releases comment `MACOS` definition in `discoverh.h`.
+* Current version is tested only with ESP8266 Core for Arduino 2.4.1. To build with releases prior to 2.4 comment `MACOS` definition in `discoverh.h`.
 
-* Pull Up D8 for 3 seconds startst network configuration and activate open Access Point. Warning! Socket switching operations are suspended while configuration mode is active.
+* Pull Up D8 for 3 seconds starts network configuration and activates open Access Point. Warning! Socket switching operations are suspended while configuration mode is active.
 
 * Pull Up D8 shortly initiates firmware reboot.
 
@@ -27,6 +26,7 @@
 * Current configuration settings is stored in `config.xml` file
 
 * Firmware stores current state in `state.xml` file. File contains all switching defined but not all of them corresponding actial state an used.
+
 Actualy only schedule settings, feed reaction and group membership saved as it changed and to be restored on power on.
 
 * State changes write operations are chached in RAM and flushed to file system only after 5 seconds after last modification.
