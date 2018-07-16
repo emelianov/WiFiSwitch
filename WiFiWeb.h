@@ -289,7 +289,7 @@ void ajaxInputs() {
   }
   // Assemble current state xml
   String res = "";
-  String an = String(current());
+  String an = String(current()*110);  // Convert to Wattage
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog>\n"), an.c_str());
   res += data;
   //Global feed mode
@@ -412,16 +412,55 @@ box-shadow:inset 0 1px 3px rgba(0,0,0,.05),0 1px 0 rgba(255,255,255,.1)}\
 .col-xs-9{position:relative;min-height:1px;padding-right:15px;padding-left:15px}\
 body{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}\
 h4,h4{font-size:18px}\
+#progress {visibility: hidden;z-index: 10;display: block;padding: 2px 5px;margin: 2px 0;border: 1px inset #446;border-radius: 5px;position: fixed;bottom: 0;left: 50%;transform: translateX(-50%);width: 80%;background: linear-gradient(to right, #00FF00 0%, #000000 0%);}\
+#progress .success {background: #0c0 none 0 0 no-repeat;}\
+#progress .failed {background: #c00 none 0 0 no-repeat;}\
  </style>\
-\
+<script>\
+function disableForm(form) {\
+  var elements = form.elements;\
+  for (var i = 0, len = elements.length; i < len; ++i) {\
+  elements[i].disabled = true;\
+  }\
+}\
+function uploadFile(file) {\
+var xhr = new XMLHttpRequest();\
+this.xhr = xhr;\
+var reader = new FileReader();\
+if (xhr.upload && file.size) {\
+document.getElementsByName('form').forEach(disableForm);\
+var progress = document.getElementById('progress');\
+progress.appendChild(document.createTextNode('upload ' + file.name));\
+progress.style.visibility='visible';\
+xhr.upload.addEventListener('progress', function(e) {\
+var pc = parseInt(e.loaded / e.total * 100);\
+document.getElementById('progress').style.background = 'linear-gradient(to right, #00ff00 ' + pc + '%, ' + ' #000000 ' + pc + '%)';\
+}, false);\
+xhr.onreadystatechange = function(e) {\
+if (xhr.readyState == 4) {\
+if (xhr.status != 200) {\
+document.getElementById('progress').className = 'failure';\
+setTimeout('location.reload();', 10000);\
+} else {\
+setTimeout('location.reload();', 5000);\
+}\
+}\
+};\
+var formData = new FormData();\
+formData.append('userfile', file);\
+xhr.open('POST', '/update', true);\
+xhr.send(formData);\
+}\
+}\
+</script>\
   </head>\
   <body>\
 \
-<div class='col-xs-9'><h4>Wifi Socket Control - Maintains</h4></div>\
+<div class='col-xs-9'><h4>Wifi Socket Control - Maintenance</h4></div>\
  <div class='container'><div class='well'>\
  <b>Network settings</b>\
  <hr>\
- <form method='POST' action='/net' enctype='multipart/form-data'>\
+ <form name='form' method='POST' action='/net' enctype='multipart/form-data'>\
   <table>\
   <tr><td>IP</td><td>");
   output += WiFi.localIP().toString();
@@ -449,6 +488,13 @@ h4,h4{font-size:18px}\
     output += F("</option>");
   }
   output += F("</select></td></tr>\
+  <tr><td>Setup access point name</td><td>");
+  char apname[sizeof(WIFI_SETUP_AP)+5];
+  byte mac[6];
+  WiFi.macAddress(mac);
+  sprintf(apname, "%s%02X%02X", WIFI_SETUP_AP, mac[4], mac[5]);
+  output += String(apname);
+  output += F("</td></tr>\
   </table>\
   <input type='submit' value='Apply'>\
   </table>\
@@ -456,42 +502,24 @@ h4,h4{font-size:18px}\
  </div></div>\
 \
 <div class='container'><div class='well'>\
- <b>Local file system</b>\
- <hr>\
-  <form method='POST' action='/edit' enctype='multipart/form-data'>\
-  Upload file to local filesystem:<br>\
-   <input type='file' name='update'>\
-   <input type='submit' value='Upload file'>\
-  </form>");
-  String path = server.hasArg("dir")?server.arg("dir"):"/";
-  Dir dir = SPIFFS.openDir(path);
-  while(dir.next()){
-    File entry = dir.openFile("r");
-    String filename = String(entry.name());
-    output += "<br>";
-    output += "<a href='" + filename + "'>" + filename + "</a>&nbsp<a href='/delete?file=" + filename + "'><font color=red>delete</font></a>";
-    output += "<br>";
-    entry.close();
-  }
-  output += "</div></div>\
-\
-<div class='container'><div class='well'>\
  <b>Firmware update</b>\
  <hr>\
- Current version: ";
+ Current version: ");
  output += VERSION;
- output += "\
-  <form method='POST' action='/update' enctype='multipart/form-data'><input type='file' name='update' accept='.tar'><input type='submit' value='Update'></form>\
+ output += F("\
+  <form name='form' method='POST' action='/update' enctype='multipart/form-data'><input id='update' type='file' name='update' accept='.tar'><input type='button' value='Update' onClick='uploadFile(document.getElementById(\"update\").files[0]);'></form>\
 </div></div>\
 \
 <div class='container'><div class='well'>\
  <b>Resets</b>\
  <hr>\
-  <form method='POST' action='/list' enctype='multipart/form-data'>\
+  <form name='form' method='POST' action='/list' enctype='multipart/form-data'>\
   <input type='button' value='Reboot' onClick='if(confirm(\"Reboot device?\")) window.location=\"/reboot\";return true;'><br>\
   <input type='button' value='Reset to defaults' onClick='if(confirm(\"Reset settings to defaults?\")) window.location=\"/default\";return true;'></form>\
 </div></div>\
-</body><html>";
+<div id='progress'></div>\
+</body><html>");
+
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.sendHeader("Access-Control-Allow-Origin", "*");

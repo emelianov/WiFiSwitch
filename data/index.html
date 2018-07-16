@@ -591,7 +591,9 @@ opacity:0.5;pointer-events:none;
             <div class="col-md-5 col-sm-4 col-xs-9">
                 <h4>Wifi Socket Control</h4>
             </div>
-            <div class="col-md-1 col-md-offset-5 col-sm-1 col-sm-offset-6 col-xs-1">
+            <div class="col-md-5 col-sm-4 col-xs-9"><h4 id="currenttime">00:00</h4></div>
+            <!-- <div class="col-md-1 col-md-offset-5 col-sm-1 col-sm-offset-6 col-xs-1"> -->
+            <div class="col-md-1 col-sm-1 col-xs-1">
                 <div class="schedule_checkbox chart_on_off_btn">
                     <form id="check_sockets" name="socket_form">
                         <input name="chart_checkbox" type="checkbox" checked="unchecked" data-toggle="toggle" data-style="ios" data-size="mini" data-on="Chart On" data-off="Chart Off" data-onstyle="success" data-offstyle="default" />
@@ -600,7 +602,6 @@ opacity:0.5;pointer-events:none;
             </div>
         </div>
         <div class="well"><span><strong>Overide Group Control</strong></span>
-            <span id="currenttime" align="right">00:00</span>
             <div class="col-md-12">
                 <hr>
             </div>
@@ -2864,7 +2865,8 @@ opacity:0.5;pointer-events:none;
 
         function AnalogXMLupdate(x) {
             var e,
-                t = Math.min(x.length, document.getElementsByClassName("analog").length);
+                //t = Math.min(x.length, document.getElementsByClassName("analog").length);
+                t = document.getElementsByClassName("analog").length;
             for (e = 0; e < t; e++)
                 document.getElementsByClassName("analog")[e].innerHTML = x[0].childNodes[0].nodeValue
         }

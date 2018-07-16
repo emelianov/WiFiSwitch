@@ -11,7 +11,7 @@ WiFiManagerParameter pMask("mask", "Network mask", mask.c_str(), 16);
 WiFiManagerParameter pGw("gw", "Default gateway", gw.c_str(), 16);
 WiFiManagerParameter pDns("dns", "DNS", dns.c_str(), 16);
 */
-WiFiManagerParameter pNameT("Device name");
+WiFiManagerParameter pNameT("WIFI Socket Name");
 WiFiManagerParameter pName("name", "DEVICE NAME", name.c_str(), 40);
 //WiFiManagerParameter pNtp("NTP Servers");
 //WiFiManagerParameter pNtp1("ntp1", "NTP server", ntp1.c_str(), 40);

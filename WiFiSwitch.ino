@@ -6,12 +6,17 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.11"
+#define VERSION "0.5.12"
+//#define WFS_DEBUG
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
 // Current query interval (mS)
 #define A0_DELAY 1000
+
+#define WIFI_SETUP_AP "SocketWIFI_AP_"
+#define WIFI_CHECK_DELAY 1000
+#define WIFI_CHECK_COUNT 150
 
 struct events {
  uint16_t wifiConnected		= 0;
@@ -59,6 +64,7 @@ String admin = "admin";
 String pass = "password";
 float amps = 0;     // Current value from A0
 String name = "socket";
+uint32_t wifiStart();
 //Select one of following AC current read implementations
 // ---------------------------
  #include "WiFiACSimple.h"
@@ -72,10 +78,7 @@ String name = "socket";
 #include "discovery.h"
 #include "update.h"
 #include "WiFiaws.h"
-
-#define WIFI_SETUP_AP "AutoConnectAP"
-#define WIFI_CHECK_DELAY 1000
-#define WIFI_CHECK_COUNT 5
+#include "ping.h"
 
 uint32_t wifiStart() {
   WiFi.mode(WIFI_STA);
@@ -90,29 +93,36 @@ uint32_t wifiStart() {
 //  }
 */
   WiFi.begin();
-  //Serial.print("Connecting to ");
-  //Serial.println(WiFi.SSID());
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
+ #ifdef WFS_DEBUG
+  Serial.print("Connecting to ");
+  Serial.println(WiFi.SSID());
+ #endif
   return RUN_DELETE;
 }
 uint8_t waitWF = 1;
 uint32_t wifiWait() {
   if(WiFi.status() != WL_CONNECTED) {
     if (waitWF <= WIFI_CHECK_COUNT) {
-      //Serial.println("Waiting Wi-Fi");
+     #ifdef WFS_DEBUG
+      Serial.print(".");
+     #endif
       if (waitWF > 0) {
         waitWF++;
       }
       return WIFI_CHECK_DELAY;
     } else {
+      waitWF = 1;
       WiFi.mode(WIFI_OFF);
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
     }
   } else {
-    //Serial.println(WiFi.localIP());
+   #ifdef WFS_DEBUG
+    Serial.println(WiFi.localIP().toString());
+   #endif
     event.wifiConnected++;
     randomSeed(millis());
-    //Serial.println(WiFi.localIP().toString());
+    taskAdd(initPing);
   }
   return RUN_DELETE;
 }
@@ -148,6 +158,7 @@ uint32_t wifiManager() {
   wifiManager.addParameter(&pNtp3);
   wifiManager.addParameter(&pTz);
   */
+  wifiManager.addParameter(&pNameT);
   wifiManager.addParameter(&pName);
   //wifiManager.setConnectTimeout(WIFI_CHECK_DELAY * WIFI_CHECK_COUNT);
   /*
@@ -161,13 +172,22 @@ uint32_t wifiManager() {
   */
   //while(
   //  wifiManager.autoConnect()) {
-    wifiManager.startConfigPortal(WIFI_SETUP_AP);//) {
-  //  Serial.print("Connected to ");
-  //  Serial.println(WiFi.SSID());
+    char apname[sizeof(WIFI_SETUP_AP)+5];
+    byte mac[6];
+    WiFi.macAddress(mac);
+    sprintf(apname, "%s%02X%02X", WIFI_SETUP_AP, mac[4], mac[5]);
+    wifiManager.startConfigPortal(apname);
+    //wifiManager.startConfigPortal(WIFI_SETUP_AP);//) {
+   #ifdef WFS_DEBUG
+    Serial.print("Connected to ");
+    Serial.println(WiFi.SSID());
+   #endif
     //event.wifiConnected++;
   //} 
   //if you get here you have connected to the WiFi
-  //Serial.println("config done");
+ #ifdef WFS_DEBUG
+  Serial.println("config done");
+ #endif
   if (event.saveParams > 0) {
      name = pName.getValue();
      saveConfig();
@@ -219,7 +239,9 @@ uint32_t keyLongPressed() {
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
-  //Serial.begin(74880);    //For debug
+  #ifdef WFS_DEBUG
+  Serial.begin(74880);    //For debug
+  #endif
   SPIFFS.begin();
   //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
