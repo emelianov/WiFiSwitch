@@ -11,7 +11,7 @@
 * [A realtime digital signal processing (DSP) library for Arduino](https://github.com/JonHub/Filters)
 * [Extremely simple tar extractor Arduino library](https://github.com/emelianov/untarArduino)
 * [Arduino Client for MQTT](https://github.com/knolleary/pubsubclient)
-* [Ping library for ESP8266 Arduino core](https://github.com/dancol90/ESP8266Ping.git)
+* [Ping library for ESP8266 Arduino core](https://github.com/dancol90/ESP8266Ping)
 
 ### Release notes
 
