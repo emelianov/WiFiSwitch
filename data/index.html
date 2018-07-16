@@ -591,7 +591,9 @@ opacity:0.5;pointer-events:none;
             <div class="col-md-5 col-sm-4 col-xs-9">
                 <h4>Wifi Socket Control</h4>
             </div>
-            <div class="col-md-5 col-sm-4 col-xs-9"><h4 id="currenttime">00:00</h4></div>
+            <div class="col-md-5 col-sm-4 col-xs-9">
+                <h4 id="currenttime">00:00</h4>
+            </div>
             <!-- <div class="col-md-1 col-md-offset-5 col-sm-1 col-sm-offset-6 col-xs-1"> -->
             <div class="col-md-1 col-sm-1 col-xs-1">
                 <div class="schedule_checkbox chart_on_off_btn">
@@ -3422,8 +3424,8 @@ opacity:0.5;pointer-events:none;
                                 var y = document.getElementsByClassName("analog")[0].innerHTML;
                                 if (y < 0)
                                     y = 0;
-                                if (y > 20)
-                                    y = 20;
+                                if (y > 200)
+                                    y = 200;
                                 data.push(Math.round(y * 20) / 20);
                             }
 
@@ -3466,7 +3468,7 @@ opacity:0.5;pointer-events:none;
                             },
                             yaxis: {
                                 min: 0,
-                                max: 20,
+                                max: 200,
                                 font: '#ddd'
                             },
                             //xaxis:{show:true}
