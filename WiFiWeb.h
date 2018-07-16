@@ -412,9 +412,9 @@ box-shadow:inset 0 1px 3px rgba(0,0,0,.05),0 1px 0 rgba(255,255,255,.1)}\
 .col-xs-9{position:relative;min-height:1px;padding-right:15px;padding-left:15px}\
 body{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}\
 h4,h4{font-size:18px}\
-#progress {visibility: hidden;z-index: 10;display: block;padding: 2px 5px;margin: 2px 0;border: 1px inset #446;border-radius: 5px;position: fixed;bottom: 0;left: 50%;transform: translateX(-50%);width: 80%;background: linear-gradient(to right, #00FF00 0%, #000000 0%);}\
+#progress {color: fff;text-align: center;visibility: hidden;z-index: 10;display: block;border: 1px inset #446;border-radius: 5px;position: fixed;bottom: 0;width: 80%;left: 50%;transform: translate(-50%, -50%);margin: 0 auto;background: linear-gradient(to right, #0c0 0%, #000 0%);}\
 #progress .success {background: #0c0 none 0 0 no-repeat;}\
-#progress .failed {background: #c00 none 0 0 no-repeat;}\
+#progress .failed {color: #fff;font-wheight: bold;background: #c00 none 0 0 no-repeat;}\
  </style>\
 <script>\
 function disableForm(form) {\
@@ -430,18 +430,20 @@ var reader = new FileReader();\
 if (xhr.upload && file.size) {\
 document.getElementsByName('form').forEach(disableForm);\
 var progress = document.getElementById('progress');\
-progress.appendChild(document.createTextNode('upload ' + file.name));\
+progress.innerHTML = 'Uploading firmware...';\
 progress.style.visibility='visible';\
 xhr.upload.addEventListener('progress', function(e) {\
 var pc = parseInt(e.loaded / e.total * 100);\
-document.getElementById('progress').style.background = 'linear-gradient(to right, #00ff00 ' + pc + '%, ' + ' #000000 ' + pc + '%)';\
+document.getElementById('progress').style.background = 'linear-gradient(to right, #0c0 ' + pc + '%, ' + ' #000 ' + pc + '%)';\
 }, false);\
 xhr.onreadystatechange = function(e) {\
 if (xhr.readyState == 4) {\
 if (xhr.status != 200) {\
-document.getElementById('progress').className = 'failure';\
+document.getElementById('progress').innerHTML='Firmware uploading failed';\
+document.getElementById('progress').style.background = '#c00';\
 setTimeout('location.reload();', 10000);\
 } else {\
+document.getElementById('progress').innerHTML='Rebooting...';\
 setTimeout('location.reload();', 5000);\
 }\
 }\
@@ -488,7 +490,7 @@ xhr.send(formData);\
     output += F("</option>");
   }
   output += F("</select></td></tr>\
-  <tr><td>Setup access point name</td><td>");
+  <tr><td>Setup AP SSID</td><td>");
   char apname[sizeof(WIFI_SETUP_AP)+5];
   byte mac[6];
   WiFi.macAddress(mac);

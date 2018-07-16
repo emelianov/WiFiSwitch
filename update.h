@@ -46,8 +46,12 @@ uint32_t initUpdate(){
       #endif
       server.sendHeader("Connection", "close");
       server.sendHeader("Refresh", "5; url=/list");
-      server.send(200, "text/plain", (Update.hasError())?F("Update failed. Rebooting..."):F("Update OK. Rebooting..."));
-      taskAddWithDelay(restartESP, 1000);
+      if (Update.hasError()) {
+        server.send_P(500, "text/plain", PSTR("Update failed."));
+      } else {
+        server.send_P(200, "text/plain", PSTR("Update OK. Rebooting..."));
+        taskAddWithDelay(restartESP, 500);
+      }
     },[](){
       #ifdef UPLOADPASS
       if(!server.authenticate(UPLOADUSER, UPLOADPASS)) {
