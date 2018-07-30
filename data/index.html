@@ -3374,6 +3374,7 @@ opacity:0.5;pointer-events:none;
 
 
     <script type='text/javascript'>
+        var plot;
         $(document).ready(function() {
 
             $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js', function() {
@@ -3424,8 +3425,14 @@ opacity:0.5;pointer-events:none;
                                 var y = document.getElementsByClassName("analog")[0].innerHTML;
                                 if (y < 0)
                                     y = 0;
-                                if (y > 200)
-                                    y = 200;
+                                if (plot != undefined && y > plot.getAxes().yaxis.options.max) {
+                                    //if (y > 200) {
+                                    //y = 200;
+                                    plot.getAxes().yaxis.options.min = 0;
+                                    plot.getAxes().yaxis.options.max = y;
+                                    plot.setupGrid();
+                                    //plot.draw();
+                                }
                                 data.push(Math.round(y * 20) / 20);
                             }
 
@@ -3468,7 +3475,7 @@ opacity:0.5;pointer-events:none;
                             },
                             yaxis: {
                                 min: 0,
-                                max: 200,
+                                max: 20,
                                 font: '#ddd'
                             },
                             //xaxis:{show:true}
@@ -3485,7 +3492,8 @@ opacity:0.5;pointer-events:none;
                             }
                         };
 
-                        var plot = $.plot($("#chart1"), [getRandomData()], options);
+                        //var plot = $.plot($("#chart1"), [getRandomData()], options);
+                        plot = $.plot($("#chart1"), [getRandomData()], options);
                         var realTime;
 
                         function update() {
