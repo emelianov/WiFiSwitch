@@ -458,7 +458,9 @@ xhr.send(formData);\
   </head>\
   <body>\
 \
-<div class='col-xs-9'><h4>Wifi Socket Control - Maintenance</h4></div>\
+ <div class='col-xs-9'><h4>Wifi Socket Control - Maintenance</h4>");
+// output += timeToStr(getTime());
+ output += F("</div>\
  <div class='container'><div class='well'>\
  <b>Network settings</b>\
  <hr>\
@@ -469,15 +471,6 @@ xhr.send(formData);\
   output += F("</td></tr>\
   <tr><td>Unit Name</td><td><input name=\"name\" value=\"");
   output += name;
-  output += F("\"></td></tr>\
-  <tr><td>NTP Server 1</td><td><input name=\"ntp1\" value=\"");
-  output += ntp1;
-  output += F("\"></td></tr>\
-  <tr><td>NTP Server 2</td><td><input name=\"ntp2\" value=\"");
-  output += ntp2;
-  output += F("\"></td></tr>\
-  <tr><td>NTP Server 3</td><td><input name=\"ntp3\" value=\"");
-  output += ntp3;
   output += F("\"></td></tr>\
   <tr><td>TimeZone</td><td><select name=\"tz\">");
   for (int8_t t = -11; t <= 11; t++) {

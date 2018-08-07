@@ -122,7 +122,7 @@ uint32_t wifiWait() {
    #endif
     event.wifiConnected++;
     randomSeed(millis());
-    taskAdd(initPing);
+    //taskAdd(initPing);
   }
   return RUN_DELETE;
 }
@@ -263,6 +263,7 @@ void setup() {
   //taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
   taskAdd(readState);
   taskAdd(queryA0);
+  taskAdd(initPing);
 //  inputStats.setWindowSecs(windowLength);
 }
 void loop(void) {
