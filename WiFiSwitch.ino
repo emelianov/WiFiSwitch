@@ -7,7 +7,7 @@
 #include <Run.h>
 
 #define VERSION "0.5.12"
-//#define WFS_DEBUG
+#define WFS_DEBUG
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -115,6 +115,7 @@ uint32_t wifiWait() {
       waitWF = 1;
       WiFi.mode(WIFI_OFF);
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
+      return RUN_DELETE;
     }
   } else {
    #ifdef WFS_DEBUG
@@ -246,7 +247,7 @@ void setup() {
   //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
   //readState();
-  taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
+  taskAddWithDelay(wifiStart, 1000);     // Add task with Wi-Fi initialization code
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
   taskAdd(initA0);        // Add task to initialize ADC query
