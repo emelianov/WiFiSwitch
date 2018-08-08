@@ -9,7 +9,7 @@
 #define PING_COUNT 5
 
 AsyncPing ping;
-int8_t pingRetry = PING_COUNT;
+volatile int8_t pingRetry = PING_COUNT;
 bool reply(const AsyncPingResponse& response) {
   if (!response.answer) {
   #ifdef WFS_DEBUG
