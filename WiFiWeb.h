@@ -409,7 +409,9 @@ box-shadow:inset 0 1px 3px rgba(0,0,0,.05),0 1px 0 rgba(255,255,255,.1)}\
 .well{min-height:20px;padding:19px;margin-bottom:20px;background-color:#f5f5f5;border:1px solid #e3e3e3;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.05);box-shadow:inset 0 1px 1px rgba(0,0,0,.05)}\
 .well blockquote{border-color:#ddd;border-color:rgba(0,0,0,.15)}\
 .container{padding-right:15px;padding-left:15px;margin-right:auto;margin-left:auto}\
-.col-xs-9{position:relative;min-height:1px;padding-right:15px;padding-left:15px}\
+.col-md-4{position:relative;min-height:1px;padding-right:15px;padding-left:15px;width:33.33333333%;float:left}\
+.row{margin-right:-15px;margin-left:-15px}\
+.row:after{clear:both}\
 body{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}\
 h4,h4{font-size:18px}\
 #progress {color: fff;text-align: center;visibility: hidden;z-index: 10;display: block;border: 1px inset #446;border-radius: 5px;position: fixed;bottom: 0;width: 80%;left: 50%;transform: translate(-50%, -50%);margin: 0 auto;background: linear-gradient(to right, #0c0 0%, #000 0%);}\
@@ -458,7 +460,7 @@ xhr.send(formData);\
   </head>\
   <body>\
 \
- <div class='col-xs-9'><h4>Wifi Socket Control - Maintenance</h4>");
+ <div class='container'><div class='row'><div class='col-md-4'><h4>Wifi Socket Control - Settings</h4></div><div class='col-md-4'>00:00</div></div>");
 // output += timeToStr(getTime());
  output += F("</div>\
  <div class='container'><div class='well'>\
@@ -472,17 +474,52 @@ xhr.send(formData);\
   <tr><td>Unit Name</td><td><input name=\"name\" value=\"");
   output += name;
   output += F("\"></td></tr>\
-  <tr><td>TimeZone</td><td><select name=\"tz\">");
-  for (int8_t t = -11; t <= 11; t++) {
-    output += F("<option");
-    if (String(t) == tz) {
-      output += F(" selected");
-    }
-    output += F(">");
-    output += t;
-    output += F("</option>");
-  }
-  output += F("</select></td></tr>\
+  <tr><td>TimeZone</td><td><select name=\"tz\">\
+  <script>tz=");
+  output += String(tz);
+output += F(";tzs =[{str: \"GMT	Greenwich Mean Time	GMT\", offset: 0},\
+        {str: \"UTC	Universal Coordinated Time	GMT\", offset: 0},\
+        {str: \"ECT	European Central Time	GMT+1:00\", offset: 1},\
+        {str: \"EET	Eastern European Time	GMT+2:00\", offset: 2},\
+        {str: \"ART	(Arabic) Egypt Standard Time	GMT+2:00\", offset: 2},\
+        {str: \"EAT	Eastern African Time	GMT+3:00\", offset: 3},\
+        {str: \"MET	Middle East Time	GMT+3:30\", offset: 3.5},\
+        {str: \"NET	Near East Time	GMT+4:00\", offset: 4},\
+        {str: \"PLT	Pakistan Lahore Time	GMT+5:00\", offset: 5},\
+        {str: \"IST	India Standard Time	GMT+5:30\", offset: 5.5},\
+        {str: \"BST	Bangladesh Standard Time	GMT+6:00\", offset: 6},\
+        {str: \"VST	Vietnam Standard Time	GMT+7:00\", offset: 7},\
+        {str: \"CTT	China Taiwan Time	GMT+8:00\", offset: 8},\
+        {str: \"JST	Japan Standard Time	GMT+9:00\", offset: 9},\
+        {str: \"ACT	Australia Central Time	GMT+9:30\", offset: 9.5},\
+        {str: \"AET	Australia Eastern Time	GMT+10:00\", offset: 10},\
+        {str: \"SST	Solomon Standard Time	GMT+11:00\", offset: 11},\
+        {str: \"NST	New Zealand Standard Time	GMT+12:00\", offset: 12},\
+        {str: \"MIT	Midway Islands Time	GMT-11:00\", offset: -11},\
+        {str: \"HST	Hawaii Standard Time	GMT-10:00\", offset: -10},\
+        {str: \"AST	Alaska Standard Time	GMT-9:00\", offset: -9},\
+        {str: \"PST	Pacific Standard Time	GMT-8:00\", offset: -8},\
+        {str: \"PNT	Phoenix Standard Time	GMT-7:00\", offset: -7},\
+        {str: \"MST	Mountain Standard Time	GMT-7:00\", offset: -7},\
+        {str: \"CST	Central Standard Time	GMT-6:00\", offset: -6},\
+        {str: \"EST	Eastern Standard Time	GMT-5:00\", offset: -5},\
+        {str: \"IET	Indiana Eastern Standard Time	GMT-5:00\", offset: -5},\
+        {str: \"PRT	Puerto Rico and US Virgin Islands Time	GMT-4:00\", offset: -4},\
+        {str: \"CNT	Canada Newfoundland Time	GMT-3:30\", offset: -3.5},\
+        {str: \"AGT	Argentina Standard Time	GMT-3:00\", offset: -3},\
+        {str: \"BET	Brazil Eastern Time	GMT-3:00\", offset: -3},\
+        {str: \"CAT	Central African Time	GMT-1:00\", offset: -1}\
+        ];\
+  for (t = 0; t < tzs.length; t++) {\
+    if (tzs[t].offset == tz)\
+    document.write('<option selected>');\
+    else\
+    document.write(\"<option>\");\
+    document.write(tzs[t].str);\
+    document.write(\"</option>\");\
+  }\
+  </script>\
+  </select></td></tr>\
   <tr><td>Setup AP SSID</td><td>");
   char apname[sizeof(WIFI_SETUP_AP)+5];
   byte mac[6];
@@ -511,6 +548,39 @@ xhr.send(formData);\
   <form name='form' method='POST' action='/list' enctype='multipart/form-data'>\
   <input type='button' value='Reboot' onClick='if(confirm(\"Reboot device?\")) window.location=\"/reboot\";return true;'><br>\
   <input type='button' value='Reset to defaults' onClick='if(confirm(\"Reset settings to defaults?\")) window.location=\"/default\";return true;'></form>\
+</div></div>\
+<div class='container'><div class='well'>\
+ <b>Local file system</b>\
+ <hr>\
+  <form method='POST' action='/edit' enctype='multipart/form-data'>\
+  Upload file to local filesystem:<br>\
+   <input type='file' name='update'>\
+   <input type='submit' value='Upload file'>\
+  </form>");
+  String path = server.hasArg("dir")?server.arg("dir"):"/";
+  Dir dir = SPIFFS.openDir(path);
+  while(dir.next()){
+    File entry = dir.openFile("r");
+    String filename = String(entry.name());
+    output += "<br>";
+    output += "<a href='" + filename + "'>" + filename + "</a>&nbsp<a href='/delete?file=" + filename + "'><font color=red>delete</font></a>";
+    output += "<br>";
+    entry.close();
+  }
+output += F("</div></div><div class='container'><div class='well'>\
+ <b>NTP Settings</b>\
+ <hr>\
+ <table>\
+  <tr><td>NTP Server 1</td><td><input name=\"ntp1\" value=\"");
+  output += ntp1;
+  output += F("\"></td></tr>\
+  <tr><td>NTP Server 2</td><td><input name=\"ntp2\" value=\"");
+  output += ntp2;
+  output += F("\"></td></tr>\
+  <tr><td>NTP Server 3</td><td><input name=\"ntp3\" value=\"");
+  output += ntp3;
+  output += F("\"></td></tr>\
+</table>\
 </div></div>\
 <div id='progress'></div>\
 </body><html>");

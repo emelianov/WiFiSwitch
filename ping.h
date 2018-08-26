@@ -32,6 +32,7 @@ uint32_t replyTask() {
       Serial.println("GW failed");
      #endif
       pingRetry = PING_COUNT;
+      ping.cancel();
       WiFi.mode(WIFI_OFF);
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
     } else {
