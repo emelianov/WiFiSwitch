@@ -15,7 +15,8 @@ If file with same name is exists it will be overwritten. Update package can cont
 
 3. Place files to be put to package to and exported binary to the same directory
 
-4. `tar -cf update.tar firmware.bin script.min.js custom.jsstyles.min.css BSS_Test.bsdesign_170414.html`
+4. `gzip -9 index.html`
+ `tar -cf update.tar firmware.bin index.html.gz`
 
 ### Update package creation under Windows
 
@@ -27,6 +28,6 @@ If file with same name is exists it will be overwritten. Update package can cont
 
 3. Place files to be put to package to and exported binary to the same directory
 
-4. Select desired files in Explorer, press right mouse button on them and select `7Zip - Add to archive`
+4. `"C:\Program Files\7-Zip\7z.exe" a -tgzip index.html.gz index.html`
 
-5. Select `Archive format` `tar` and target file name.
+   `"C:\Program Files\7-Zip\7z.exe" a -ttar fw.tar firmware.bin index.html.gz`

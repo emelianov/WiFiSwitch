@@ -11,7 +11,7 @@
 
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
-
+#ifdef WFS_DEBUG
 void handleDebug() {
   char data[400];
   uint16_t _timeout = 500;
@@ -26,8 +26,8 @@ void handleDebug() {
   if (!WiFi.hostByName(ntp3.c_str(), n3, _timeout)) {
     n3 =IPAddress(0,0,0,0);
   }
-  sprintf(data,\
-          ("<?xml version = \"1.0\" encoding=\"UTF-8\" ?><private><heap>%d</heap><rssi>%d</rssi><uptime>%ld</uptime>\
+  sprintf_P(data,\
+          PSTR("<?xml version = \"1.0\" encoding=\"UTF-8\" ?><private><heap>%d</heap><rssi>%d</rssi><uptime>%ld</uptime>\
           <rtcinit>%s</rtcinit><rtcpower>%s</rtcpower><rtc>%ld</rtc><ntp>%ld</ntp><sys>%ld</sys><s1>%s</s1><s2>%s</s2><s3>%s</s3><n1>%s</n1><n2>%s</n2><n3>%s</n3></private>"),\
           ESP.getFreeHeap(), WiFi.RSSI(), (uint32_t)millis()/1000,\
           (!status.rtcPresent)?"Failed":"Ok", rtc.lostPower()?"Failed":"Ok", now.unixtime(), time(NULL), getTime(),\
@@ -37,6 +37,7 @@ void handleDebug() {
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.send(200, "text/xml", data);  
 }
+#endif
 
 uint32_t restartESP();
 String swState(OverrideMode o) {
@@ -524,7 +525,7 @@ output += F(";tzs =[{str: \"GMT	Greenwich Mean Time	GMT\", offset: 0},\
   char apname[sizeof(WIFI_SETUP_AP)+5];
   byte mac[6];
   WiFi.macAddress(mac);
-  sprintf(apname, "%s%02X%02X", WIFI_SETUP_AP, mac[4], mac[5]);
+  sprintf_P(apname, PSTR("%s%02X%02X"), WIFI_SETUP_AP, mac[4], mac[5]);
   output += String(apname);
   output += F("</td></tr>\
   </table>\
@@ -601,7 +602,7 @@ void handleFile() {
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.sendHeader("Access-Control-Allow-Origin", "*");
   server.sendHeader("Refresh", "5; url=/list");
-  server.send(200, "text/plain", "OK");  
+  server.send_P(200, "text/plain", PSTR("OK"));  
 }
 // File upload. Called on data received
 File fsUploadFile;
@@ -650,7 +651,7 @@ bool fileRead(String path){
 void anyFile() {
   BUSY
   if(!fileRead(server.uri()))
-    server.send(404, "text/plain", "FileNotFound");
+    server.send_P(404, "text/plain", PSTR("FileNotFound"));
   IDLE
 }
 // Delete file callback
@@ -672,7 +673,7 @@ void handleDelete() {
         IDLE
         return;
       } else {
-        server.send(404, "text/plain", "FileNotFound");
+        server.send_P(404, "text/plain", PSTR("FileNotFound"));
         IDLE
         return;
       }
@@ -693,7 +694,7 @@ void handleReboot() {
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.sendHeader("Refresh", "7; url=/");
   taskAddWithDelay(restartESP, 1000);
-  server.send(200, "text/plain", "Rebooting...");
+  server.send_P(200, "text/plain", PSTR("Rebooting..."));
 }
 
 void handleResetToDefaults() {
@@ -708,7 +709,7 @@ void handleResetToDefaults() {
   taskAddWithDelay(restartESP, 1000);
   SPIFFS.remove(STATE);
   SPIFFS.remove(CFG);
-  server.send(200, "text/plain", "Settings was reset. Rebooting...");
+  server.send_P(200, "text/plain", PSTR("Settings was reset. Rebooting..."));
 }
 
 void handleNetwork() {
@@ -782,7 +783,9 @@ uint32_t initWeb() {
     server.on("/net", HTTP_POST, handleNetwork);
     server.on("/reboot", HTTP_GET, handleReboot);
     server.on("/default", HTTP_GET, handleResetToDefaults);
+   #ifdef WFS_DEBUG
     server.on("/debug", HTTP_GET, handleDebug);
+   #endif
     server.begin();                                           // start to listen for clients 
     taskAdd(webHandle);
     return RUN_DELETE;
