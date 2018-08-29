@@ -45,7 +45,8 @@ uint32_t replyTask() {
 
 uint32_t pingTask() {
 #ifdef WFS_DEBUG
-  Serial.println("Ping GW");
+  Serial.print("Pinging ");
+  Serial.println(WiFi.gatewayIP());
 #endif
   ping.begin(WiFi.gatewayIP(), PING_COUNT * 2, PING_FAIL);
   taskAddWithDelay(replyTask, PING_FAIL * (PING_COUNT + 1));

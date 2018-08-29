@@ -10,11 +10,19 @@
 #define DEF_TIME 1514764800
 
 RTC_DS3231 rtc;
-int32_t timeZone;
+int32_t timeZone = 0;
 uint8_t ntpId = 0;
 //Update time from NTP server
 uint32_t initNTP() {
+ #ifdef WFS_DEBUG
+  Serial.print("TimeZone: ");
+  Serial.println(tz);
+ #endif
   timeZone = atoi(tz.c_str()) * 3600;
+ #ifdef WFS_DEBUG
+  Serial.print("TimeOffset: ");
+  Serial.println(timeZone);
+ #endif
   //Serial.println("ntp");
   //Serial.println(ntp2);
   //Serial.println(ntp3);
@@ -23,7 +31,7 @@ uint32_t initNTP() {
       configTime(timeZone, 0, ntp1.c_str());
       ntpId++;
     } else if (ntpId == 1) {
-      configTime(timeZone, 0, ntp3.c_str());
+      configTime(timeZone, 0, ntp2.c_str());
       ntpId++;
     } else {
       configTime(timeZone, 0, ntp3.c_str());
