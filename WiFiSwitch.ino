@@ -6,8 +6,8 @@
 #define RUN_TASKS 32
 #include <Run.h>
 
-#define VERSION "0.5.14"
-#define WFS_DEBUG
+#define VERSION "0.5.15"
+//#define WFS_DEBUG
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -67,7 +67,8 @@ String name = "socket";
 uint32_t wifiStart();
 //Select one of following AC current read implementations
 // ---------------------------
- #include "WiFiACSimple.h"
+ #include "WiFiemon.h"
+ //#include "WiFiACSimple.h"
  //#include "WiFiCurrent.h"
  //#include "WiFiACRMS.h"
 // ---------------------------

@@ -12,6 +12,7 @@
 * [Extremely simple tar extractor Arduino library](https://github.com/emelianov/untarArduino)
 * [Arduino Client for MQTT](https://github.com/knolleary/pubsubclient)
 * [AsyncPing](https://github.com/akaJes/AsyncPing)
+* [Arduino Energy Monitoring Library](https://github.com/openenergymonitor/EmonLib)
 
 ### Release notes
 

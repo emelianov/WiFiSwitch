@@ -3426,8 +3426,8 @@ opacity:0.5;pointer-events:none;
                                 if (y < 0)
                                     y = 0;
                                 if (plot != undefined && y > plot.getAxes().yaxis.options.max) {
-                                    //if (y > 200) {
-                                    //y = 200;
+                                    if (y > 5000)
+                                        y = 5000;
                                     plot.getAxes().yaxis.options.min = 0;
                                     plot.getAxes().yaxis.options.max = y;
                                     plot.setupGrid();
