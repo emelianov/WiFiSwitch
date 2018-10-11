@@ -50,14 +50,14 @@ uint32_t initNTP() {
 
 time_t getTime() {
   time_t t = 0;
-  if (!rtc.lostPower()) {
+/*  if (!rtc.lostPower()) {
     DateTime now = rtc.now();
     t = now.unixtime()+timeZone;
-  } else {
+  } else { */
     if (status.ntpSync) {
       t = time(NULL);
     }
-  }
+//  }
   return t % 86400;
 }
 
