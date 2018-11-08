@@ -18,9 +18,9 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-//#include "twi.h"
-//#include "pins_arduino.h"
-//#include "wiring_private.h"
+#include "twi.h"
+#include "pins_arduino.h"
+#include "wiring_private.h"
 
 unsigned int preferred_si2c_clock = 100000;
 unsigned char twi_dcount = 18;
