@@ -783,6 +783,23 @@ void handleOverride() {
   IDLE
 }
 
+void handleSamples() {  // raw data for debug
+  server.sendHeader("Connection", "close");
+  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  String csv;
+  fillSamples = false;
+  for (uint16_t i = 0; i < MES_COUNT >> 1; i++) {
+    csv += String(samples49[i]) + ", ";
+  }
+  csv += "\n";
+  for (uint16_t i = 0; i < MES_COUNT >> 1; i++) {
+    csv += String(samples4A[i]) + ", ";
+  }
+  fillSamples = true;
+  server.send(200, "text/csv", csv);
+  IDLE
+}
+
 uint32_t webHandle() {
   server.handleClient();
   return 100;
@@ -801,6 +818,7 @@ uint32_t initWeb() {
     server.on("/net", HTTP_POST, handleNetwork);
     server.on("/reboot", HTTP_GET, handleReboot);
     server.on("/default", HTTP_GET, handleResetToDefaults);
+    server.on("/samples", HTTP_GET, handleSamples);
    #ifdef WFS_DEBUG
     server.on("/debug", HTTP_GET, handleDebug);
    #endif

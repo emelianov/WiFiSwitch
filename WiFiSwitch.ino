@@ -9,6 +9,11 @@
 #define VERSION "0.6.0"
 #define WFS_DEBUG
 
+#define MES_COUNT 2000
+volatile uint16_t samples4A[MES_COUNT>>1];
+volatile uint16_t samples49[MES_COUNT>>1];
+volatile bool fillSamples = true;
+
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
 // Current query interval (mS)
