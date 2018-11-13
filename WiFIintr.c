@@ -1,4 +1,5 @@
 #pragma once
+// Interrupt routine handler. They said it should be in separate file to make ICACHE_RAM_ATTR work.
 #include <ets_sys.h>
 #include <Arduino.h>
 #include "mcp3221isr.h"
@@ -42,14 +43,15 @@ volatile double realPower,
       Vrms,
       Irms;
 
-#define MAX_SAMPLES 1200
 volatile uint16_t samples = 0;
 
 uint16_t ctr = 0;
 uint16_t sV[MAX_SAMPLES] = {0};
 uint16_t sI[MAX_SAMPLES] = {0};
 
-
+// Be carefull changing interrupt code
+// mcp3221_read() takes ~95microSeconds interrupt duration above 150microSeconds leads to controller reset by watchdog.
+// Sum of interrupts dutation should not exceed 250milliSeconds per second.
 void ICACHE_RAM_ATTR timer_isr(){
   if (adcBusy) return;
   adcBusy = true;

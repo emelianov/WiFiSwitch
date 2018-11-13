@@ -5,11 +5,11 @@
 #include <WiFiManager.h>
 #define RUN_TASKS 32
 #include <Run.h>
+#include "settings.h"
 
 ADC_MODE(ADC_VCC);
 
 #define VERSION "0.6.0"
-#define WFS_DEBUG
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8

@@ -1,5 +1,6 @@
 #pragma once
 #include <detail/RequestHandlersImpl.h>
+#include "settings.h"
 
 #define INDEX "index.html"
 #define UPLOADUSER  "admin"
@@ -784,7 +785,6 @@ void handleOverride() {
 }
 
 extern volatile bool adcBusy;
-#define MAX_SAMPLES 1200
 extern uint16_t sV[MAX_SAMPLES];
 extern uint16_t sI[MAX_SAMPLES];
 
@@ -823,7 +823,7 @@ uint32_t initWeb() {
     server.on("/net", HTTP_POST, handleNetwork);
     server.on("/reboot", HTTP_GET, handleReboot);
     server.on("/default", HTTP_GET, handleResetToDefaults);
-    server.on("/samples", HTTP_GET, handleSamples);
+    server.on("/samples.csv", HTTP_GET, handleSamples);
    #ifdef WFS_DEBUG
     server.on("/debug", HTTP_GET, handleDebug);
    #endif

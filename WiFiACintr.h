@@ -1,4 +1,7 @@
 #pragma once
+// AC Power meter.
+// MCP3221 from timer interrupt version
+
 #include "mcp3221isr.h"
 #include "settings.h"
 
