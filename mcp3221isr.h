@@ -31,5 +31,6 @@ uint16_t ICACHE_RAM_ATTR mcp3221_read(uint8_t address) {
 
   if(twi_readFrom(address, (uint8_t*)&rawData, 2, true) != 0)
     return 1;
+    //return rawData;
   return __bswap_16(rawData);
 }

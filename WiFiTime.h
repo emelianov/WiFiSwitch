@@ -3,8 +3,6 @@
 #include <time.h>
 #include <RTClib.h>
 
-#define SDA D2
-#define SCL D3
 #define NTP_CHECK_DELAY 30000
 // 01/01/2018
 #define DEF_TIME 1514764800

@@ -1,13 +1,6 @@
 #pragma once
-//#include <Arduino.h>
 #include "mcp3221isr.h"
-
-#define MCP_V 0x49
-#define MCP_1 0x4A
-#define MCP_2 0x4B
-#define MCP_3 0x4C
-#define APOX_WINDOW 3
-#define MES_COUNT 2000
+#include "settings.h"
 
 // Select constant according to ACS model
 //int mVperAmp = 185; //  5A
@@ -16,7 +9,7 @@ const int mVperAmp = 66;  // 30A
 
 extern uint32_t cTm;
 
-#define CAL_SAMPLES 100
+//#define CAL_SAMPLES 100
 
 extern "C" void ICACHE_RAM_ATTR timer_isr();
 extern volatile int16_t readValue;
@@ -27,28 +20,31 @@ extern volatile double realPower,
       Irms;
 extern double V_RATIO;
 extern double I_RATIO;
-extern volatile int sampleV;                        //sample_ holds the raw analog read value
-extern volatile int sampleI;
-extern uint32_t ZERO_V;
-extern uint16_t ZERO_I;
+extern volatile int32_t sampleV;                        //sample_ holds the raw analog read value
+extern volatile int32_t sampleI;
+extern double offsetV,offsetI;          //Filtered_ is the raw analog value minus the DC offset
+extern double filteredI;
+extern uint16_t SupplyVoltage;
 
 uint32_t pri() {
-  Serial.printf("Read time: %d, Value: %d/%d/%d\n", cTm, readValue, sampleV, sampleI);
-  Serial.printf("V_RATIO: %s, I_RATIO: %s, ZERO_V: %d\n", String(V_RATIO).c_str(), String(I_RATIO).c_str(), ZERO_V);
+  SupplyVoltage = ESP.getVcc();
+ #ifdef WFS_DEBUG
+  Serial.printf("%d/%d\n", sampleV, sampleI);
+  Serial.printf("V_RATIO: %s, I_RATIO: %s\n", String(V_RATIO).c_str(), String(I_RATIO).c_str());
+  Serial.printf("filteredV: %s, filteredI: %s, %d\n", String(offsetV).c_str(), String(offsetI).c_str(), SupplyVoltage);
   Serial.printf("Real: %s, Apparent: %s, PF: %s, Vrms: %s, Irms : %s\n", String(realPower).c_str(), String(apparentPower).c_str(), String(powerFactor).c_str(), String(Vrms).c_str(), String(Irms).c_str());
-  //Serial.println(mcp3221_read(0x49));
-  //Serial.println(mcp3221_read(0x4A));
+ #endif
   return 5000;
 }
 
 uint32_t initA0() {
-  //mcp3221_init(400000, 0, 4);
-  mcp3221_init(400000, 4, 5);
-  ZERO_V = 0;
-  for (uint8_t i = 0; i < CAL_SAMPLES; i++) {
-    ZERO_V += mcp3221_read(MCP_V);
-  }
-  ZERO_V /= CAL_SAMPLES;
+ #ifdef WFS_DEBUG
+  mcp3221_init(400000, SDA, SCL);
+  Serial.println(mcp3221_read(0x49));
+  Serial.println(mcp3221_read(MCP_V));
+ #else
+  mcp3221_init(400000, SDA, SCL);
+ #endif
   taskAdd(pri);
   timer1_disable();
   timer1_attachInterrupt(timer_isr);
@@ -58,22 +54,10 @@ uint32_t initA0() {
 }
 
 float current() {
-  return amps;
+  return realPower;
 }
  
 uint32_t queryA0() { 
-  /*
-  double Voltage = 0;
-  double VRMS = 0;
-   // Subtract min from max
-  Voltage =  ((maxValue - minValue) * 5.0)/1024.0;
-  VRMS = (Voltage/2.0) *0.707;
-  amps = (VRMS * 1000) / mVperAmp - 0.09;
-  amps = (VRMS * 100) / mVperAmp - 0.09;
-  if (amps < 0) {
-    amps = 0.0;
-  }
-  */
-  amps = readValue;
+  amps = realPower;
   return A0_DELAY;
 }

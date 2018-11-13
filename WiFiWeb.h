@@ -290,7 +290,7 @@ void ajaxInputs() {
   }
   // Assemble current state xml
   String res = "";
-  String an = String(current()*110);  // Convert to Wattage
+  String an = String(current());
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog>\n"), an.c_str());
   res += data;
   //Global feed mode
@@ -783,19 +783,24 @@ void handleOverride() {
   IDLE
 }
 
+extern volatile bool adcBusy;
+#define MAX_SAMPLES 1200
+extern uint16_t sV[MAX_SAMPLES];
+extern uint16_t sI[MAX_SAMPLES];
+
 void handleSamples() {  // raw data for debug
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   String csv;
-  fillSamples = false;
-  for (uint16_t i = 0; i < MES_COUNT >> 1; i++) {
-    csv += String(samples49[i]) + ", ";
+  adcBusy = true;
+  for (uint16_t i = 0; i < MAX_SAMPLES >> 1; i++) {
+    csv += String(sV[i]) + ", ";
   }
   csv += "\n";
-  for (uint16_t i = 0; i < MES_COUNT >> 1; i++) {
-    csv += String(samples4A[i]) + ", ";
+  for (uint16_t i = 0; i < MAX_SAMPLES >> 1; i++) {
+    csv += String(sI[i]) + ", ";
   }
-  fillSamples = true;
+  adcBusy = false;
   server.send(200, "text/csv", csv);
   IDLE
 }
