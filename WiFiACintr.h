@@ -16,11 +16,12 @@ extern uint32_t cTm;
 
 extern "C" void ICACHE_RAM_ATTR timer_isr();
 extern volatile int16_t readValue;
-extern volatile double realPower,
-      apparentPower,
-      powerFactor,
-      Vrms,
-      Irms;
+extern volatile double realPower[MCP_COUNT];
+extern volatile double apparentPower[MCP_COUNT],
+      powerFactor[MCP_COUNT],
+      Vrms[MCP_COUNT],
+      Irms[MCP_COUNT];
+      
 extern double V_RATIO;
 extern double I_RATIO;
 extern volatile int32_t sampleV;                        //sample_ holds the raw analog read value
@@ -34,8 +35,8 @@ uint32_t pri() {
  #ifdef WFS_DEBUG
   Serial.printf("%d/%d\n", sampleV, sampleI);
   Serial.printf("V_RATIO: %s, I_RATIO: %s\n", String(V_RATIO).c_str(), String(I_RATIO).c_str());
-  Serial.printf("filteredV: %s, filteredI: %s, %d\n", String(offsetV).c_str(), String(offsetI).c_str(), SupplyVoltage);
-  Serial.printf("Real: %s, Apparent: %s, PF: %s, Vrms: %s, Irms : %s\n", String(realPower).c_str(), String(apparentPower).c_str(), String(powerFactor).c_str(), String(Vrms).c_str(), String(Irms).c_str());
+  Serial.printf("offesetV: %s, offsetI: %s, VCC: %d\n", String(offsetV).c_str(), String(offsetI).c_str(), SupplyVoltage);
+  Serial.printf("Real: %s, Apparent: %s, PF: %s, Vrms: %s, Irms : %s\n", String(realPower[0]).c_str(), String(apparentPower[0]).c_str(), String(powerFactor[0]).c_str(), String(Vrms[0]).c_str(), String(Irms[0]).c_str());
  #endif
   return 5000;
 }
@@ -57,10 +58,11 @@ uint32_t initA0() {
 }
 
 float current() {
-  return realPower;
+  //return realPower;
+  return 0;
 }
  
 uint32_t queryA0() { 
-  amps = realPower;
+  //amps = realPower;
   return A0_DELAY;
 }

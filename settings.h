@@ -3,7 +3,7 @@
 
 // Switch to debug NodeNCU 1.0 mode
 // If not defined -- production WeMos mini
-//#define WFS_DEBUG
+#define WFS_DEBUG
 
 // I2S bus pins
 #ifdef WFS_DEBUG
@@ -23,18 +23,17 @@
  #define MCP_0 0x4A
  #define MCP_1 0x4A
  #define MCP_3 0x4A
-//uint8_t sampleI[MCP_COUNT] = {MCP_0, MCP_1, MCP_3};
  #define DEF_VCAL     15000.0
  #define DEF_ICAL     50.0
  #define DEF_PHASECAL  2.75
  #define DEF_SUPPLY   3300
 #else
 // Voltage
- #define MCP_V 0x4D
+ #define MCP_V 0x4E
 //J4
  #define MCP_0 0x4C
 //J5
- #define MCP_1 0x4E
+ #define MCP_1 0x4D
 //J2
  #define MCP_3 0x4F
 // Voltage vallibration

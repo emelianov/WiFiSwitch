@@ -11,8 +11,9 @@
 #define READ_I 2
 #define CALC 3
 
-//volatile uint32_t cTm = 0;
-//volatile int16_t readValue;
+uint8_t mcpA[MCP_COUNT] = {MCP_0, MCP_1, MCP_3};
+uint8_t mcp = 0;
+
 volatile bool adcBusy = false;
 uint16_t windowV[APPROX_WINDOW];
 uint16_t windowI[APPROX_WINDOW];
@@ -37,17 +38,17 @@ uint16_t SupplyVoltage = DEF_SUPPLY;
 double normalV = 0;
 
 
-volatile double realPower,
-      apparentPower,
-      powerFactor,
-      Vrms,
-      Irms;
+volatile double realPower[MCP_COUNT],
+      apparentPower[MCP_COUNT],
+      powerFactor[MCP_COUNT],
+      Vrms[MCP_COUNT],
+      Irms[MCP_COUNT];
 
 volatile uint16_t samples = 0;
 
 uint16_t ctr = 0;
 uint16_t sV[MAX_SAMPLES] = {0};
-uint16_t sI[MAX_SAMPLES] = {0};
+uint16_t sI[MCP_COUNT][MAX_SAMPLES] = {0};
 
 // Be carefull changing interrupt code
 // mcp3221_read() takes ~95microSeconds interrupt duration above 150microSeconds leads to controller reset by watchdog.
@@ -70,8 +71,8 @@ void ICACHE_RAM_ATTR timer_isr(){
       break;
     case READ_I:
       intrAction = CALC;
-      sampleI = mcp3221_read(MCP_1);
-      sI[ctr] = sampleI;
+      sampleI = mcp3221_read(mcpA[mcp]);
+      sI[mcp][ctr] = sampleI;
       ctr++;
       break;
     default:  //CALC
@@ -118,15 +119,15 @@ void ICACHE_RAM_ATTR timer_isr(){
     }
   } else {
       V_RATIO = VCAL *((SupplyVoltage / 1000.0) /(ADC_COUNTS));
-      Vrms = V_RATIO * sqrt(sumV / MAX_SAMPLES);
+      Vrms[mcp] = V_RATIO * sqrt(sumV / MAX_SAMPLES);
 
       I_RATIO = ICAL *((SupplyVoltage / 1000.0) / (ADC_COUNTS));
-      Irms = I_RATIO * sqrt(sumI / MAX_SAMPLES);
+      Irms[mcp] = I_RATIO * sqrt(sumI / MAX_SAMPLES);
 
       //Calculation power values
-      realPower = V_RATIO * I_RATIO * sumP / MAX_SAMPLES;
-      apparentPower = Vrms * Irms;
-      powerFactor=realPower / apparentPower;
+      realPower[mcp] = V_RATIO * I_RATIO * sumP / MAX_SAMPLES;
+      apparentPower[mcp] = Vrms[mcp] * Irms[mcp];
+      powerFactor[mcp] = realPower[mcp] / apparentPower[mcp];
 
       sumV = 0;
       sumI = 0;
@@ -137,6 +138,8 @@ void ICACHE_RAM_ATTR timer_isr(){
         windowV[i] = 0;
         windowI[i] = 0;
       }
+      mcp++;
+      if (mcp >= MCP_COUNT) mcp = 0;
       ctr = 0;
   }
 

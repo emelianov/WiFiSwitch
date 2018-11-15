@@ -2867,10 +2867,10 @@ opacity:0.5;pointer-events:none;
 
         function AnalogXMLupdate(x) {
             var e,
-                //t = Math.min(x.length, document.getElementsByClassName("analog").length);
+                a = Math.min(x.length, document.getElementsByClassName("analog").length);
                 t = document.getElementsByClassName("analog").length;
-            for (e = 0; e < t; e++)
-                document.getElementsByClassName("analog")[e].innerHTML = x[0].childNodes[0].nodeValue
+            for (e = 0; e < a; e++)
+                document.getElementsByClassName("analog")[e].innerHTML = x[e].childNodes[0].nodeValue
         }
 
         function SocketXMLupdate(x, y, z, a) {

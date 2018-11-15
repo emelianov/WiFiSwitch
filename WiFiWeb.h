@@ -10,6 +10,8 @@
 #define IDLE ;
 #define SAVE_DELAY 5000
 
+extern volatile double realPower[MCP_COUNT];
+
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
 #ifdef WFS_DEBUG
@@ -291,8 +293,10 @@ void ajaxInputs() {
   }
   // Assemble current state xml
   String res = "";
-  String an = String(current());
-  sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog>\n"), an.c_str());
+  String an1 = String(realPower[0]);
+  String an2 = String(realPower[1]);
+  String an3 = String(realPower[2]);
+  sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog><analog>%s</analog><analog>%s</analog>\n"), an1.c_str(), an2.c_str(), an3.c_str());
   res += data;
   //Global feed mode
   sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
@@ -786,7 +790,7 @@ void handleOverride() {
 
 extern volatile bool adcBusy;
 extern uint16_t sV[MAX_SAMPLES];
-extern uint16_t sI[MAX_SAMPLES];
+extern uint16_t sI[MCP_COUNT][MAX_SAMPLES];
 
 void handleSamples() {  // raw data for debug
   server.sendHeader("Connection", "close");
@@ -797,8 +801,11 @@ void handleSamples() {  // raw data for debug
     csv += String(sV[i]) + ", ";
   }
   csv += "\n";
-  for (uint16_t i = 0; i < MAX_SAMPLES >> 1; i++) {
-    csv += String(sI[i]) + ", ";
+  for (uint16_t j = 0; j < MCP_COUNT; j++) {
+    for (uint16_t i = 0; i < MAX_SAMPLES >> 1; i++) {
+      csv += String(sI[j][i]) + ", ";
+    }
+    csv += "\n";
   }
   adcBusy = false;
   server.send(200, "text/csv", csv);

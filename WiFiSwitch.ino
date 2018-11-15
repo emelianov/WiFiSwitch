@@ -138,6 +138,7 @@ void cbConnected(WiFiManager *wfm) {
 }
 
 uint32_t restartESP() {
+  timer1_disable();
   ESP.restart();
   return RUN_DELETE;
 }
