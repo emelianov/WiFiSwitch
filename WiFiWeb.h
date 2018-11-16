@@ -10,7 +10,7 @@
 #define IDLE ;
 #define SAVE_DELAY 5000
 
-extern volatile double realPower[MCP_COUNT];
+extern double realPower[MCP_COUNT];
 
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
@@ -838,4 +838,3 @@ uint32_t initWeb() {
     taskAdd(webHandle);
     return RUN_DELETE;
 }
-

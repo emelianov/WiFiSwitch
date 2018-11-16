@@ -15,6 +15,7 @@
 #endif
 
 #define MAX_SAMPLES 1200
+#define ADC_COUNTS  (1<<ADC_BITS)
 
 // MCP3221 addresses
 #define MCP_COUNT 3
