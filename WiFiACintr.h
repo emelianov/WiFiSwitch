@@ -5,15 +5,7 @@
 #include "mcp3221isr.h"
 #include "settings.h"
 
-// Select constant according to ACS model
-//int mVperAmp = 185; //  5A
-//int mVperAmp = 100; // 20A
-//const int mVperAmp = 66;  // 30A
-
-//extern uint16_t mcpDataReady;
-
 extern "C" void ICACHE_RAM_ATTR timer_isr();
-//extern volatile int16_t readValue;
 
 extern volatile int32_t sampleV;                        //sample_ holds the raw analog read value
 extern volatile int32_t sampleI;
@@ -23,11 +15,8 @@ extern double filteredI;
 extern uint32_t sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
 double V_RATIO;
 double I_RATIO;
-//volatile int32_t sampleV;                        //sample_ holds the raw analog read value
-//volatile int32_t sampleI;
 double VCAL     = DEF_VCAL;
 double ICAL     = DEF_ICAL;
-//int16_t PHASECAL = DEF_PHASECAL;
 uint16_t SupplyVoltage = DEF_SUPPLY;
 
 double realPower[MCP_COUNT],

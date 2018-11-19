@@ -25,21 +25,9 @@ uint16_t offsetV = ADC_COUNTS>>1;                          //Low-pass filter out
 uint16_t offsetI = ADC_COUNTS>>1;                          //Low-pass filter output
 int16_t phaseShiftedV;                             //Holds the calibrated phase shifted voltage
 uint32_t sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
-//double V_RATIO;
-//double I_RATIO;
 volatile int32_t sampleV;                        //sample_ holds the raw analog read value
 volatile int32_t sampleI;
-//double VCAL     = DEF_VCAL;
-//double ICAL     = DEF_ICAL;
 int16_t PHASECAL = DEF_PHASECAL;
-//uint16_t SupplyVoltage = DEF_SUPPLY;
-/*
-volatile double realPower[MCP_COUNT],
-      apparentPower[MCP_COUNT],
-      powerFactor[MCP_COUNT],
-      Vrms[MCP_COUNT],
-      Irms[MCP_COUNT];
-*/
 volatile uint16_t samples = 0;
 
 uint16_t ctr = 0;
@@ -118,21 +106,7 @@ void ICACHE_RAM_ATTR timer_isr(){
       sumP +=instP;                               //Sum
     }
   } else {
-/*      V_RATIO = VCAL *((SupplyVoltage / 1000.0) /(ADC_COUNTS));
-      Vrms[mcp] = V_RATIO * sqrt(sumV / MAX_SAMPLES);
-
-      I_RATIO = ICAL *((SupplyVoltage / 1000.0) / (ADC_COUNTS));
-      Irms[mcp] = I_RATIO * sqrt(sumI / MAX_SAMPLES);
-
-      //Calculation power values
-      realPower[mcp] = V_RATIO * I_RATIO * sumP / MAX_SAMPLES;
-      apparentPower[mcp] = Vrms[mcp] * Irms[mcp];
-      powerFactor[mcp] = realPower[mcp] / apparentPower[mcp];
-
-      sumV = 0;
-      sumI = 0;
-      sumP = 0;
- */     samples = 0;
+      samples = 0;
       intrAction = READ_V;
       for (uint8_t i = 0; i < APPROX_WINDOW; i++) {
         windowV[i] = 0;
@@ -147,6 +121,5 @@ void ICACHE_RAM_ATTR timer_isr(){
 
 
  cleanup:
-  //cTm = micros() - t;
   adcBusy = false;
 }
