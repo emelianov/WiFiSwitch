@@ -293,9 +293,13 @@ void ajaxInputs() {
   }
   // Assemble current state xml
   String res = "";
-  String an1 = String(realPower[0]);
-  String an2 = String(realPower[1]);
-  String an3 = String(realPower[2]);
+//  String an1 = String(realPower[0]);
+//  String an2 = String(realPower[1]);
+//  String an3 = String(realPower[2]);
+  String an1 = String(Irms[0] * 110);
+  String an2 = String(Irms[1] * 110);
+  String an3 = String(Irms[2] * 110);
+
   sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog><analog>%s</analog><analog>%s</analog>\n"), an1.c_str(), an2.c_str(), an3.c_str());
   res += data;
   //Global feed mode
@@ -789,8 +793,8 @@ void handleOverride() {
 }
 
 extern volatile bool adcBusy;
-extern uint16_t sV[MAX_SAMPLES];
-extern uint16_t sI[MCP_COUNT][MAX_SAMPLES];
+extern int16_t sV[MAX_SAMPLES];
+extern int16_t sI[MAX_SAMPLES];
 
 void handleSamples() {  // raw data for debug
   server.sendHeader("Connection", "close");
@@ -803,7 +807,7 @@ void handleSamples() {  // raw data for debug
   csv += "\n";
   for (uint16_t j = 0; j < MCP_COUNT; j++) {
     for (uint16_t i = 0; i < MAX_SAMPLES >> 1; i++) {
-      csv += String(sI[j][i]) + ", ";
+      csv += String(sI[i]) + ", ";
     }
     csv += "\n";
   }

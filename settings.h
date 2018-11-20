@@ -14,7 +14,7 @@
  #define SCL D3
 #endif
 
-#define MAX_SAMPLES 1200
+#define MAX_SAMPLES 400
 #define ADC_COUNTS  (1<<ADC_BITS)
 
 // MCP3221 addresses
@@ -24,8 +24,8 @@
  #define MCP_0 0x4A
  #define MCP_1 0x4A
  #define MCP_3 0x4A
- #define DEF_VCAL     15000.0
- #define DEF_ICAL     50.0
+ #define DEF_VCAL     1.0
+ #define DEF_ICAL     15.15
  #define DEF_PHASECAL  2.75
  #define DEF_SUPPLY   3300
 #else
@@ -38,9 +38,9 @@
 //J2
  #define MCP_3 0x4F
 // Voltage vallibration
- #define DEF_VCAL     15000.0
+ #define DEF_VCAL     1.0
 // Current callibration
- #define DEF_ICAL     200.0
+ #define DEF_ICAL     15.15
 // Voltage shift callibration
  #define DEF_PHASECAL  2.75
 // ADC power voltage

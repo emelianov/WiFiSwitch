@@ -15,24 +15,14 @@ uint8_t mcpCalc;
 volatile uint16_t mcpDataReady = 0;
 
 volatile bool adcBusy = false;
-uint16_t windowV[APPROX_WINDOW];
-uint16_t windowI[APPROX_WINDOW];
 
 uint16_t intrAction = READ_V;
-int16_t lastFilteredV,filteredV;          //Filtered_ is the raw analog value minus the DC offset
-int16_t filteredI;
-uint16_t offsetV = ADC_COUNTS>>1;                          //Low-pass filter output
-uint16_t offsetI = ADC_COUNTS>>1;                          //Low-pass filter output
-int16_t phaseShiftedV;                             //Holds the calibrated phase shifted voltage
-uint32_t sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
-volatile int32_t sampleV;                        //sample_ holds the raw analog read value
-volatile int32_t sampleI;
-int16_t PHASECAL = DEF_PHASECAL;
 volatile uint16_t samples = 0;
 
 uint16_t ctr = 0;
-uint16_t sV[MAX_SAMPLES] = {0};
-uint16_t sI[MCP_COUNT][MAX_SAMPLES] = {0};
+// Buffer for samples store used signed int as ADC is 12-bit and faser zero normalization will be performed in-place.
+int16_t sV[MAX_SAMPLES] = {0};
+int16_t sI[MAX_SAMPLES] = {0};
 
 // Be carefull changing interrupt code
 // mcp3221_read() takes ~95microSeconds
@@ -54,71 +44,26 @@ void ICACHE_RAM_ATTR timer_isr(){
     switch (intrAction) {
     case READ_V:
       intrAction = READ_I;
-      sampleV = mcp3221_read(MCP_V);
-      sV[ctr] = sampleV;
+      sV[ctr] = mcp3221_read(MCP_V);
       break;
     case READ_I:
       intrAction = CALC;
-      sampleI = mcp3221_read(mcpA[mcp]);
-      sI[mcp][ctr] = sampleI;
+      sI[ctr] = mcp3221_read(mcpA[mcp]);
       ctr++;
       break;
-    default:  //CALC
+    default:
+      // Left to keep 1041Hz sampling rate.
       intrAction = READ_V;
-      
-      uint32_t _sum = 0;
-      uint8_t j = 1;
-      uint8_t i;
-      for (i = 1; i < APPROX_WINDOW; i++) { 
-        if (windowV[i] != 0) {
-          _sum += windowV[i];
-          j++;
-        }
-        windowV[i - 1] = windowV[i];
-      }
-      windowV[APPROX_WINDOW - 1] = sampleV;
-      _sum += sampleV;
-      sampleV = _sum / j;
-      _sum = 0;
-      j = 1;
-      for (i = 1; i < APPROX_WINDOW; i++) { 
-        if (windowI[i] != 0) {
-          _sum += windowI[i];
-          j++;
-        }
-        windowI[i - 1] = windowI[i];
-      }
-      windowI[APPROX_WINDOW - 1] = sampleI;
-      _sum += sampleI;
-      sampleI = _sum / j;
-
-      lastFilteredV = filteredV;               //Used for delay/phase compensation
-      offsetV = offsetV + (sampleV-offsetV) >> 10; // /1024;
-      filteredV = sampleV - offsetV;
-      offsetI = offsetI + (sampleI-offsetI) >> 10; // /1024;
-      filteredI = sampleI - offsetI;
-      sqV= filteredV * filteredV;                 //1) square voltage values
-      sumV += sqV;                                //2) sum
-      sqI = filteredI * filteredI;                //1) square current values
-      sumI += sqI;                                //2) sum
-      phaseShiftedV = lastFilteredV + PHASECAL * (filteredV - lastFilteredV);
-      instP = phaseShiftedV * filteredI;          //Instantaneous Power
-      sumP +=instP;                               //Sum
     }
   } else {
       samples = 0;
       intrAction = READ_V;
-      for (uint8_t i = 0; i < APPROX_WINDOW; i++) {
-        windowV[i] = 0;
-        windowI[i] = 0;
-      }
       mcpCalc = mcp;
       mcp++;
       if (mcp >= MCP_COUNT) mcp = 0;
       ctr = 0;
       mcpDataReady++;
   }
-
 
  cleanup:
   adcBusy = false;
