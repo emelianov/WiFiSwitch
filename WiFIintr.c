@@ -31,7 +31,7 @@ int16_t sI[MAX_SAMPLES] = {0};
 // Should not use calls of eny external functions (except ICACHE_RAM_ATTR marked) and float point calculations
 // Breaking these limitations leads to controller reset by watchdog ater some time.
 void ICACHE_RAM_ATTR timer_isr(){
-  if (mcpDataReady) return;
+  if (mcpDataReady > 0) return;
   if (adcBusy) return; // Need add reset of data collection 
   adcBusy = true;
   // Level 1 is used Wi-Fi stack.
@@ -39,8 +39,7 @@ void ICACHE_RAM_ATTR timer_isr(){
   // Level 3 NMI (timers?)
   xt_rsil(1);
 
-  if (samples < MAX_SAMPLES) {
-    samples++;
+  if (ctr < MAX_SAMPLES) {
     switch (intrAction) {
     case READ_V:
       intrAction = READ_I;
@@ -56,7 +55,6 @@ void ICACHE_RAM_ATTR timer_isr(){
       intrAction = READ_V;
     }
   } else {
-      samples = 0;
       intrAction = READ_V;
       mcpCalc = mcp;
       mcp++;

@@ -793,6 +793,7 @@ void handleOverride() {
 }
 
 extern volatile bool adcBusy;
+extern volatile uint16_t mcpDataReady;
 extern int16_t sV[MAX_SAMPLES];
 extern int16_t sI[MAX_SAMPLES];
 
@@ -800,17 +801,16 @@ void handleSamples() {  // raw data for debug
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   String csv;
+  while (!mcpDataReady) { yield(); }
   adcBusy = true;
-  for (uint16_t i = 0; i < MAX_SAMPLES >> 1; i++) {
+  for (uint16_t i = 0; i < MAX_SAMPLES; i++) {
     csv += String(sV[i]) + ", ";
   }
   csv += "\n";
-  for (uint16_t j = 0; j < MCP_COUNT; j++) {
-    for (uint16_t i = 0; i < MAX_SAMPLES >> 1; i++) {
-      csv += String(sI[i]) + ", ";
-    }
-    csv += "\n";
+  for (uint16_t i = 0; i < MAX_SAMPLES; i++) {
+    csv += String(sI[i]) + ", ";
   }
+  csv += "\n";
   adcBusy = false;
   server.send(200, "text/csv", csv);
   IDLE

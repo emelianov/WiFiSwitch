@@ -17,6 +17,9 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+  No changes from original except ICACHE_RAM_ATTR added to funcs used for reading I2C.
+  This is required to read I2C from interrupt routine.
 */
 #include "twi.h"
 #include "pins_arduino.h"
