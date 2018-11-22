@@ -10,11 +10,10 @@
 #endif
 
 // Position of pins affected by Wave function in list
-// If not changed from default that means D0, D1, TX, D5
-#define WAVE_SOC1 0
-#define WAVE_SOC2 1
-#define WAVE_SOC3 2
-#define WAVE_SOC4 3
+#define WAVE_SOC1 4
+#define WAVE_SOC2 5
+#define WAVE_SOC3 6
+#define WAVE_SOC4 7
 
 #define DEFAULT_WAVE 30
 

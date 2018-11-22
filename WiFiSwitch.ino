@@ -253,7 +253,7 @@ void setup() {
   readConfig();
   //readState();
   taskAdd(wifiStart);     // Add task with Wi-Fi initialization code
-  //taskAdd(initRTC);       // Add task with RTC init
+  taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
   taskAddWithDelay(initA0, 5000);        // Add task to initialize ADC query
   //taskAdd(initNTP);

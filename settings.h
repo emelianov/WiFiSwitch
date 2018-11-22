@@ -32,11 +32,11 @@
 // Voltage
  #define MCP_V 0x4E
 //J4
- #define MCP_0 0x4C
+ #define MCP_2 0x4C
 //J5
  #define MCP_1 0x4D
 //J2
- #define MCP_3 0x4F
+ #define MCP_0 0x4F
 // Voltage vallibration
  #define DEF_VCAL     1.0
 // Current callibration

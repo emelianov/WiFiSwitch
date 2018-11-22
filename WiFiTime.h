@@ -58,12 +58,14 @@ time_t getTime() {
 //  }
   return t % 86400;
 }
-
+extern volatile bool adcBusy;
 uint32_t initRTC() {
+  adcBusy = true;
   Wire.begin(SDA,SCL);
   rtc.begin();
   Wire.beginTransmission(DS3231_ADDRESS);             // Check if RTC is 
   status.rtcPresent = (Wire.endTransmission() == 0);  // present
   status.rtcValid = !rtc.lostPower();
+  adcBusy = false;
   return RUN_DELETE;
 }

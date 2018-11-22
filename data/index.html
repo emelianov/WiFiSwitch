@@ -1352,6 +1352,23 @@ opacity:0.5;pointer-events:none;
                     </div>
 
                 </div>
+                <div class="col-sm-4 chart_set_iphone">
+                    <div class="set_chart_space">
+                        <div class="chart_space">
+                            <div class="re">
+                                <h4 class="text-center">
+                                    <div class="btn-group btn-toggle realtime">
+                                        <button class="btn btn-xs btn-default">off</button>
+                                        <button class="btn btn-xs btn-success active">live</button>
+                                    </div>
+                                </h4>
+                            </div>
+                            <div id="chart2" class="big-chart">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1538,6 +1555,23 @@ opacity:0.5;pointer-events:none;
                         </div>
                     </div>
 
+                </div>
+                <div class="col-sm-4 chart_set_iphone">
+                    <div class="set_chart_space">
+                        <div class="chart_space">
+                            <div class="re">
+                                <h4 class="text-center">
+                                    <div class="btn-group btn-toggle realtime">
+                                        <button class="btn btn-xs btn-default">off</button>
+                                        <button class="btn btn-xs btn-success active">live</button>
+                                    </div>
+                                </h4>
+                            </div>
+                            <div id="chart3" class="big-chart">
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2636,6 +2670,7 @@ opacity:0.5;pointer-events:none;
         function initArduinoIO() {
 
             /*-chart on top stay--*/
+            /*
             $(window).on('scroll', function() {
                 var scrollTop = $(this).scrollTop();
 
@@ -2652,7 +2687,7 @@ opacity:0.5;pointer-events:none;
                 });
 
             });
-
+            */
 
             docNameSave = document.getElementsByClassName("save_name"),
                 docName = $("input[data-class^='editable']");
@@ -3374,7 +3409,7 @@ opacity:0.5;pointer-events:none;
 
 
     <script type='text/javascript'>
-        var plot;
+        var plot, plot1, plot2;
         $(document).ready(function() {
 
             $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js', function() {
@@ -3410,36 +3445,42 @@ opacity:0.5;pointer-events:none;
                         // real-time chart
                         // we use an inline data source in the example, usually data would
                         // be fetched from a server
-                        var data = [],
+                        var data = [[],[],[]]
                             totalPoints = 200;
 
-                        function getRandomData() {
+                        function getRandomData(a) {
 
-                            if (data.length > 0)
-                                data = data.slice(1);
+                            if (data[a].length > 0)
+                                data[a] = data[a].slice(1);
 
                             // do a random walk
-                            while (data.length < totalPoints) {
-                                var prev = data.length > 0 ? data[data.length - 1] : 50;
+                            while (data[a].length < totalPoints) {
+                                var prev = data[a].length > 0 ? data[a][data[a].length - 1] : 0;
                                 //var y = prev + Math.random() * 10-5;
-                                var y = document.getElementsByClassName("analog")[0].innerHTML;
+                                var y = document.getElementsByClassName("analog")[a].innerHTML;
                                 if (y < 0)
                                     y = 0;
-                                if (plot != undefined && y > plot.getAxes().yaxis.options.max) {
-                                    if (y > 5000)
-                                        y = 5000;
+                                if (y > 5000)
+                                    y = 5000;
+                                if (plot != undefined && plot1 != undefined && plot2 != undefined&& y > plot.getAxes().yaxis.options.max) {
                                     plot.getAxes().yaxis.options.min = 0;
-                                    plot.getAxes().yaxis.options.max = y;
+                                    plot.getAxes().yaxis.options.max = (Math.trunc(y / 10) + 1) * 10;
                                     plot.setupGrid();
+                                    plot1.getAxes().yaxis.options.min = 0;
+                                    plot1.getAxes().yaxis.options.max = (Math.trunc(y / 10) + 1) * 10;
+                                    plot1.setupGrid();
+                                    plot2.getAxes().yaxis.options.min = 0;
+                                    plot2.getAxes().yaxis.options.max = (Math.trunc(y / 10) + 1) * 10;;
+                                    plot2.setupGrid();
                                     //plot.draw();
                                 }
-                                data.push(Math.round(y * 20) / 20);
+                                data[a].push(Math.round(y * 20) / 20);
                             }
 
                             // zip the generated y values with the x values
                             var res = [];
-                            for (var i = 0; i < data.length; ++i) {
-                                res.push([i, data[i]])
+                            for (var i = 0; i < data[a].length; ++i) {
+                                res.push([i, data[a][i]])
                             }
                             return res;
 
@@ -3475,7 +3516,7 @@ opacity:0.5;pointer-events:none;
                             },
                             yaxis: {
                                 min: 0,
-                                max: 2000,
+                                max: 5,
                                 font: '#ddd'
                             },
                             //xaxis:{show:true}
@@ -3493,12 +3534,18 @@ opacity:0.5;pointer-events:none;
                         };
 
                         //var plot = $.plot($("#chart1"), [getRandomData()], options);
-                        plot = $.plot($("#chart1"), [getRandomData()], options);
+                        plot = $.plot($("#chart1"), [getRandomData(0)], options);
+                        plot1 = $.plot($("#chart2"), [getRandomData(1)], options);
+                        plot2 = $.plot($("#chart3"), [getRandomData(2)], options);
                         var realTime;
 
                         function update() {
-                            plot.setData([getRandomData(), 100]);
+                            plot.setData([getRandomData(0), 100]);
                             plot.draw();
+                            plot1.setData([getRandomData(1), 100]);
+                            plot1.draw();
+                            plot2.setData([getRandomData(2), 100]);
+                            plot2.draw();
                             realTime = setTimeout(update, updateInterval);
                         }
 
@@ -3516,8 +3563,32 @@ opacity:0.5;pointer-events:none;
                                     .appendTo("body").fadeIn(200);
                             }
                         });
+                        $("#chart2").bind("plothover", function(event, pos, item) {
+                            $("#tooltip").remove();
+                            if (item) {
+                                var tooltip = item.series.data[item.dataIndex][1];
+                                $('<a href="#" class="tooltip" id="tooltip">' + tooltip + '</a>')
+                                    .css({
+                                        top: item.pageY + 5,
+                                        left: item.pageX + 5
+                                    })
+                                    .appendTo("body").fadeIn(200);
+                            }
+                        });
+                        $("#chart3").bind("plothover", function(event, pos, item) {
+                            $("#tooltip").remove();
+                            if (item) {
+                                var tooltip = item.series.data[item.dataIndex][1];
+                                $('<a href="#" class="tooltip" id="tooltip">' + tooltip + '</a>')
+                                    .css({
+                                        top: item.pageY + 5,
+                                        left: item.pageX + 5
+                                    })
+                                    .appendTo("body").fadeIn(200);
+                            }
+                        });
 
-                        $('.realtime').click(function() {
+                        $('.realtime1').click(function() {
                             var activeBtn = $(this).find(".active");
 
                             if (activeBtn.text() === "off") {

@@ -32,27 +32,24 @@ int16_t sI[MAX_SAMPLES] = {0};
 // Breaking these limitations leads to controller reset by watchdog ater some time.
 void ICACHE_RAM_ATTR timer_isr(){
   if (mcpDataReady > 0) return;
-  if (adcBusy) return; // Need add reset of data collection 
+  if (adcBusy) {
+    ctr = 0;
+    return; // Need add reset of data collection 
+  }
   adcBusy = true;
   // Level 1 is used Wi-Fi stack.
   // Level 2 Debug
   // Level 3 NMI (timers?)
-  xt_rsil(1);
+  //xt_rsil(1);
 
   if (ctr < MAX_SAMPLES) {
-    switch (intrAction) {
-    case READ_V:
+    if (intrAction == READ_V) {
       intrAction = READ_I;
       sV[ctr] = mcp3221_read(MCP_V);
-      break;
-    case READ_I:
-      intrAction = CALC;
+    } else {
+      intrAction = READ_V;
       sI[ctr] = mcp3221_read(mcpA[mcp]);
       ctr++;
-      break;
-    default:
-      // Left to keep 1041Hz sampling rate.
-      intrAction = READ_V;
     }
   } else {
       intrAction = READ_V;

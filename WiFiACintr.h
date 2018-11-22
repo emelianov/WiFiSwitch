@@ -48,7 +48,7 @@ uint32_t pri() {
 uint32_t powerCalc() {
   SupplyVoltage = ESP.getVcc();
   // Calc bias
-  int32_t sum = 1 << 11;
+  int32_t sum = 0;
   for (uint16_t i = 0; i < MAX_SAMPLES; i++){
     sum += sV[i];
   }
@@ -58,12 +58,12 @@ uint32_t powerCalc() {
     sV[i] -= sum;
   }
   // Calc bias
-  sum = 1 << 11;
+  sum = 0;
   for (uint16_t i = 0; i < MAX_SAMPLES; i++){
     sum += sI[i];
   }
   sum /= (MAX_SAMPLES);
-  
+  yield();
   // Normalize I + 60Hz band filter
   float xv[NZEROS+1], yv[NPOLES+1];
   for (uint16_t i = 0; i < MAX_SAMPLES; i++){
@@ -75,7 +75,7 @@ uint32_t powerCalc() {
                      + ( -5.0531136780 * yv[2]) + (  3.5877903540 * yv[3]);
     sI[i] = yv[4];
   }
-
+  yield();
   double sumV = 0;
   double sumI = 0;
   double sumP = 0;
@@ -126,7 +126,7 @@ uint32_t initA0() {
   // Set timer interrupt frequency to 3150Hz
   timer1_disable();
   timer1_attachInterrupt(timer_isr);
-  timer1_write(100);  //150
+  timer1_write(150);  // 2082Hz
   timer1_enable(TIM_DIV256, TIM_EDGE, TIM_LOOP);
   
   return RUN_DELETE;
