@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-#define VERSION "0.6.3"
+#define VERSION "0.6.4"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
