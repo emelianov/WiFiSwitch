@@ -2,6 +2,17 @@
 #include <Wire.h>
 #include <time.h>
 #include <RTClib.h>
+/*
+int _EXFUN(settimeofday, (const struct timeval *, const struct timezone *));
+struct timezone {
+  int tz_minuteswest;
+  int tz_dsttime;
+};
+struct timeval {
+  time_t      tv_sec;
+  suseconds_t tv_usec;
+};
+*/
 
 #define NTP_CHECK_DELAY 30000
 // 01/01/2018
@@ -66,6 +77,17 @@ uint32_t initRTC() {
   Wire.beginTransmission(DS3231_ADDRESS);             // Check if RTC is 
   status.rtcPresent = (Wire.endTransmission() == 0);  // present
   status.rtcValid = !rtc.lostPower();
+  if (status.rtcValid) {
+    //int _EXFUN(settimeofday, (const struct timeval *, const struct timezone *));
+    timezone tzs;
+    tzs.tz_minuteswest = timeZone / 60;
+    tzs.tz_dsttime = 0;
+    timeval tvs;
+    DateTime now = rtc.now();
+    tvs.tv_sec = now.unixtime();
+    tvs.tv_usec = 0;
+    settimeofday(&tvs, &tzs);
+  }
   adcBusy = false;
   return RUN_DELETE;
 }

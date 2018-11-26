@@ -26,6 +26,8 @@ bool reply(const AsyncPingResponse& response) {
    return true;
 }
 
+uint32_t pingTask();
+
 uint32_t replyTask() {
     if (pingRetry <= 0) {
      #ifdef WFS_DEBUG
@@ -34,6 +36,7 @@ uint32_t replyTask() {
       pingRetry = PING_COUNT;
       ping.cancel();
       WiFi.mode(WIFI_OFF);
+      taskDel(pingTask);
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
     } else {
     #ifdef WFS_DEBUG

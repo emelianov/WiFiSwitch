@@ -15,15 +15,11 @@
 #endif
 
 extern unsigned char ICACHE_RAM_ATTR twi_readFrom(unsigned char address, unsigned char* buf, unsigned int len, unsigned char sendStop);
-//extern bool ICACHE_RAM_ATTR twi_write_start(void);
-//extern bool ICACHE_RAM_ATTR twi_write_stop(void);
 
 bool mcp3221_init(uint32_t freq, uint8_t sda, uint8_t scl) {
   if (sda != 0 || scl != 0) twi_init(sda, scl);
   twi_setClock(freq);
   twi_setClockStretchLimit(230); // default value is 230 uS
-  //twi_write_start();
-  //twi_write_stop();
 }
 
 uint16_t ICACHE_RAM_ATTR mcp3221_read(uint8_t address) {
@@ -31,6 +27,5 @@ uint16_t ICACHE_RAM_ATTR mcp3221_read(uint8_t address) {
 
   if(twi_readFrom(address, (uint8_t*)&rawData, 2, true) != 0)
     return 1;
-    //return rawData;
   return __bswap_16(rawData);
 }

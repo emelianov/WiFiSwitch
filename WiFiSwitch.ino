@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-#define VERSION "0.6.4"
+#define VERSION "0.6.5"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -85,7 +85,9 @@ uint32_t wifiStart();
 #include "WiFiaws.h"
 #include "ping.h"
 
+extern volatile bool adcBusy;
 uint32_t wifiStart() {
+  adcBusy = true;
   WiFi.mode(WIFI_STA);
 /*
 //  if (!dhcp) {
@@ -127,8 +129,9 @@ uint32_t wifiWait() {
    #endif
     event.wifiConnected++;
     randomSeed(millis());
-    //taskAdd(initPing);
+    taskAdd(initPing);
   }
+  adcBusy = false;
   return RUN_DELETE;
 }
 void cbSaveParams() {
@@ -269,10 +272,11 @@ void setup() {
   //taskAddWithSemaphore(saveConfig, &event.saveParams);   // Save config on WiFiManager request
   taskAdd(readState);
   taskAdd(queryA0);
-  taskAdd(initPing);
+  //taskAdd(initPing);
 //  inputStats.setWindowSecs(windowLength);
 }
 void loop(void) {
+  wdt_enable(0);
   taskExec();
   yield();
   wdt_reset();

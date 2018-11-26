@@ -89,4 +89,5 @@ uint32_t initUpdate(){
       */
       }
     });
+    return RUN_DELETE;
 }

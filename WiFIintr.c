@@ -23,6 +23,7 @@ uint16_t ctr = 0;
 // Buffer for samples store used signed int as ADC is 12-bit and faser zero normalization will be performed in-place.
 int16_t sV[MAX_SAMPLES] = {0};
 int16_t sI[MAX_SAMPLES] = {0};
+int16_t sW[MAX_SAMPLES] = {0};
 
 // Be carefull changing interrupt code
 // mcp3221_read() takes ~95microSeconds
@@ -40,7 +41,7 @@ void ICACHE_RAM_ATTR timer_isr(){
   // Level 1 is used Wi-Fi stack.
   // Level 2 Debug
   // Level 3 NMI (timers?)
-  //xt_rsil(1);
+  xt_rsil(1);
 
   if (ctr < MAX_SAMPLES) {
     if (intrAction == READ_V) {

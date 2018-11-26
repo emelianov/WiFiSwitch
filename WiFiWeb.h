@@ -796,6 +796,7 @@ extern volatile bool adcBusy;
 extern volatile uint16_t mcpDataReady;
 extern int16_t sV[MAX_SAMPLES];
 extern int16_t sI[MAX_SAMPLES];
+extern int16_t sW[MAX_SAMPLES];
 
 void handleSamples() {  // raw data for debug
   server.sendHeader("Connection", "close");
@@ -809,6 +810,10 @@ void handleSamples() {  // raw data for debug
   csv += "\n";
   for (uint16_t i = 0; i < MAX_SAMPLES; i++) {
     csv += String(sI[i]) + ", ";
+  }
+  csv += "\n";
+  for (uint16_t i = 0; i < MAX_SAMPLES; i++) {
+    csv += String(sW[i]) + ", ";
   }
   csv += "\n";
   adcBusy = false;

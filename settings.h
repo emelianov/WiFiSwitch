@@ -14,7 +14,7 @@
  #define SCL D3
 #endif
 
-#define MAX_SAMPLES 400
+#define MAX_SAMPLES 416
 #define ADC_COUNTS  (1<<ADC_BITS)
 
 // MCP3221 addresses
