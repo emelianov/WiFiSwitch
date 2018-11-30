@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-#define VERSION "0.6.5"
+#define VERSION "0.6.6"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -68,6 +68,14 @@ String pass = "password";
 float amps = 0;     // Current value from A0
 String name = "socket";
 uint32_t wifiStart();
+
+extern volatile uint8_t adcBusy;
+void mcpLock(bool enable = true) {
+  //noInterrupts();
+  if (enable) adcBusy++; else adcBusy--;
+  //interrupts();
+}
+
 //Select one of following AC current read implementations
 // ---------------------------
  #include "WiFiACintr.h"
@@ -85,9 +93,11 @@ uint32_t wifiStart();
 #include "WiFiaws.h"
 #include "ping.h"
 
-extern volatile bool adcBusy;
+uint8_t waitWF;
 uint32_t wifiStart() {
-  adcBusy = true;
+  mcpLock();
+  WiFi.mode(WIFI_OFF);
+  delay(10);
   WiFi.mode(WIFI_STA);
 /*
 //  if (!dhcp) {
@@ -100,6 +110,7 @@ uint32_t wifiStart() {
 //  }
 */
   WiFi.begin();
+  waitWF = 1;
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
  #ifdef WFS_DEBUG
   Serial.print("Connecting to ");
@@ -107,21 +118,22 @@ uint32_t wifiStart() {
  #endif
   return RUN_DELETE;
 }
-uint8_t waitWF = 1;
+
 uint32_t wifiWait() {
   if(WiFi.status() != WL_CONNECTED) {
     if (waitWF <= WIFI_CHECK_COUNT) {
      #ifdef WFS_DEBUG
       Serial.print(".");
      #endif
-      if (waitWF > 0) {
+      //if (waitWF > 0) {
         waitWF++;
-      }
+      //}
       return WIFI_CHECK_DELAY;
     } else {
       waitWF = 1;
-      WiFi.mode(WIFI_OFF);
+      //WiFi.mode(WIFI_OFF);
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
+      return RUN_DELETE;
     }
   } else {
    #ifdef WFS_DEBUG
@@ -131,7 +143,7 @@ uint32_t wifiWait() {
     randomSeed(millis());
     taskAdd(initPing);
   }
-  adcBusy = false;
+  mcpLock(false);
   return RUN_DELETE;
 }
 void cbSaveParams() {
@@ -276,7 +288,7 @@ void setup() {
 //  inputStats.setWindowSecs(windowLength);
 }
 void loop(void) {
-  wdt_enable(0);
+  //wdt_enable(0);
   taskExec();
   yield();
   wdt_reset();

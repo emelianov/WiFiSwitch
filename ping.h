@@ -35,7 +35,7 @@ uint32_t replyTask() {
      #endif
       pingRetry = PING_COUNT;
       ping.cancel();
-      WiFi.mode(WIFI_OFF);
+      //WiFi.mode(WIFI_OFF);
       taskDel(pingTask);
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
     } else {

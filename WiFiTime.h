@@ -69,9 +69,9 @@ time_t getTime() {
 //  }
   return t % 86400;
 }
-extern volatile bool adcBusy;
+
 uint32_t initRTC() {
-  adcBusy = true;
+  mcpLock();
   Wire.begin(SDA,SCL);
   rtc.begin();
   Wire.beginTransmission(DS3231_ADDRESS);             // Check if RTC is 
@@ -88,6 +88,6 @@ uint32_t initRTC() {
     tvs.tv_usec = 0;
     settimeofday(&tvs, &tzs);
   }
-  adcBusy = false;
+  mcpLock(false);
   return RUN_DELETE;
 }

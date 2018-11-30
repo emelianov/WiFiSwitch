@@ -11,13 +11,12 @@
 
 uint8_t mcpA[MCP_COUNT] = {MCP_0, MCP_1, MCP_3};
 uint8_t mcp = 0;
-uint8_t mcpCalc;
+volatile uint8_t mcpCalc;
 volatile uint16_t mcpDataReady = 0;
 
-volatile bool adcBusy = false;
+volatile uint8_t adcBusy = 0;
 
 uint16_t intrAction = READ_V;
-volatile uint16_t samples = 0;
 
 uint16_t ctr = 0;
 // Buffer for samples store used signed int as ADC is 12-bit and faser zero normalization will be performed in-place.
@@ -37,11 +36,11 @@ void ICACHE_RAM_ATTR timer_isr(){
     ctr = 0;
     return; // Need add reset of data collection 
   }
-  adcBusy = true;
+  //adcBusy = true;
   // Level 1 is used Wi-Fi stack.
   // Level 2 Debug
   // Level 3 NMI (timers?)
-  xt_rsil(1);
+  //xt_rsil(1);
 
   if (ctr < MAX_SAMPLES) {
     if (intrAction == READ_V) {
@@ -60,7 +59,4 @@ void ICACHE_RAM_ATTR timer_isr(){
       ctr = 0;
       mcpDataReady++;
   }
-
- cleanup:
-  adcBusy = false;
 }

@@ -1,9 +1,13 @@
 /*
- * MCP3221 read routine can be used inside interrupt
- * Required core_esp8266_si2c.c patched with ICHACHE_RAM_ATTR added to all function required for I2C reading.
- * 400kHz bus speed is required
- * Reading time about 0.1mS
- * If using timer interrupt sampling rate should not exceed 3000Hz
+ * 
+ * MCP3221 read routine for usage inside interrupt
+ * Requirements:
+ * - core_esp8266_si2c.c patched with ICHACHE_RAM_ATTR added to all function required for I2C reading.
+ * - 400kHz bus speed
+ * - interrupt sampling rate should not exceed ~3000Hz
+ * 
+ * Raw reading time about 0.1mS
+ * 
  */
 #pragma once
 #include <Arduino.h>
