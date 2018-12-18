@@ -77,6 +77,7 @@ uint32_t initRTC() {
   Wire.beginTransmission(DS3231_ADDRESS);             // Check if RTC is 
   status.rtcPresent = (Wire.endTransmission() == 0);  // present
   status.rtcValid = !rtc.lostPower();
+  
   if (status.rtcValid) {
     //int _EXFUN(settimeofday, (const struct timeval *, const struct timezone *));
     timezone tzs;
@@ -88,6 +89,7 @@ uint32_t initRTC() {
     tvs.tv_usec = 0;
     settimeofday(&tvs, &tzs);
   }
+  
   mcpLock(false);
   return RUN_DELETE;
 }

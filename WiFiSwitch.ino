@@ -109,7 +109,7 @@ uint32_t wifiStart() {
    WiFi.config(_ip, _gw, _mask, _dns);
 //  }
 */
-  WiFi.begin();
+  WiFi.begin("EW", "iMpress6264");
   waitWF = 1;
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
  #ifdef WFS_DEBUG
@@ -256,7 +256,15 @@ uint32_t keyLongPressed() {
   //digitalWrite(D0, LOW);
   return RUN_DELETE;
 }
-
+extern volatile uint8_t adcBusy;
+uint32_t wifiLoop() {
+  noInterrupts();
+  adcBusy = true;
+  interrupts();
+  yield();
+  adcBusy = false;
+  return 100;
+}
 void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
@@ -286,10 +294,29 @@ void setup() {
   taskAdd(queryA0);
   //taskAdd(initPing);
 //  inputStats.setWindowSecs(windowLength);
+  taskAdd(wifiLoop);
 }
 void loop(void) {
   //wdt_enable(0);
   taskExec();
-  yield();
+  //yield();
   wdt_reset();
+  
+  #define DO(x...) Serial.println(F( #x )); x; break
+  
+  if (Serial.available())
+  {
+    switch (Serial.read())
+    {
+      case 'd': DO(WiFi.disconnect());
+      case 'b': DO(WiFi.begin());
+      case 'r': DO(WiFi.reconnect());
+      case 'a': DO(WiFi.setAutoReconnect(false));
+      case 'A': DO(WiFi.setAutoReconnect(true));
+      case 'n': DO(WiFi.setSleepMode(WIFI_NONE_SLEEP));
+      case 'l': DO(WiFi.setSleepMode(WIFI_LIGHT_SLEEP));
+      case 'm': DO(WiFi.setSleepMode(WIFI_MODEM_SLEEP));
+      case 'h': Serial.println(ESP.getFreeHeap());
+    }
+  }
 }
