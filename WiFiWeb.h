@@ -796,6 +796,7 @@ extern volatile uint16_t mcpDataReady;
 extern int16_t sV[MAX_SAMPLES];
 extern int16_t sI[MAX_SAMPLES];
 extern int16_t sW[MAX_SAMPLES];
+extern uint16_t shift;
 
 void handleSamples() {  // raw data for debug
   server.sendHeader("Connection", "close");
@@ -814,6 +815,8 @@ void handleSamples() {  // raw data for debug
     csv += String(sW[i]) + ", ";
   }
   csv += "\n";
+  csv += "shift=";
+  csv += String(shift);
   server.send(200, "text/csv", csv);
   IDLE
 }

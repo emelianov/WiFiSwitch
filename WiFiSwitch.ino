@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-#define VERSION "0.6.6"
+#define VERSION "0.6.8"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -269,7 +269,7 @@ void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
   #ifdef WFS_DEBUG
-  Serial.begin(74880);    //For debug
+  //Serial.begin(74880);    //For debug
   #endif
   SPIFFS.begin();
   //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
@@ -294,29 +294,11 @@ void setup() {
   taskAdd(queryA0);
   //taskAdd(initPing);
 //  inputStats.setWindowSecs(windowLength);
-  taskAdd(wifiLoop);
+  //taskAdd(wifiLoop);
 }
 void loop(void) {
   //wdt_enable(0);
   taskExec();
-  //yield();
+  yield();
   wdt_reset();
-  
-  #define DO(x...) Serial.println(F( #x )); x; break
-  
-  if (Serial.available())
-  {
-    switch (Serial.read())
-    {
-      case 'd': DO(WiFi.disconnect());
-      case 'b': DO(WiFi.begin());
-      case 'r': DO(WiFi.reconnect());
-      case 'a': DO(WiFi.setAutoReconnect(false));
-      case 'A': DO(WiFi.setAutoReconnect(true));
-      case 'n': DO(WiFi.setSleepMode(WIFI_NONE_SLEEP));
-      case 'l': DO(WiFi.setSleepMode(WIFI_LIGHT_SLEEP));
-      case 'm': DO(WiFi.setSleepMode(WIFI_MODEM_SLEEP));
-      case 'h': Serial.println(ESP.getFreeHeap());
-    }
-  }
 }

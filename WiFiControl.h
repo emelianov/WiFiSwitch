@@ -6,7 +6,8 @@
  #define PINS D7, D7, D4, D5, D6, D7, D6, D7
 #else
 // For D1 R2 and mini
- #define PINS D4, D0, TX, D5, RX, D6, D1, D7
+ #define PINS D4, D0, TX, D5, RX, D6, D1, 
+//#define PINS D7, D7, D4, D5, D6, D7, D6, D7
 #endif
 
 // Position of pins affected by Wave function in list
