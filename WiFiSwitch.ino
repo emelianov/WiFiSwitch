@@ -109,7 +109,7 @@ uint32_t wifiStart() {
    WiFi.config(_ip, _gw, _mask, _dns);
 //  }
 */
-  WiFi.begin("EW", "iMpress6264");
+  WiFi.begin();
   waitWF = 1;
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
  #ifdef WFS_DEBUG
@@ -269,7 +269,7 @@ void setup() {
   //pinMode(D0, OUTPUT);    //For debug
   //digitalWrite(D0, HIGH); //For debug
   #ifdef WFS_DEBUG
-  //Serial.begin(74880);    //For debug
+  Serial.begin(74880);    //For debug
   #endif
   SPIFFS.begin();
   //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
