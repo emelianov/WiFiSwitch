@@ -2,10 +2,11 @@
 // AC Power meter.
 // MCP3221 timer interrupt version
 
+#include "WIFIintr.h"
 #include "mcp3221isr.h"
 #include "settings.h"
 
-extern "C" void ICACHE_RAM_ATTR timer_isr();
+//extern "C" void ICACHE_RAM_ATTR timer_isr();
 
 double VCAL     = DEF_VCAL;
 double ICAL     = DEF_ICAL;

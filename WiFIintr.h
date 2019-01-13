@@ -5,6 +5,8 @@
 #include "mcp3221isr.h"
 #include "settings.h"
 
+// extern uint16_t ICACHE_RAM_ATTR mcp3221_read(uint8_t address);
+
 #define READ_V 1
 #define READ_I 2
 #define CALC 3
