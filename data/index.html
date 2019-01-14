@@ -2774,7 +2774,7 @@ opacity:0.5;pointer-events:none;
                 t = new XMLHttpRequest;
             t.onreadystatechange =
                 function() {
-                    4 == this.readyState && 200 == this.status && null != this.responseXML && (this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue >= sequence) &&
+                    4 == this.readyState && 200 == this.status && null != this.responseXML && (this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue > sequence) &&
                         (AnalogXMLupdate(this.responseXML.getElementsByTagName("analog")),
                             TimerToggleXMLupdate(this.responseXML.getElementsByTagName("TimerCheckbox"),
                                 this.responseXML.getElementsByTagName("TimerActive")),
@@ -3404,6 +3404,7 @@ opacity:0.5;pointer-events:none;
                     case "144":
                         strWaveSelection = "&wave=144"
                 }
+                sequence++;
             });
     </script>
 
