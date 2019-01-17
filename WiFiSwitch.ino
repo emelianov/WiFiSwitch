@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-#define VERSION "0.6.8"
+#define VERSION "0.7.0"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -69,46 +69,20 @@ float amps = 0;     // Current value from A0
 String name = "socket";
 uint32_t wifiStart();
 
-extern volatile uint8_t adcBusy;
-void mcpLock(bool enable = true) {
-  //noInterrupts();
-  if (enable) adcBusy++; else adcBusy--;
-  //interrupts();
-}
-
-//Select one of following AC current read implementations
-// ---------------------------
- #include "WiFiACintr.h"
- //#include "WiFiemon.h"
- //#include "WiFiACSimple.h"
- //#include "WiFiCurrent.h"
- //#include "WiFiACRMS.h"
-// ---------------------------
-#include "WiFiTime.h"
-#include "WiFiControl.h"
-#include "WiFiConfig.h"
-#include "WiFiWeb.h"
+#include "ACemon.h"
+#include "clock.h"
+#include "control.h"
+#include "config.h"
+#include "web.h"
 #include "discovery.h"
 #include "update.h"
-#include "WiFiaws.h"
 #include "ping.h"
 
 uint8_t waitWF;
 uint32_t wifiStart() {
-  mcpLock();
   WiFi.mode(WIFI_OFF);
-  delay(10);
+  delay(100);
   WiFi.mode(WIFI_STA);
-/*
-//  if (!dhcp) {
-   IPAddress _ip, _gw, _mask, _dns;
-   _ip.fromString(ip);
-   _gw.fromString(gw);
-   _mask.fromString(mask);
-   _dns.fromString(dns);
-   WiFi.config(_ip, _gw, _mask, _dns);
-//  }
-*/
   WiFi.begin();
   waitWF = 1;
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
@@ -143,7 +117,6 @@ uint32_t wifiWait() {
     randomSeed(millis());
     taskAdd(initPing);
   }
-  mcpLock(false);
   return RUN_DELETE;
 }
 void cbSaveParams() {
@@ -249,28 +222,16 @@ uint32_t keyReleased() {
 }
 // Called if Key Pressed for KEY_LONG_TIME mS
 uint32_t keyLongPressed() {
-  //digitalWrite(D0, HIGH);
   taskDel(keyReleased);
   turnOffAllSockets();
   wifiManager();
-  //digitalWrite(D0, LOW);
   return RUN_DELETE;
 }
-extern volatile uint8_t adcBusy;
-uint32_t wifiLoop() {
-  noInterrupts();
-  adcBusy = true;
-  interrupts();
-  yield();
-  adcBusy = false;
-  return 100;
-}
+
 void setup() {
-  //pinMode(D0, OUTPUT);    //For debug
-  //digitalWrite(D0, HIGH); //For debug
-  #ifdef WFS_DEBUG
+ #ifdef WFS_DEBUG
   Serial.begin(74880);    //For debug
-  #endif
+ #endif
   SPIFFS.begin();
   //xmlo.init((uint8_t *)buffer, sizeof(buffer), &XML_callback);
   readConfig();
@@ -279,12 +240,10 @@ void setup() {
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
   taskAddWithDelay(initA0, 5000);        // Add task to initialize ADC query
-  //taskAdd(initNTP);
   taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAddWithSemaphore(discovery, &event.wifiConnected);
   taskAddWithSemaphore(initUpdate, &event.wifiConnected);
-  //taskAddWithSemaphore(awsInit, &event.wifiConnected);
   //taskAdd(printTime);     //For debug
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event
@@ -293,8 +252,6 @@ void setup() {
   taskAdd(readState);
   taskAdd(queryA0);
   //taskAdd(initPing);
-//  inputStats.setWindowSecs(windowLength);
-  //taskAdd(wifiLoop);
 }
 void loop(void) {
   //wdt_enable(0);

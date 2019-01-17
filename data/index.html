@@ -2774,7 +2774,7 @@ opacity:0.5;pointer-events:none;
                 t = new XMLHttpRequest;
             t.onreadystatechange =
                 function() {
-                    4 == this.readyState && 200 == this.status && null != this.responseXML && (this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue > sequence) &&
+                    4 == this.readyState && 200 == this.status && null != this.responseXML && (this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue >= sequence) &&
                         (AnalogXMLupdate(this.responseXML.getElementsByTagName("analog")),
                             TimerToggleXMLupdate(this.responseXML.getElementsByTagName("TimerCheckbox"),
                                 this.responseXML.getElementsByTagName("TimerActive")),
@@ -2812,7 +2812,8 @@ opacity:0.5;pointer-events:none;
                 for (i = 0; i < docNameChanged.length; i++)
                     docNameChanged[i] && (docNameChanged[i] = !1, n += "N" + i + "=" + docName[i].value + "&")
                 changeStateWave && (changeStateWave = !1, n += "W=" + docWave.value + "&")
-                if (n.length > 0) n += "SEQ=" + sequence;
+                //if (n.length > 0) n += "SEQ=" + sequence;
+                n += "SEQ=" + sequence;
             }
             console.log(n),
                 t.open("GET", "/ajax_inputs?" + n + e, !0),

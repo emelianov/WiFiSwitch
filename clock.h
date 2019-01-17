@@ -64,14 +64,13 @@ time_t getTime() {
     t = now.unixtime()+timeZone;
   } else { */
     if (status.ntpSync) {
-      t = time(NULL);
+      t = time(NULL) + timeZone;
     }
 //  }
   return t % 86400;
 }
 
 uint32_t initRTC() {
-  mcpLock();
   Wire.begin(SDA,SCL);
   rtc.begin();
   Wire.beginTransmission(DS3231_ADDRESS);             // Check if RTC is 
@@ -89,7 +88,6 @@ uint32_t initRTC() {
     tvs.tv_usec = 0;
     settimeofday(&tvs, &tzs);
   }
-  
-  mcpLock(false);
+
   return RUN_DELETE;
 }
