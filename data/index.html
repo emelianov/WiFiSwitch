@@ -421,6 +421,15 @@ opacity:0.5;pointer-events:none;
         }
         
         @media (max-width:767px) {
+            .set_chart_space1 {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 9;
+                background: #EEEEEE;
+                box-shadow: 0 0 9px #444;
+            }
             .set_chart_space {
                 position: fixed;
                 top: 0;
@@ -1149,8 +1158,8 @@ opacity:0.5;pointer-events:none;
 
                 </div>
                 <div class="col-sm-4 chart_set_iphone">
-                    <div class="set_chart_space">
-                        <div class="chart_space">
+                    <div class="set_chart_space1">
+                        <div class="chart_space1">
                             <div class="re">
                                 <h4 class="text-center">
                                     <div class="btn-group btn-toggle realtime">
@@ -1352,23 +1361,6 @@ opacity:0.5;pointer-events:none;
                     </div>
 
                 </div>
-                <div class="col-sm-4 chart_set_iphone">
-                    <div class="set_chart_space">
-                        <div class="chart_space">
-                            <div class="re">
-                                <h4 class="text-center">
-                                    <div class="btn-group btn-toggle realtime">
-                                        <button class="btn btn-xs btn-default">off</button>
-                                        <button class="btn btn-xs btn-success active">live</button>
-                                    </div>
-                                </h4>
-                            </div>
-                            <div id="chart2" class="big-chart">
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -1555,23 +1547,6 @@ opacity:0.5;pointer-events:none;
                         </div>
                     </div>
 
-                </div>
-                <div class="col-sm-4 chart_set_iphone">
-                    <div class="set_chart_space">
-                        <div class="chart_space">
-                            <div class="re">
-                                <h4 class="text-center">
-                                    <div class="btn-group btn-toggle realtime">
-                                        <button class="btn btn-xs btn-default">off</button>
-                                        <button class="btn btn-xs btn-success active">live</button>
-                                    </div>
-                                </h4>
-                            </div>
-                            <div id="chart3" class="big-chart">
-
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -2321,6 +2296,24 @@ opacity:0.5;pointer-events:none;
                     </div>
 
                 </div>
+                <div class="col-sm-4 chart_set_iphone">
+                    <div class="set_chart_space">
+                        <div class="chart_space">
+                            <div class="re">
+                                <h4 class="text-center">
+                                    <div class="btn-group btn-toggle realtime">
+                                        <button class="btn btn-xs btn-default">off</button>
+                                        <button class="btn btn-xs btn-success active">live</button>
+                                    </div>
+                                </h4>
+                            </div>
+                            <div id="chart2" class="big-chart">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -2508,9 +2501,25 @@ opacity:0.5;pointer-events:none;
                     </div>
 
                 </div>
+                <div class="col-sm-4 chart_set_iphone">
+                    <div class="set_chart_space">
+                        <div class="chart_space">
+                            <div class="re">
+                                <h4 class="text-center">
+                                    <div class="btn-group btn-toggle realtime">
+                                        <button class="btn btn-xs btn-default">off</button>
+                                        <button class="btn btn-xs btn-success active">live</button>
+                                    </div>
+                                </h4>
+                            </div>
+                            <div id="chart3" class="big-chart">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-
 
     </div>
     <div class="container">
@@ -2670,24 +2679,24 @@ opacity:0.5;pointer-events:none;
         function initArduinoIO() {
 
             /*-chart on top stay--*/
-            /*
+            
             $(window).on('scroll', function() {
                 var scrollTop = $(this).scrollTop();
 
-                $('.set_chart_space').each(function() {
+                $('.set_chart_space1').each(function() {
                     var topDistance = $(this).offset().top;
 
                     if ((topDistance + 1) < scrollTop) {
-                        $('.chart_space').addClass('show_nav');
+                        $('.chart_space1').addClass('show_nav');
 
                     } else {
-                        $('.chart_space').removeClass('show_nav');
+                        $('.chart_space1').removeClass('show_nav');
 
                     }
                 });
 
             });
-            */
+            
 
             docNameSave = document.getElementsByClassName("save_name"),
                 docName = $("input[data-class^='editable']");
@@ -2741,7 +2750,6 @@ opacity:0.5;pointer-events:none;
                         docGroups[e] == this && (changeStateGroups[e] = !0);
                     sequence++;
                 });
-
             docCandles = document.getElementsByName("candlestick"),
                 stateCandles = Array(docCandles.length);
             for (var e = 0; e < docCandles.length; e++)
@@ -2774,6 +2782,8 @@ opacity:0.5;pointer-events:none;
                 t = new XMLHttpRequest;
             t.onreadystatechange =
                 function() {
+                    for (i = 0; i < docCandles.length; i++)
+                    if (stateCandles[i] != $(docCandles[i])[0].value) sequence++;
                     4 == this.readyState && 200 == this.status && null != this.responseXML && (this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue >= sequence) &&
                         (AnalogXMLupdate(this.responseXML.getElementsByTagName("analog")),
                             TimerToggleXMLupdate(this.responseXML.getElementsByTagName("TimerCheckbox"),
@@ -2793,12 +2803,12 @@ opacity:0.5;pointer-events:none;
                                 this.responseXML.getElementsByTagName("Manual"),
                                 this.responseXML.getElementsByTagName("Enabled"),
                                 this.responseXML.getElementsByTagName("SState"))
-                        )
+                        ) && (console.log(this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue));
                 };
             var n = "";
             if (gotState) {
                 for (i = 0; i < docSockets.length; i++)
-                    changeState[i] && (changeState[i] = !1, n += docSockets[i].checked ? "SOC" + i + "=1&" : "SOC" + i + "=0&");
+                    changeState[i] && (changeState[i] = !1, n += docSockets[i].checked ? "SOC" + i + "=1&" : "SOC" + i + "=0&", sequence++);
                 for (i = 0; i < docTimerCheckbox.length; i++)
                     changeStateTCheckbox[i] && (changeStateTCheckbox[i] = !1, n += docTimerCheckbox[i].checked ? "TCB" + i + "=1&" : "TCB" + i + "=0&");
                 for (i = 0; i < docTimer.length; i++)
@@ -2812,8 +2822,7 @@ opacity:0.5;pointer-events:none;
                 for (i = 0; i < docNameChanged.length; i++)
                     docNameChanged[i] && (docNameChanged[i] = !1, n += "N" + i + "=" + docName[i].value + "&")
                 changeStateWave && (changeStateWave = !1, n += "W=" + docWave.value + "&")
-                //if (n.length > 0) n += "SEQ=" + sequence;
-                n += "SEQ=" + sequence;
+                if (n.length > 0) n += "SEQ=" + sequence;
             }
             console.log(n),
                 t.open("GET", "/ajax_inputs?" + n + e, !0),

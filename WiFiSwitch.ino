@@ -52,13 +52,7 @@ statuses status;
 #define PUMP_QUAD_RND     "144"
 
 #define GROUP_HTML_BASE 11
-/*
-bool   dhcp = true;
-String ip   = "192.168.30.118";
-String mask = "255.255.255.0";
-String gw   = "192.168.30.4";
-String dns  = "192.168.30.4";
-*/
+
 String ntp1 = "pool.ntp.org";
 String ntp2 = "time.nist.gov";
 String ntp3 = "time.apple.com";
@@ -140,30 +134,9 @@ uint32_t wifiManager() {
   //wifiManager.resetSettings();
   wifiManager.setBreakAfterConfig(true);
   wifiManager.setTimeout(120);
-  /*
-  wifiManager.addParameter(&pNet);
-  wifiManager.addParameter(&pIp);
-  wifiManager.addParameter(&pMask);
-  wifiManager.addParameter(&pGw);
-  wifiManager.addParameter(&pDns);
-  wifiManager.addParameter(&pNtp);
-  wifiManager.addParameter(&pNtp1);
-  wifiManager.addParameter(&pNtp2);
-  wifiManager.addParameter(&pNtp3);
-  wifiManager.addParameter(&pTz);
-  */
   wifiManager.addParameter(&pNameT);
   wifiManager.addParameter(&pName);
   //wifiManager.setConnectTimeout(WIFI_CHECK_DELAY * WIFI_CHECK_COUNT);
-  /*
-  if (!dhcp) {
-   IPAddress _ip, _gw, _mask;
-   _ip.fromString(ip);
-   _gw.fromString(gw);
-   _mask.fromString(mask);
-   wifiManager.setSTAStaticIPConfig(_ip, _gw, _mask);
-  }
-  */
   //while(
   //  wifiManager.autoConnect()) {
     char apname[sizeof(WIFI_SETUP_AP)+5];
@@ -185,7 +158,6 @@ uint32_t wifiManager() {
   if (event.saveParams > 0) {
      name = pName.getValue();
      saveConfig();
-     //Serial.println("save done");
      delay(1000);
      ESP.restart();
   }

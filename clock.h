@@ -14,7 +14,7 @@ struct timeval {
 };
 */
 
-#define NTP_CHECK_DELAY 30000
+#define NTP_CHECK_DELAY 300000L
 // 01/01/2018
 #define DEF_TIME 1514764800
 
@@ -32,9 +32,7 @@ uint32_t initNTP() {
   Serial.print("TimeOffset: ");
   Serial.println(timeZone);
  #endif
-  //Serial.println("ntp");
-  //Serial.println(ntp2);
-  //Serial.println(ntp3);
+ /*
   if (time(NULL) < DEF_TIME) {
     if (ntpId == 0) {
       configTime(timeZone, 0, ntp1.c_str());
@@ -46,15 +44,18 @@ uint32_t initNTP() {
       configTime(timeZone, 0, ntp3.c_str());
       ntpId = 0;
     }
-  //  configTime(timeZone, 0, "192.168.30.12", "192.168.30.12", "192.168.30.12");
-    return NTP_CHECK_DELAY;
+  */
+  configTime(timeZone, 0, ntp1.c_str(), ntp2.c_str(), ntp3.c_str());
+  //  return NTP_CHECK_DELAY;
+  //}
+  if (time(NULL) > DEF_TIME) {
+    status.ntpSync = true;
+    if (status.rtcPresent) {
+      rtc.adjust(DateTime(time(NULL)));
+      status.rtcValid = !rtc.lostPower();
+    }
   }
-  status.ntpSync = true;
-  if (status.rtcPresent) {
-    rtc.adjust(DateTime(time(NULL)-timeZone));
-    status.rtcValid = !rtc.lostPower();
-  }
-  return RUN_DELETE;
+  return NTP_CHECK_DELAY;
 }
 
 time_t getTime() {
@@ -63,13 +64,13 @@ time_t getTime() {
     DateTime now = rtc.now();
     t = now.unixtime()+timeZone;
   } else { */
-    if (status.ntpSync) {
-      t = time(NULL) + timeZone;
-    }
+    //if (status.ntpSync) {
+      t = time(NULL);
+    //}
 //  }
   return t % 86400;
 }
-
+  
 uint32_t initRTC() {
   Wire.begin(SDA,SCL);
   rtc.begin();

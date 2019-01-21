@@ -191,7 +191,7 @@ uint32_t queryA0() {
   //Calculation power values
   realPowers[ch] = V_RATIO * I_RATIO * sumP / numberOfSamples;
   apparentPowers[ch] = Vrmss[ch] * Irmss[ch];
-  //powerFactors[ch] = realPowers[ch] / apparentPowers[ch];
+  powerFactors[ch] = realPowers[ch] / apparentPowers[ch];
 
   //Reset accumulators
   sumV = 0;

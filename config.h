@@ -41,9 +41,6 @@ void XML_callback(uint8_t statusflags, char* tagName, uint16_t tagNameLen, char*
 //Format 00:00PM
 time_t strToTime(String tm) {
   if (tm.length() >= 7) {
-    //Serial.println(tm.substring(0,2).toInt()*3600 + tm.substring(3,5).toInt()*60 + (tm.substring(5,7)=="PM")?12*3600:0);
-    //Serial.println(tm.substring(0,2).toInt());
-    //Serial.println(tm.substring(3,5).toInt());
     uint8_t hh = tm.substring(0,2).toInt();
     return ((hh==12?0:hh)*3600L + tm.substring(3,5).toInt()*60L) + (tm.substring(5,7)=="PM"?12*3600L:0);
   } else {
@@ -53,7 +50,6 @@ time_t strToTime(String tm) {
 //Format 00:00
 time_t strToTime24(String tm) {
   if (tm.length() >= 5) {
-    //return (tm.substring(0,2).toInt()*3600L + tm.substring(3,5).toInt()*60L);
     return (tm.substring(0,2).toInt()*60L + tm.substring(3,5).toInt());
   } else {
     return 0;
