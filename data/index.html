@@ -426,7 +426,7 @@ opacity:0.5;pointer-events:none;
                 top: 0;
                 left: 0;
                 right: 0;
-                z-index: 9;
+                z-index: 10;
                 background: #EEEEEE;
                 box-shadow: 0 0 9px #444;
             }
@@ -598,7 +598,7 @@ opacity:0.5;pointer-events:none;
     <div class="container">
         <div class="row">
             <div class="col-md-5 col-sm-4 col-xs-9">
-                <h4>Wifi Socket Control</h4>
+                <h4>Wi-Fi Socket Control</h4>
             </div>
             <div class="col-md-5 col-sm-4 col-xs-9">
                 <h4 id="currenttime">00:00</h4>
@@ -1163,8 +1163,10 @@ opacity:0.5;pointer-events:none;
                             <div class="re">
                                 <h4 class="text-center">
                                     <div class="btn-group btn-toggle realtime">
+<!--
                                         <button class="btn btn-xs btn-default">off</button>
                                         <button class="btn btn-xs btn-success active">live</button>
+-->
                                     </div>
                                 </h4>
                             </div>
@@ -2246,7 +2248,7 @@ opacity:0.5;pointer-events:none;
                             </div>
                         </div>
                         <div class="col-md-4 col-xs-3">
-                            <div class="analog_div"><span><strong>Total Watts</strong></span>
+                            <div class="analog_div"><span><strong>Watts</strong></span>
                                 <div><span class="analog">... </span></div>
                             </div>
                         </div>
@@ -2302,8 +2304,10 @@ opacity:0.5;pointer-events:none;
                             <div class="re">
                                 <h4 class="text-center">
                                     <div class="btn-group btn-toggle realtime">
+<!--
                                         <button class="btn btn-xs btn-default">off</button>
                                         <button class="btn btn-xs btn-success active">live</button>
+-->
                                     </div>
                                 </h4>
                             </div>
@@ -2451,7 +2455,7 @@ opacity:0.5;pointer-events:none;
                             </div>
                         </div>
                         <div class="col-md-4 col-xs-3">
-                            <div class="analog_div"><span><strong>Total Watts</strong></span>
+                            <div class="analog_div"><span><strong>Watts</strong></span>
                                 <div><span class="analog">... </span></div>
                             </div>
                         </div>
@@ -2507,8 +2511,10 @@ opacity:0.5;pointer-events:none;
                             <div class="re">
                                 <h4 class="text-center">
                                     <div class="btn-group btn-toggle realtime">
+<!--
                                         <button class="btn btn-xs btn-default">off</button>
                                         <button class="btn btn-xs btn-success active">live</button>
+-->
                                     </div>
                                 </h4>
                             </div>
@@ -2685,8 +2691,8 @@ opacity:0.5;pointer-events:none;
 
                 $('.set_chart_space1').each(function() {
                     var topDistance = $(this).offset().top;
-
-                    if ((topDistance + 1) < scrollTop) {
+                    
+                    if ((topDistance + 1) < scrollTop && scrollTop < 1500) {
                         $('.chart_space1').addClass('show_nav');
 
                     } else {
@@ -2914,8 +2920,9 @@ opacity:0.5;pointer-events:none;
             var e,
                 a = Math.min(x.length, document.getElementsByClassName("analog").length);
                 t = document.getElementsByClassName("analog").length;
-            for (e = 0; e < a; e++)
-                document.getElementsByClassName("analog")[e].innerHTML = x[e].childNodes[0].nodeValue
+            if (x.length >= 1) for (e = 0; e < 6 && e < t; e++) document.getElementsByClassName("analog")[e].innerHTML = x[0].childNodes[0].nodeValue
+            if (x.length >= 2) document.getElementsByClassName("analog")[6].innerHTML = x[1].childNodes[0].nodeValue
+            if (x.length >= 3) document.getElementsByClassName("analog")[7].innerHTML = x[2].childNodes[0].nodeValue
         }
 
         function SocketXMLupdate(x, y, z, a) {
@@ -3473,7 +3480,7 @@ opacity:0.5;pointer-events:none;
                                     y = 0;
                                 if (y > 5000)
                                     y = 5000;
-                                if (plot != undefined && plot1 != undefined && plot2 != undefined&& y > plot.getAxes().yaxis.options.max) {
+                                if (plot != undefined && plot1 != undefined && plot2 != undefined && (y > plot.getAxes().yaxis.options.max || y < 0.9 * plot.getAxes().yaxis.options.max)) {
                                     plot.getAxes().yaxis.options.min = 0;
                                     plot.getAxes().yaxis.options.max = (Math.trunc(y / 10) + 1) * 10;
                                     plot.setupGrid();

@@ -1,5 +1,19 @@
 #pragma once
+/*
+  Based on following library:
+  https://github.com/openenergymonitor/EmonLib
+  
+  Emon.h - Library for openenergymonitor
+  Created by Trystan Lea, April 27 2010
+  GNU GPL
+  modified to use up to 12 bits ADC resolution (ex. Arduino Due)
+  by boredman@boredomprojects.net 26.12.2013
+  Low Pass filter for offset removal replaces HP filter 1/1/2015 - RW
+*/
+
 #include "mcp3221.h"
+
+#define ADC_COUNTS (1 << ADC_BITS)
 
 double realPowers[MCP_COUNT],
       apparentPowers[MCP_COUNT],
@@ -8,37 +22,21 @@ double realPowers[MCP_COUNT],
       Irmss[MCP_COUNT];
 
 uint8_t ch = 0;
+uint8_t mcp[MCP_COUNT] = {MCP_0, MCP_1, MCP_3};
 
 uint32_t initA0() {
- #ifdef WFS_DEBUG
   mcp3221_init(400000, SDA, SCL);
-  Serial.println(mcp3221_read(MCP_0));
-  Serial.println(mcp3221_read(MCP_V));
- #else
-  mcp3221_init(400000, SDA, SCL);
- #endif
-
+  WDEBUG("MCPs V: %d, I: %d\n", mcp3221_read(MCP_V), mcp3221_read(mcp[0]));
   //taskAdd(queryA0);
   return RUN_DELETE;
 }
 
 
     long readVcc();
-    //Useful value variables
-    double realPower,
-      apparentPower,
-      powerFactor,
-      Vrms,
-      Irms;
-
-
-    //Set Voltage and current input pins
-    unsigned int inPinV;
-    unsigned int inPinI;
     //Calibration coefficients
     //These need to be set in order to obtain accurate results
-    double VCAL = 50000.0;
-    double ICAL = 27.0;
+    double VCAL = 90;
+    double ICAL = 900;
     double PHASECAL = 0;
 
     //--------------------------------------------------------------------------------------
@@ -59,17 +57,18 @@ uint32_t initA0() {
     int startV;                                       //Instantaneous voltage at start of sample window.
 
     boolean lastVCross, checkVCross;                  //Used to measure number of times threshold is crossed.
-
-  int16_t fV[4096];
-  int16_t fI[4096];
  
 uint32_t queryA0() { 
+  int16_t* fV;
+  int16_t* fI;
   int SupplyVoltage=3300;
   //int SupplyVoltage = readVcc();
-  const uint16_t timeout = 400;
+  const uint16_t timeout = 300; // Exact count of periods for 50 and 60Hz both
   unsigned int crossCount = 0;                             //Used to measure number of times threshold is crossed.
   unsigned int numberOfSamples = 0;                        //This is now incremented
-
+  #define F_COUNT sizeof(data) / sizeof(uint16_t) / 2
+  fV = (int16_t*)data;
+  fI = (int16_t*)(data + F_COUNT * sizeof(uint16_t));
   //-------------------------------------------------------------------------------------------------------------------------
   // 1) Waits for the waveform to be close to 'zero' (mid-scale adc) part in sin curve.
   //-------------------------------------------------------------------------------------------------------------------------
@@ -90,7 +89,7 @@ uint32_t queryA0() {
   start = millis();
 
   //while ((crossCount < crossings) && ((millis()-start)<timeout))
-  while ((millis() - start) < timeout && numberOfSamples < 4096)
+  while ((millis() - start) < timeout && numberOfSamples < F_COUNT)
   {
     //numberOfSamples++;                       //Count number of times looped.
     //lastFilteredV = filteredV;               //Used for delay/phase compensation
@@ -99,25 +98,25 @@ uint32_t queryA0() {
     // A) Read in raw voltage and current samples
     //-----------------------------------------------------------------------------
     sampleV = mcp3221_read(MCP_V);                 //Read in raw voltage signal
-    sampleI = mcp3221_read(MCP_0);                 //Read in raw current signal
+    sampleI = mcp3221_read(mcp[ch]);               //Read in raw current signal
     fV[numberOfSamples] = sampleV;
     fI[numberOfSamples] = sampleI;
     numberOfSamples++;                       //Count number of times looped.
   }
   offsetV = 0;
   offsetI = 0;
-  for (uint16_t i = numberOfSamples / 2; i < numberOfSamples; i++) {
+  for (uint16_t i = 0; i < numberOfSamples; i++) {
     offsetV += fV[i];
     offsetI += fI[i];
   }
 
-  offsetV /= (numberOfSamples / 2);
-  offsetI /= (numberOfSamples / 2);
+  offsetV /= (numberOfSamples);
+  offsetI /= (numberOfSamples);
   for (uint16_t i = 0; i < numberOfSamples; i++) {
     fV[i] -= offsetV;
     fI[i] -= offsetI;
   }
-
+  // Approximate dataset
   for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
     fV[i] = (fV[i - 2] + fV[i - 1] + fV[i] + fV[i  + 1] + fV[i + 2])/5;
     fI[i] = (fI[i - 2] + fI[i - 1] + fI[i] + fI[i  + 1] + fI[i + 2])/5;
@@ -127,7 +126,7 @@ uint32_t queryA0() {
     fI[i] = (fI[i - 2] + fI[i - 1] + fI[i] + fI[i  + 1] + fI[i + 2])/5;
   }
 
-  for (uint16_t i = numberOfSamples / 2; i < numberOfSamples; i++) {
+  for (uint16_t i = 0; i < numberOfSamples; i++) {
     sampleV = fV[i];
     sampleI = fI[i];
     lastFilteredV = filteredV;               //Used for delay/phase compensation
@@ -173,7 +172,7 @@ uint32_t queryA0() {
                      else checkVCross = false;
     if (numberOfSamples==1) lastVCross = checkVCross;
 
-    if (lastVCross != checkVCross) crossCount++;
+    //if (lastVCross != checkVCross) crossCount++;
   }
 
   //-------------------------------------------------------------------------------------------------------------------------
@@ -198,14 +197,9 @@ uint32_t queryA0() {
   sumI = 0;
   sumP = 0;
 //--------------------------------------------------------------------------------------
-  Serial.println(ch);
-  Serial.println(Vrmss[ch]);
-  Serial.println(Irmss[ch]);
-  Serial.println(realPowers[ch]);
-  Serial.println(powerFactors[ch]);
-  Serial.println(numberOfSamples);
+  WDEBUG("Ch: %d, Vrms: %s, Irms: %s, realPower: %s, powerFactor: %s, Samples count: %d, Mem: %d\n",
+        ch, String(Vrmss[ch]).c_str(), String(Irmss[ch]).c_str(), String(realPowers[ch]).c_str(), String(powerFactors[ch]).c_str(), numberOfSamples, ESP.getFreeHeap());
   ch++;
   if (ch >= MCP_COUNT) ch = 0;
   return A0_DELAY;
 }
-

@@ -23,15 +23,8 @@ int32_t timeZone = 0;
 uint8_t ntpId = 0;
 //Update time from NTP server
 uint32_t initNTP() {
- #ifdef WFS_DEBUG
-  Serial.print("TimeZone: ");
-  Serial.println(tz);
- #endif
+  WDEBUG("TimeZone: %s, TimeOffset: %d\n", tz.c_str(), timeZone);
   timeZone = atoi(tz.c_str()) * 3600;
- #ifdef WFS_DEBUG
-  Serial.print("TimeOffset: ");
-  Serial.println(timeZone);
- #endif
  /*
   if (time(NULL) < DEF_TIME) {
     if (ntpId == 0) {

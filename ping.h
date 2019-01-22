@@ -12,15 +12,11 @@ AsyncPing ping;
 volatile int8_t pingRetry = PING_COUNT;
 bool reply(const AsyncPingResponse& response) {
   if (!response.answer) {
-  #ifdef WFS_DEBUG
-    Serial.println("GW timeout");
-  #endif
+    WDEBUG("GW timeout\n");
     pingRetry--;
     if (pingRetry > 0) return false;
   } else {
-  #ifdef WFS_DEBUG
-    Serial.println("GW respond");
-  #endif
+    WDEBUG("GW respond\n");
     pingRetry = PING_COUNT;
   }
    return true;
@@ -30,26 +26,21 @@ uint32_t pingTask();
 
 uint32_t replyTask() {
     if (pingRetry <= 0) {
-     #ifdef WFS_DEBUG
-      Serial.println("GW failed");
-     #endif
+      WDEBUG("GW failed\n");
       pingRetry = PING_COUNT;
       ping.cancel();
       //WiFi.mode(WIFI_OFF);
       taskDel(pingTask);
       taskAddWithDelay(wifiStart, WIFI_CHECK_DELAY);
     } else {
-    #ifdef WFS_DEBUG
-      Serial.println("GW is OK");
-    #endif     
+      WDEBUG("GW is OK\n");
     }
     return RUN_DELETE;
 }
 
 uint32_t pingTask() {
 #ifdef WFS_DEBUG
-  Serial.print("Pinging ");
-  Serial.println(WiFi.gatewayIP());
+  WDEBUG("Pinging %s\n", WiFi.gatewayIP().toString().c_str());
 #endif
   ping.begin(WiFi.gatewayIP(), PING_COUNT * 2, PING_FAIL);
   taskAddWithDelay(replyTask, PING_FAIL * (PING_COUNT + 1));

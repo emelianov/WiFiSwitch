@@ -14,7 +14,6 @@ ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
 #ifdef WFS_DEBUG
 void handleDebug() {
-  char data[400];
   uint16_t _timeout = 500;
   DateTime now = rtc.now();
   IPAddress n1, n2, n3;
@@ -46,72 +45,83 @@ String swState(OverrideMode o) {
 }
 // callback function that is called by Web server in case if /ajax_input?...
 void ajaxInputs() {
-  char data[400];   // sprintf buffer
   uint8_t i;
+  char* p = data;
   char  strTime[4][8];    // Schedule time strings buffer
   uint16_t  minutesFromMidnight;
   bool save = false;
-  server.sendHeader("Connection", "close");                         // Headers to free connection ASAP and 
-  server.sendHeader("Cache-Control", "no-store, must-revalidate");  // Don't cache response
   // Check if got Socket on/off switching or Schedule changes
-  for (i = 0; i < SOCKET_COUNT; i++) {
-    String soc = "SOC"+String(i);
-    if (server.hasArg(soc)) {
-      if (server.arg(soc) == "1") {
-        //socket[i]->on();
-        socket[i]->manual = SON;
-      } else {
-        socket[i]->manual = SOFF;
-        //socket[i]->na();
-      }
-    }
-    String sched1 = "TCB"+String(i*2);    // e.g. ?TCB2=1
-    String sched2 = "TCB"+String(i*2+1);  // e.g. ?TCB3=1
-    String tm11 =   "TIM"+String(i*4);    // e.g. ?TIM8=10:15AM
-    String tm12 =   "TIM"+String(i*4+1);  // e.g. ?TIM9=11:00PM
-    String tm13 =   "TIM"+String(i*4+2);  // e.g. ?TIM10=12:00PM
-    String tm14 =   "TIM"+String(i*4+3);  // e.g. ?TIM11=21:45PM
-    if (server.hasArg(sched1)) {          // First Schedule switch updateed
-      if (server.arg(sched1) == "1") {    // Switch is turned On 
-        socket[i]->schedule1.act=true;
-      } else {                            // Switch is turned Off
-        socket[i]->schedule1.act=false;
-      }
-      save = true;
-    }
-    if (server.hasArg(sched2)) {        // Second Schedule Switch updated
-      if (server.arg(sched2) == "1") {
-        socket[i]->schedule2.act=true;
-      } else {
-        socket[i]->schedule2.act=false;
-      }
-      save = true;
-    }
-    if (server.hasArg(tm11)) {          // First Schedule Start time is updated
-      socket[i]->schedule1.on = strToTime(server.arg(tm11));
-      save = true;
-    }
-    if (server.hasArg(tm12)) {          // First Schedule Stop time is updated
-      socket[i]->schedule1.off = strToTime(server.arg(tm12));
-      save = true;
-    }
-    if (server.hasArg(tm13)) {          // Second Schedule Start time is updated
-      socket[i]->schedule2.on = strToTime(server.arg(tm13));
-      save = true;
-    }
-    if (server.hasArg(tm14)) {          // Second Schedule Stop time is updated
-      socket[i]->schedule2.off = strToTime(server.arg(tm14));
-      save = true;
-    }   
-  }
-  // Check if Feed Schedule changes
   {
-    String sched1 = "TCB16";
-    String sched2 = "TCB17";
-    String tm11 =   "TIM32";
-    String tm12 =   "TIM33";
-    String tm13 =   "TIM34";
-    String tm14 =   "TIM35";
+    String sched1;
+    String sched2;
+    String tm11;
+    String tm12;
+    String tm13;
+    String tm14;
+    String soc;
+    String cArg;
+    String tArg;
+    String nArg;
+    String v;
+    
+    for (i = 0; i < SOCKET_COUNT; i++) {
+      soc = String("SOC")+String(i);
+      if (server.hasArg(soc)) {
+        if (server.arg(soc) == "1") {
+          //socket[i]->on();
+          socket[i]->manual = SON;
+        } else {
+          socket[i]->manual = SOFF;
+          //socket[i]->na();
+        }
+      }
+      sched1 = (String("TCB") + String(i*2));  // e.g. ?TCB2=1
+      sched2 = (String("TCB") + String(i*2+1));  // e.g. ?TCB3=1
+      tm11 =   (String("TIM") + String(i*4));    // e.g. ?TIM8=10:15AM
+      tm12 =   (String("TIM") + String(i*4+1));  // e.g. ?TIM9=11:00PM
+      tm13 =   (String("TIM") + String(i*4+2));  // e.g. ?TIM10=12:00PM
+      tm14 =   (String("TIM") + String(i*4+3));  // e.g. ?TIM11=21:45PM
+      if (server.hasArg(sched1)) {          // First Schedule switch updateed
+        if (server.arg(sched1) == "1") {    // Switch is turned On 
+          socket[i]->schedule1.act=true;
+        } else {                            // Switch is turned Off
+          socket[i]->schedule1.act=false;
+        }
+        save = true;
+      }
+      if (server.hasArg(sched2)) {        // Second Schedule Switch updated
+        if (server.arg(sched2) == "1") {
+          socket[i]->schedule2.act=true;
+        } else {
+          socket[i]->schedule2.act=false;
+        }
+        save = true;
+      }
+      if (server.hasArg(tm11)) {          // First Schedule Start time is updated
+        socket[i]->schedule1.on = strToTime(server.arg(tm11));
+        save = true;
+      }
+      if (server.hasArg(tm12)) {          // First Schedule Stop time is updated
+        socket[i]->schedule1.off = strToTime(server.arg(tm12));
+        save = true;
+      }
+      if (server.hasArg(tm13)) {          // Second Schedule Start time is updated
+        socket[i]->schedule2.on = strToTime(server.arg(tm13));
+        save = true;
+      }
+      if (server.hasArg(tm14)) {          // Second Schedule Stop time is updated
+        socket[i]->schedule2.off = strToTime(server.arg(tm14));
+        save = true;
+      }   
+    }
+    
+  // Check if Feed Schedule changes
+    sched1 = "TCB16";
+    sched2 = "TCB17";
+    tm11 =   "TIM32";
+    tm12 =   "TIM33";
+    tm13 =   "TIM34";
+    tm14 =   "TIM35";
     if (server.hasArg(sched1)) {      // First Schedule Switch is updated
       //Serial.println(server.arg(sched1));
       if (server.arg(sched1) == "1") {  // On
@@ -145,109 +155,113 @@ void ajaxInputs() {
       feedSchedule.schedule2.off = strToTime(server.arg(tm14));
       save = true;
     }   
-  }
+
   // Check if Socket Schedule Feed Override mode is changed
   // For first Socket url argument will be ?C13=1
   // For second ?C14=1 etc
-  #define SOCKET_FEED_BASE 13     
-  for (i = 0; i < SOCKET_COUNT; i++) {
-    String cArg = "C" + String(SOCKET_FEED_BASE + i);
-    if (server.hasArg(cArg)) {
-      String v = server.arg(cArg);
-      if (v == "1") {         // Override On
-        socket[i]->feedOverride = SON;
-      } else if (v == "0") {  // Override Off
-        socket[i]->feedOverride = SOFF;
-      } else {                // else Override set to NA
-        socket[i]->feedOverride = SNA;
-      }
-    }   
-  }
+    #define SOCKET_FEED_BASE 13     
+    for (i = 0; i < SOCKET_COUNT; i++) {
+      cArg = (String("C") + String(SOCKET_FEED_BASE + i));
+      if (server.hasArg(cArg)) {
+        v = server.arg(cArg);
+        if (v == "1") {         // Override On
+          socket[i]->feedOverride = SON;
+        } else if (v == "0") {  // Override Off
+          socket[i]->feedOverride = SOFF;
+        } else {                // else Override set to NA
+          socket[i]->feedOverride = SNA;
+        }
+      }   
+    }
+    
   // Check if got assign Socket to Group command
   // Assign First Socket to first group ?SOCG0=0
   // Assign Third Socket to 4-th group ?SOCG2=3
-  for (i = 0; i < SOCKET_COUNT; i++) {
-    String cArg = "SOCG" + String(i);
-    if (server.hasArg(cArg)) {
-      String v = server.arg(cArg);
-      if (v == "11") {      // Group1
-        socket[i]->setGroup(group[0]);
-      } else if (v == "12") { // Group2
-        socket[i]->setGroup(group[1]);
-      } else if (v == "13") { // Group3
-        socket[i]->setGroup(group[2]);
-      } else if (v == "14") { // Group4
-        socket[i]->setGroup(group[3]);
-      } else {  // otherway set No Group
-        socket[i]->setGroup();
+    for (i = 0; i < SOCKET_COUNT; i++) {
+      cArg = (String("SOCG") + String(i));
+      if (server.hasArg(cArg)) {
+        v = server.arg(cArg);
+        if (v == "11") {      // Group1
+          socket[i]->setGroup(group[0]);
+        } else if (v == "12") { // Group2
+          socket[i]->setGroup(group[1]);
+        } else if (v == "13") { // Group3
+          socket[i]->setGroup(group[2]);
+        } else if (v == "14") { // Group4
+          socket[i]->setGroup(group[3]);
+        } else {  // otherway set No Group
+          socket[i]->setGroup();
+        }
+        save = true;
       }
-      save = true;
     }
-  }
+    
   // Check if got assign Socket Name
   // Assign First Socket name ?N0=First
   // Assign Third Socket name ?N2=Third
-  for (i = 0; i < SOCKET_COUNT; i++) {
-    String nArg = "N" + String(i);
-    if (server.hasArg(nArg)) {
-      String name = server.arg(nArg);
-      name.replace("<",  "&lt;");
-      name.replace(">",  "&gt");
-      name.replace("\"", "&quot;");
-      socket[i]->name = name;
-      save = true;
+    for (i = 0; i < SOCKET_COUNT; i++) {
+      nArg = (String("N") + String(i));
+      if (server.hasArg(nArg)) {
+        v = server.arg(nArg);
+        v.replace("<",  "&lt;");
+        v.replace(">",  "&gt");
+        v.replace("\"", "&quot;");
+        socket[i]->name = v;
+        save = true;
+      }
     }
-  }
+    
   // Check if Socket override mode or time is changed
   // Second Socket override to off ?C6=0 
   // New Mode will be saved to temprary variable until get actual period of time to override duration
-  #define SOCKET_OVERRIDE_BASE 5
-  for (i = 0; i < SOCKET_COUNT; i++) {
-    String cArg = "C" + String(SOCKET_OVERRIDE_BASE + i);
-    String tArg = "CD" + String(SOCKET_OVERRIDE_BASE + i);
-    if (server.hasArg(cArg)) {
-      String v = server.arg(cArg);
-      if (v == "1") {
-        socket[i]->modeWaiting = SON;
-      } else if (v == "0") {
-        socket[i]->modeWaiting = SOFF;
-      } else {
-        socket[i]->modeWaiting = SNA;
+    #define SOCKET_OVERRIDE_BASE 5
+    for (i = 0; i < SOCKET_COUNT; i++) {
+      cArg = (String("C") + String(SOCKET_OVERRIDE_BASE + i));
+      tArg = (String("CD") + String(SOCKET_OVERRIDE_BASE + i));
+      if (server.hasArg(cArg)) {
+        v = server.arg(cArg);
+        if (v == "1") {
+          socket[i]->modeWaiting = SON;
+        } else if (v == "0") {
+          socket[i]->modeWaiting = SOFF;
+        } else {
+          socket[i]->modeWaiting = SNA;
+        }
       }
+      if (server.hasArg(tArg)) {  // If override time in minutes is passed ?CD6=15
+        socket[i]->stop();        // Stop previous started Override if any
+        socket[i]->start(socket[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
+      }    
     }
-    if (server.hasArg(tArg)) {  // If override time in minutes is passed ?CD6=15
-      socket[i]->stop();        // Stop previous started Override if any
-      socket[i]->start(socket[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
-    }    
-  }
+    
   // Check if Group override mode or time is changed
   // First Group to Off ?C1=0
-  #define GROUP_BASE 1
-  #define GROUP_OVERRIDE 1
-  for (i = 0; i < GROUP_COUNT; i++) {
-    String cArg = "C" + String(GROUP_BASE + i);
-    String tArg = "CD" + String(GROUP_OVERRIDE + i);
-    if (server.hasArg(cArg)) {
-      String v = server.arg(cArg);
-      if (v == "1") {
-        group[i]->modeWaiting = SON;
-      } else if (v == "0") {
-        group[i]->modeWaiting = SOFF;
-      } else {
-        group[i]->modeWaiting = SNA;
+    #define GROUP_BASE 1
+    #define GROUP_OVERRIDE 1
+    for (i = 0; i < GROUP_COUNT; i++) {
+      cArg = (String("C") + String(GROUP_BASE + i));
+      tArg = (String("CD") + String(GROUP_OVERRIDE + i));
+      if (server.hasArg(cArg)) {
+        v = server.arg(cArg);
+        if (v == "1") {
+          group[i]->modeWaiting = SON;
+        } else if (v == "0") {
+          group[i]->modeWaiting = SOFF;
+        } else {
+          group[i]->modeWaiting = SNA;
+        }
+      }
+      if (server.hasArg(tArg)) {
+        group[i]->stop();     // Stop existing override if any
+        group[i]->start(group[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
       }
     }
-    if (server.hasArg(tArg)) {
-      group[i]->stop();     // Stop existing override if any
-      group[i]->start(group[i]->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
-    }
-  }
+    
   // Feed override ?C0=1
-  {
-    String cArg = "C0";
-    String tArg = "CD0";
+    cArg = "C0";
+    tArg = "CD0";
     if (server.hasArg(cArg)) {
-      String v = server.arg(cArg);
+      v = server.arg(cArg);
       if (v == "1") {
         feed->modeWaiting = SON;
       } else if (v == "0") {
@@ -260,21 +274,18 @@ void ajaxInputs() {
       feed->stop();
       feed->start(feed->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
     }
-  }
+
   // Check if Wave mode is changed
   // ?SOCG8=121
-  {
-    String cArg = "SOCG8";
+    cArg = "SOCG8";
     if (server.hasArg(cArg)) {
-      String v = server.arg(cArg);
+      v = server.arg(cArg);
       //if (pump != v && taskExists(wave.overrideTask))
         setPump(v);
         wave.on(wave.period);
         save = true;
     }
-  }
-  {
-    String cArg = "W";
+    cArg = "W";
     if (server.hasArg(cArg)) {
       time_t t = strToTime24(server.arg(cArg));
       //if (wave.period != t && taskExists(wave.overrideTask)) {
@@ -282,45 +293,34 @@ void ajaxInputs() {
         save = true;
       //}
     }
-  }
-  {
-    String cArg = "SEQ";
+    cArg = "SEQ";
     if (server.hasArg(cArg)) {
       sequence = server.arg(cArg).toInt();
     }
   }
-  // Assemble current state xml
-  String res = "";
-//  String an1 = String(realPower[0]);
-//  String an2 = String(realPower[1]);
-//  String an3 = String(realPower[2]);
-  String an1 = String(Irmss[0]);
-  String an2 = String(Irmss[1]);
-  String an3 = String(Irmss[2]);
 
-  sprintf_P(data, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%s</analog><analog>%s</analog><analog>%s</analog>\n"), an1.c_str(), an2.c_str(), an3.c_str());
-  res += data;
+  sprintf_P(p, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d.%02d</analog><analog>%d.%02d</analog><analog>%d.%02d</analog>\n"),
+              (int)Irmss[0], (int)(Irmss[0]*100)%100, (int)Irmss[1], (int)(Irmss[1]*100)%100, (int)Irmss[2], (int)(Irmss[2]*100)%100);
+  p += strlen(p);
   //Global feed mode
-  sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
+  sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
               (feed->mode==SON)?"on":(feed->mode==SOFF)?"off":"default",
               taskRemainder(feedTask)/1000,
               (feed->modeWaiting==SON)?"on":(feed->modeWaiting==SOFF)?"off":"default"
               );
-  res += data;
-  res += "\n";
+  p += strlen(p);
   for (i = 0; i < GROUP_COUNT; i++) {
-    sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
+    sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
               (group[i]->mode==SON)?"on":(group[i]->mode==SOFF)?"off":"default",
               taskRemainder(groupOverride[i])/1000,
               (group[i]->modeWaiting==SON)?"on":(group[i]->modeWaiting==SOFF)?"off":"default"
               );
-    res += data;
+    p += strlen(p);
   }
-  res += "\n";
   // Socket switch state
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Manual>%s</Manual><Socket>%s</Socket><Enabled>%s</Enabled><SState>%s</SState>\n"), (socket[i]->manual == SON)?"checked":"unckecked", swState(socket[i]->mode).c_str(), socket[i]->enabled?"1":"0", socket[i]->actualState==SON?"1":"0");
-    res += data;
+    sprintf_P(p, PSTR("<Manual>%s</Manual><Socket>%s</Socket><Enabled>%s</Enabled><SState>%s</SState>\n"), (socket[i]->manual == SON)?"checked":"unckecked", swState(socket[i]->mode).c_str(), socket[i]->enabled?"1":"0", socket[i]->actualState==SON?"1":"0");
+    p += strlen(p);
   }
   // Socket override timers state and group
   for (i = 0; i < SOCKET_COUNT; i++) {
@@ -331,7 +331,7 @@ void ajaxInputs() {
         continue; 
       }
     }
-    sprintf_P(data, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n<Group>%d</Group>\n<Override>%lu</Override><name>%s</name>"),
+    sprintf_P(p, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n<Group>%d</Group>\n<Override>%lu</Override><name>%s</name>"),
               socket[i]->schedule1.active(getTime())?"1":"0",
               socket[i]->schedule2.active(getTime())?"1":"0",
               socket[i]->schedule1.active()?"checked":"unckecked",
@@ -345,23 +345,23 @@ void ajaxInputs() {
               taskRemainder(socketTasks[i]) / 1000,
               socket[i]->name.c_str()
               );
-    res += data;
+    p += strlen(p);
   }
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>"),
+    sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
               (socket[i]->mode==SON)?"on":(socket[i]->mode==SOFF)?"off":"default",
               taskRemainder(socketTasks[i])/1000,
               (socket[i]->modeWaiting==SON)?"on":(socket[i]->modeWaiting==SOFF)?"off":"default"
               );
-    res += data;
+    p += strlen(p);
   }
   for (i = 0; i < SOCKET_COUNT; i++) {
-    sprintf_P(data, PSTR("<Switch>%s</Switch>"),
+    sprintf_P(p, PSTR("<Switch>%s</Switch>"),
               (socket[i]->feedOverride==SON)?"on":(socket[i]->feedOverride==SOFF)?"off":"default"
               );
-    res += data;
+    p += strlen(p);
   }
-  sprintf_P(data, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n"),
+  sprintf_P(p, PSTR("<TimerActive>%s</TimerActive><TimerActive>%s</TimerActive><TimerCheckbox>%s</TimerCheckbox>\n<TimerCheckbox>%s</TimerCheckbox>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue>\n<TimerValue>%s</TimerValue><Duration>%s</Duration>\n"),
               feedSchedule.schedule1.active(getTime())?"1":"0",
               feedSchedule.schedule2.active(getTime())?"1":"0",
               feedSchedule.schedule1.active()?"checked":"unckecked",
@@ -372,18 +372,19 @@ void ajaxInputs() {
               timeToStr(feedSchedule.schedule2.off).c_str(),
               timeToStr24(feedSchedule.duration()/60).c_str()
               );
-  res += data;
-  sprintf_P(data, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>"),
+  p += strlen(p);
+  sprintf_P(p, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>\n</state>"),
               pump.c_str(), timeToStr24(wave.period).c_str(), timeToStr(getTime()).c_str(), sequence);
-  res += data;
-  res += "</state>";
+  p += strlen(p);
+  
   if (save) {           // If save flag set true queue save state
     taskDel(saveState); // Remove previous save request if any
     taskAddWithDelay(saveState, SAVE_DELAY);  // save in SAVE_DELAY mS
   }
-  server.send(200, "text/xml", res);                      // Send string as XML document to cliend.
+  server.send(200, "text/xml", data);                      // Send string as XML document to cliend.
                                                           // 200 - means Success html result code
 }
+
 // callback function that is called by Web server if no sutable callback function fot URL found
 void indexFile() {
     server.sendHeader("Connection", "close");                       // Headers again free connection and
@@ -401,14 +402,17 @@ void listFile() {
     return server.requestAuthentication();
   }
 #endif
-  String output = F("<html><head><meta charset='utf-8'>\
+  byte mac[6];
+  WiFi.macAddress(mac);
+  char* p = data;
+  sprintf_P(p, PSTR("<html><head><meta charset='utf-8'>\
   <title>WiFiSocket - Maintains</title>\
 \
  <style>\
-.well{background-image:-webkit-linear-gradient(top,#e8e8e8 0,#f5f5f5 100%);\
-background-image:-o-linear-gradient(top,#e8e8e8 0,#f5f5f5 100%);\
+.well{background-image:-webkit-linear-gradient(top,#e8e8e8 0,#f5f5f5 100%%);\
+background-image:-o-linear-gradient(top,#e8e8e8 0,#f5f5f5 100%%);\
 background-image:-webkit-gradient(linear,left top,left bottom,from(#e8e8e8),to(#f5f5f5));\
-background-image:linear-gradient(to bottom,#e8e8e8 0,#f5f5f5 100%);\
+background-image:linear-gradient(to bottom,#e8e8e8 0,#f5f5f5 100%%);\
 filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffe8e8e8', endColorstr='#fff5f5f5', GradientType=0);\
 background-repeat:repeat-x;\
 border-color:#dcdcdc;\
@@ -417,12 +421,12 @@ box-shadow:inset 0 1px 3px rgba(0,0,0,.05),0 1px 0 rgba(255,255,255,.1)}\
 .well{min-height:20px;padding:19px;margin-bottom:20px;background-color:#f5f5f5;border:1px solid #e3e3e3;border-radius:4px;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,.05);box-shadow:inset 0 1px 1px rgba(0,0,0,.05)}\
 .well blockquote{border-color:#ddd;border-color:rgba(0,0,0,.15)}\
 .container{padding-right:15px;padding-left:15px;margin-right:auto;margin-left:auto}\
-.col-md-4{display: table-cell;min-height:1px;padding-right:15px;padding-left:15px;width:33%;}\
-.row{display: table;width: 100%;margin-right:-15px;margin-left:-15px}\
+.col-md-4{display: table-cell;min-height:1px;padding-right:15px;padding-left:15px;width:33%%;}\
+.row{display: table;width: 100%%;margin-right:-15px;margin-left:-15px}\
 body{font-family:\"Helvetica Neue\",Helvetica,Arial,sans-serif;font-size:14px;line-height:1.42857143;color:#333;background-color:#fff}\
 h4{font-size:18px;text-align:left;}\
 h1{font-size:10px;text-align:right;}\
-#progress {color: fff;text-align: center;visibility: hidden;z-index: 10;display: block;border: 1px inset #446;border-radius: 5px;position: fixed;bottom: 0;width: 80%;left: 50%;transform: translate(-50%, -50%);margin: 0 auto;background: linear-gradient(to right, #0c0 0%, #000 0%);}\
+#progress {color: fff;text-align: center;visibility: hidden;z-index: 10;display: block;border: 1px inset #446;border-radius: 5px;position: fixed;bottom: 0;width: 80%%;left: 50%%;transform: translate(-50%%, -50%%);margin: 0 auto;background: linear-gradient(to right, #0c0 0%%, #000 0%%);}\
 #progress .success {background: #0c0 none 0 0 no-repeat;}\
 #progress .failed {color: #fff;font-wheight: bold;background: #c00 none 0 0 no-repeat;}\
 #advBlock {visibility: hidden;}\
@@ -445,7 +449,7 @@ progress.innerHTML = 'Uploading firmware...';\
 progress.style.visibility='visible';\
 xhr.upload.addEventListener('progress', function(e) {\
 var pc = parseInt(e.loaded / e.total * 100);\
-document.getElementById('progress').style.background = 'linear-gradient(to right, #0c0 ' + pc + '%, ' + ' #000 ' + pc + '%)';\
+document.getElementById('progress').style.background = 'linear-gradient(to right, #0c0 ' + pc + '%%, ' + ' #000 ' + pc + '%%)';\
 }, false);\
 xhr.onreadystatechange = function(e) {\
 if (xhr.readyState == 4) {\
@@ -471,14 +475,12 @@ function advanced() {\
   adv.style.visibility='visible';\
   advButton.style.visibility='hidden';\
 }\
-var cTime= new Date(");\
-output += getTime();\
-output += F("*1000);\
+var cTime= new Date(%d * 1000);\
 function countTime() {\
  var hours = cTime.getUTCHours();\
  var minutes = cTime.getUTCMinutes();\
  var ampm = hours >= 12?'PM':'AM';\
- hours = hours % 12;\
+ hours = hours %% 12;\
  hours = hours ? hours : 12;\
  minutes = minutes < 10 ? '0'+minutes : minutes;\
  document.getElementById('advTime').innerHTML = hours + ':' + minutes + '' + ampm;\
@@ -489,23 +491,17 @@ function countTime() {\
   </head>\
   <body onLoad='countTime();'>\
 \
- <div class='row'><div class='col-md-4'><h4>Wi-Fi Socket Control - Settings</h4></div><div class='col-md-4'><h4 id='advTime'>00:00</h4></div><div class='col-md-4'><h1><a id='advShow' href='javascript:advanced()'>Show Advanced settings</a></h1></div>");
- output += F("</div>\
+ <div class='row'><div class='col-md-4'><h4>Wi-Fi Socket Control - Settings</h4></div><div class='col-md-4'><h4 id='advTime'>00:00</h4></div><div class='col-md-4'><h1><a id='advShow' href='javascript:advanced()'>Show Advanced settings</a></h1></div>\
+ </div>\
  <div class='container'><div class='well'>\
  <b>Network settings</b>\
  <hr>\
  <form name='form' method='POST' action='/net' enctype='multipart/form-data'>\
   <table>\
-  <tr><td>IP</td><td>");
-  output += WiFi.localIP().toString();
-  output += F("</td></tr>\
-  <tr><td>Unit Name</td><td><input name=\"name\" value=\"");
-  output += name;
-  output += F("\"></td></tr>\
+  <tr><td>IP</td><td>%s</td></tr>\
+  <tr><td>Unit Name</td><td><input name=\"name\" value=\"%s\"></td></tr>\
   <tr><td>TimeZone</td><td><select name=\"tz\">\
-  <script>tz=");
-  output += String(tz);
-output += F(";tzs =[\
+  <script>tz=%s;tzs =[\
         {str: \"MIT  Midway Islands Time (GMT-11:00)\", offset: -11},\
         {str: \"HST Hawaii Standard Time  (GMT-10:00)\", offset: -10},\
         {str: \"AST Alaska Standard Time  (GMT-9:00)\", offset: -9},\
@@ -519,20 +515,20 @@ output += F(";tzs =[\
         {str: \"AGT Argentina Standard Time (GMT-3:00)\", offset: -3},\
         {str: \"BET Brazil Eastern Time (GMT-3:00)\", offset: -3},\
         {str: \"CAT Central African Time  (GMT-1:00)\", offset: -1},\
-        {str: \"UTC	Universal Coordinated Time	(GMT)\", offset: 0},\
-        {str: \"ECT	European Central Time	(GMT+1:00)\", offset: 1},\
-        {str: \"EET	Eastern European Time	(GMT+2:00)\", offset: 2},\
-        {str: \"ART	(Arabic) Egypt Standard Time	(GMT+2:00)\", offset: 2},\
-        {str: \"EAT	Eastern African Time	(GMT+3:00)\", offset: 3},\
-        {str: \"NET	Near East Time	(GMT+4:00)\", offset: 4},\
-        {str: \"PLT	Pakistan Lahore Time	(GMT+5:00)\", offset: 5},\
-        {str: \"BST	Bangladesh Standard Time	(GMT+6:00)\", offset: 6},\
-        {str: \"VST	Vietnam Standard Time	(GMT+7:00)\", offset: 7},\
-        {str: \"CTT	China Taiwan Time	(GMT+8:00)\", offset: 8},\
-        {str: \"JST	Japan Standard Time	GMT+9:00\", offset: 9},\
-        {str: \"AET	Australia Eastern Time	(GMT+10:00)\", offset: 10},\
-        {str: \"SST	Solomon Standard Time	(GMT+11:00)\", offset: 11},\
-        {str: \"NST	New Zealand Standard Time	(GMT+12:00)\", offset: 12}\
+        {str: \"UTC  Universal Coordinated Time  (GMT)\", offset: 0},\
+        {str: \"ECT European Central Time (GMT+1:00)\", offset: 1},\
+        {str: \"EET Eastern European Time (GMT+2:00)\", offset: 2},\
+        {str: \"ART (Arabic) Egypt Standard Time  (GMT+2:00)\", offset: 2},\
+        {str: \"EAT Eastern African Time  (GMT+3:00)\", offset: 3},\
+        {str: \"NET Near East Time  (GMT+4:00)\", offset: 4},\
+        {str: \"PLT Pakistan Lahore Time  (GMT+5:00)\", offset: 5},\
+        {str: \"BST Bangladesh Standard Time  (GMT+6:00)\", offset: 6},\
+        {str: \"VST Vietnam Standard Time (GMT+7:00)\", offset: 7},\
+        {str: \"CTT China Taiwan Time (GMT+8:00)\", offset: 8},\
+        {str: \"JST Japan Standard Time GMT+9:00\", offset: 9},\
+        {str: \"AET Australia Eastern Time  (GMT+10:00)\", offset: 10},\
+        {str: \"SST Solomon Standard Time (GMT+11:00)\", offset: 11},\
+        {str: \"NST New Zealand Standard Time (GMT+12:00)\", offset: 12}\
         ];\
   for (t = 0; t < tzs.length; t++) {\
     document.write(\"<option value='\");\
@@ -546,13 +542,7 @@ output += F(";tzs =[\
   }\
   </script>\
   </select>&nbsp;<font size=-2>(Become effective on Socket restart)</font></td></tr>\
-  <tr><td>Setup AP SSID</td><td>");
-  char apname[sizeof(WIFI_SETUP_AP)+5];
-  byte mac[6];
-  WiFi.macAddress(mac);
-  sprintf_P(apname, PSTR("%s%02X%02X"), WIFI_SETUP_AP, mac[4], mac[5]);
-  output += String(apname);
-  output += F("</td></tr>\
+  <tr><td>Setup AP SSID</td><td>%s%02X%02X</td></tr>\
   </table>\
   <input type='submit' value='Apply'>\
   </table>\
@@ -562,9 +552,7 @@ output += F(";tzs =[\
 <div class='container'><div class='well'>\
  <b>Firmware update</b>\
  <hr>\
- Current version: ");
- output += VERSION;
- output += F("\
+ Current version: %s\
   <form name='form' method='POST' action='/update' enctype='multipart/form-data'><input id='update' type='file' name='update' accept='.tar'><input type='button' value='Update' onClick='uploadFile(document.getElementById(\"update\").files[0]);'></form>\
 </div></div>\
 \
@@ -583,39 +571,33 @@ output += F(";tzs =[\
   Upload file to local filesystem:<br>\
    <input type='file' name='update'>\
    <input type='submit' value='Upload file'>\
-  </form>");
+  </form>"), getTime(), WiFi.localIP().toString().c_str(), name.c_str(), tz.c_str(), WIFI_SETUP_AP, mac[4], mac[5], VERSION);
+  p += strlen(p);
+ 
   String path = server.hasArg("dir")?server.arg("dir"):"/";
   Dir dir = SPIFFS.openDir(path);
   while(dir.next()){
     File entry = dir.openFile("r");
-    String filename = String(entry.name());
-    output += "<br>";
-    output += "<a href='" + filename + "'>" + filename + "</a>&nbsp<a href='/delete?file=" + filename + "'><font color=red>delete</font></a>";
-    output += "<br>";
+    sprintf_P(p, PSTR("<br><a href='%s'>%s</a>&nbsp<a href='/delete?file=%s'><font color=red>delete</font></a><br>"), entry.name(), entry.name(), entry.name());
+    p += strlen(p);
     entry.close();
   }
-output += F("</div></div><div class='container'><div class='well'>\
+  sprintf_P(p, PSTR("</div></div><div class='container'><div class='well'>\
  <b>NTP Settings</b>\
  <hr>\
  <table>\
-  <tr><td>NTP Server 1</td><td><input name=\"ntp1\" value=\"");
-  output += ntp1;
-  output += F("\"></td></tr>\
-  <tr><td>NTP Server 2</td><td><input name=\"ntp2\" value=\"");
-  output += ntp2;
-  output += F("\"></td></tr>\
-  <tr><td>NTP Server 3</td><td><input name=\"ntp3\" value=\"");
-  output += ntp3;
-  output += F("\"></td></tr>\
+  <tr><td>NTP Server 1</td><td><input name=\"ntp1\" value=\"%s\"></td></tr>\
+  <tr><td>NTP Server 2</td><td><input name=\"ntp2\" value=\"%s\"></td></tr>\
+  <tr><td>NTP Server 3</td><td><input name=\"ntp3\" value=\"%s\"></td></tr>\
 </table>\
 </div></div></div>\
 <div id='progress'></div>\
-</body><html>");
+</body><html>"), ntp1.c_str(), ntp2.c_str(), ntp3.c_str());
 
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.sendHeader("Access-Control-Allow-Origin", "*");
-  server.send(200, "text/html", output);  
+  server.send(200, "text/html", data);
 }
 // File upload. Called on upload finished
 void handleFile() {
@@ -765,6 +747,7 @@ void handleNetwork() {
   saveConfig();
   server.send(200, "text/plain", "OK");
 }
+
 #define DEFAULT_OVERRIDE 10
 void handleOverride() {
   server.sendHeader("Connection", "close");
@@ -790,33 +773,45 @@ void handleOverride() {
   IDLE
 }
 
-extern volatile uint16_t mcpDataReady;
-extern int16_t sV[MAX_SAMPLES];
-extern int16_t sI[MAX_SAMPLES];
-extern int16_t sW[MAX_SAMPLES];
-extern uint16_t shift;
-extern int16_t fV[4096];
-extern int16_t fI[4096];
-
-void handleSamples() {  // raw data for debug
+// raw data for debug
+void handleSamples() {
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   String csv;
-  //while (!mcpDataReady) { yield(); }
-  for (uint16_t i = 0; i < 2048; i++) {
-    csv += String(fV[i]) + ", ";
+  uint16_t i;
+  for (i = 0; i < 256; i++) {
+    csv += String(mcp3221_read(MCP_V)) + ", ";
+    csv += String(mcp3221_read(MCP_0)) + "\n";
   }
   csv += "\n";
-  for (uint16_t i = 0; i < 2048; i++) {
-    csv += String(fI[i]) + ", ";
+  for (i = 0; i < 256; i++) {
+    csv += String(mcp3221_read(MCP_V)) + ", ";
+    csv += String(mcp3221_read(MCP_1)) + "\n";
   }
   csv += "\n";
-//  for (uint16_t i = 0; i < MAX_SAMPLES; i++) {
-//    csv += String(sW[i]) + ", ";
-//  }
-//  csv += "\n";
-//  csv += "shift=";
-//  csv += String(shift);
+  for (i = 0; i < 256; i++) {
+    csv += String(mcp3221_read(MCP_V)) + ", ";
+    csv += String(mcp3221_read(MCP_3)) + "\n";
+  }
+  csv += "\n";
+  extern double realPowers[MCP_COUNT],
+      apparentPowers[MCP_COUNT],
+      powerFactors[MCP_COUNT],
+      Vrmss[MCP_COUNT],
+      Irmss[MCP_COUNT];
+  for (i = 0; i < 3; i++) {
+    csv += "realPower=";
+    csv += String(realPowers[i]);
+    csv += "; apparentPower=";
+    csv += String(apparentPowers[i]);
+    csv += "; powerFactors=";
+    csv += String(powerFactors[i]);
+    csv += "; Vrms=";
+    csv += String(Vrmss[i]);
+    csv += "; Irms=";
+    csv += String(Irmss[i]);
+    csv += "\n";
+  }
   server.send(200, "text/csv", csv);
   IDLE
 }

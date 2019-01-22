@@ -10,13 +10,11 @@
 * [ESP8266 WiFi Connection manager with web captive portal](https://github.com/tzapu/WiFiManager)
 * [A realtime digital signal processing (DSP) library for Arduino](https://github.com/JonHub/Filters)
 * [Extremely simple tar extractor Arduino library](https://github.com/emelianov/untarArduino)
-* [Arduino Client for MQTT](https://github.com/knolleary/pubsubclient)
 * [AsyncPing](https://github.com/akaJes/AsyncPing)
-* [Arduino Energy Monitoring Library](https://github.com/openenergymonitor/EmonLib)
 
 ### Release notes
 
-* Current version is tested only with ESP8266 Core for Arduino 2.4.1. To build with releases prior to 2.4 comment `MACOS` definition in `discoverh.h`.
+* Current version is tested only with ESP8266 Core for Arduino 2.4.2. To build with releases prior to 2.4 comment `MACOS` definition in `discoverh.h`.
 
 * Pull Up D8 for 3 seconds starts network configuration and activates open Access Point. Warning! Socket switching operations are suspended while configuration mode is active.
 

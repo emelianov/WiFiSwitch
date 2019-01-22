@@ -39,6 +39,7 @@ struct statuses {
 };
 events event;
 statuses status;
+char data[9000];   // sprintf buffer
 
 #define PUMP_NONE         "100"
 #define PUMP_SINGLE       "110"
@@ -80,19 +81,14 @@ uint32_t wifiStart() {
   WiFi.begin();
   waitWF = 1;
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
- #ifdef WFS_DEBUG
-  Serial.print("Connecting to ");
-  Serial.println(WiFi.SSID());
- #endif
+  WDEBUG("Connecting to %s\n", WiFi.SSID().c_str());
   return RUN_DELETE;
 }
 
 uint32_t wifiWait() {
   if(WiFi.status() != WL_CONNECTED) {
     if (waitWF <= WIFI_CHECK_COUNT) {
-     #ifdef WFS_DEBUG
-      Serial.print(".");
-     #endif
+      WDEBUG(".");
       //if (waitWF > 0) {
         waitWF++;
       //}
@@ -104,9 +100,7 @@ uint32_t wifiWait() {
       return RUN_DELETE;
     }
   } else {
-   #ifdef WFS_DEBUG
-    Serial.println(WiFi.localIP().toString());
-   #endif
+    WDEBUG("IP Address: %s\n", WiFi.localIP().toString().c_str());
     event.wifiConnected++;
     randomSeed(millis());
     taskAdd(initPing);
@@ -145,16 +139,10 @@ uint32_t wifiManager() {
     sprintf(apname, "%s%02X%02X", WIFI_SETUP_AP, mac[4], mac[5]);
     wifiManager.startConfigPortal(apname);
     //wifiManager.startConfigPortal(WIFI_SETUP_AP);//) {
-   #ifdef WFS_DEBUG
-    Serial.print("Connected to ");
-    Serial.println(WiFi.SSID());
-   #endif
+    WDEBUG("Connected to %s\n", WiFi.SSID().c_str());
     //event.wifiConnected++;
   //} 
   //if you get here you have connected to the WiFi
- #ifdef WFS_DEBUG
-  Serial.println("config done");
- #endif
   if (event.saveParams > 0) {
      name = pName.getValue();
      saveConfig();
@@ -164,10 +152,6 @@ uint32_t wifiManager() {
   RUN_DELETE;
 }
 
-uint32_t printTime() {
-  Serial.println(getTime());
-  return 1000;  
-}
 // Query Reset Key ststus change and flag events
 uint32_t checkKey() {
   if (digitalRead(RESET_PIN) == HIGH && !status.keyPressed) {
