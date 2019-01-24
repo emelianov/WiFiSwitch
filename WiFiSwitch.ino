@@ -103,7 +103,7 @@ uint32_t wifiWait() {
     WDEBUG("IP Address: %s\n", WiFi.localIP().toString().c_str());
     event.wifiConnected++;
     randomSeed(millis());
-    taskAdd(initPing);
+    //taskAdd(initPing);
   }
   return RUN_DELETE;
 }

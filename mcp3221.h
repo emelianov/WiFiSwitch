@@ -16,15 +16,24 @@
 #endif
 
 bool mcp3221_init(uint32_t freq, uint8_t sda, uint8_t scl) {
+// The way to reset mcp3221
   Wire.begin(scl, sda);
   Wire.beginTransmission(MCP_V);
   Wire.endTransmission();
   Wire.beginTransmission(MCP_0);
   Wire.endTransmission();
+  Wire.beginTransmission(MCP_1);
+  Wire.endTransmission();
+  Wire.beginTransmission(MCP_3);
+  Wire.endTransmission();
   Wire.begin(sda, scl);
   Wire.beginTransmission(MCP_V);
   Wire.endTransmission();
   Wire.beginTransmission(MCP_0);
+  Wire.endTransmission();
+  Wire.beginTransmission(MCP_1);
+  Wire.endTransmission();
+  Wire.beginTransmission(MCP_3);
   Wire.endTransmission();
   if (sda != 0 || scl != 0) {
     twi_stop();

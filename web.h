@@ -300,7 +300,7 @@ void ajaxInputs() {
   }
 
   sprintf_P(p, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d.%02d</analog><analog>%d.%02d</analog><analog>%d.%02d</analog>\n"),
-              (int)Irmss[0], (int)(Irmss[0]*100)%100, (int)Irmss[1], (int)(Irmss[1]*100)%100, (int)Irmss[2], (int)(Irmss[2]*100)%100);
+              abs((int)realPowers[0]), abs((int)(realPowers[0]*100)%100), abs((int)realPowers[1]), abs((int)(realPowers[1]*100)%100), abs((int)realPowers[2]), abs((int)(realPowers[2]*100)%100));
   p += strlen(p);
   //Global feed mode
   sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
@@ -775,23 +775,45 @@ void handleOverride() {
 
 // raw data for debug
 void handleSamples() {
-  server.sendHeader("Connection", "close");
-  server.sendHeader("Cache-Control", "no-store, must-revalidate");
   String csv;
   uint16_t i;
+  int16_t* V1 = (int16_t*)data;
+  int16_t* I1 = (int16_t*)data +  512;
+  int16_t* V2 = (int16_t*)data + 1024;
+  int16_t* I2 = (int16_t*)data + 1536;
+  int16_t* V3 = (int16_t*)data + 2048;
+  int16_t* I3 = (int16_t*)data + 2560;
+  int16_t* VCC = (int16_t*)data + 3072;
   for (i = 0; i < 256; i++) {
-    csv += String(mcp3221_read(MCP_V)) + ", ";
-    csv += String(mcp3221_read(MCP_0)) + "\n";
+    V1[i] = mcp3221_read(MCP_V);
+    I1[i] = mcp3221_read(MCP_0);
+  }
+  VCC[0] = ESP.getVcc();
+  for (i = 0; i < 256; i++) {
+    V2[i] = mcp3221_read(MCP_V);
+    I2[i] = mcp3221_read(MCP_1);
+  }
+  VCC[1] = ESP.getVcc();
+  for (i = 0; i < 256; i++) {
+    V3[i] = mcp3221_read(MCP_V);
+    I3[i] = mcp3221_read(MCP_3);
+  }
+  VCC[2] = ESP.getVcc();
+  server.sendHeader("Connection", "close");
+  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  for (i = 0; i < 256; i++) {
+    csv += String(V1[i]) + ", ";
+    csv += String(I1[i]) + "\n";
   }
   csv += "\n";
   for (i = 0; i < 256; i++) {
-    csv += String(mcp3221_read(MCP_V)) + ", ";
-    csv += String(mcp3221_read(MCP_1)) + "\n";
+    csv += String(V2[i]) + ", ";
+    csv += String(I2[i]) + "\n";
   }
   csv += "\n";
   for (i = 0; i < 256; i++) {
-    csv += String(mcp3221_read(MCP_V)) + ", ";
-    csv += String(mcp3221_read(MCP_3)) + "\n";
+    csv += String(V3[i]) + ", ";
+    csv += String(I3[i]) + "\n";
   }
   csv += "\n";
   extern double realPowers[MCP_COUNT],
@@ -800,6 +822,9 @@ void handleSamples() {
       Vrmss[MCP_COUNT],
       Irmss[MCP_COUNT];
   for (i = 0; i < 3; i++) {
+    csv += "VCC=";
+    csv += String(VCC[i]);
+    csv += "\n";
     csv += "realPower=";
     csv += String(realPowers[i]);
     csv += "; apparentPower=";
