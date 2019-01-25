@@ -300,7 +300,9 @@ void ajaxInputs() {
   }
 
   sprintf_P(p, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d.%02d</analog><analog>%d.%02d</analog><analog>%d.%02d</analog>\n"),
-              abs((int)realPowers[0]), abs((int)(realPowers[0]*100)%100), abs((int)realPowers[1]), abs((int)(realPowers[1]*100)%100), abs((int)realPowers[2]), abs((int)(realPowers[2]*100)%100));
+              abs((int)history[l][0].realPower), abs((int)(history[l][0].realPower*100)%100),
+              abs((int)history[l][1].realPower), abs((int)(history[l][1].realPower*100)%100),
+              abs((int)history[l][2].realPower), abs((int)(history[l][2].realPower*100)%100));
   p += strlen(p);
   //Global feed mode
   sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
@@ -816,25 +818,52 @@ void handleSamples() {
     csv += String(I3[i]) + "\n";
   }
   csv += "\n";
-  extern double realPowers[MCP_COUNT],
-      apparentPowers[MCP_COUNT],
-      powerFactors[MCP_COUNT],
-      Vrmss[MCP_COUNT],
-      Irmss[MCP_COUNT];
+
   for (i = 0; i < 3; i++) {
-    csv += "VCC=";
-    csv += String(VCC[i]);
+    csv += "Vcc=";
+    csv += String(history[l][i].Vcc);
     csv += "\n";
     csv += "realPower=";
-    csv += String(realPowers[i]);
+    csv += String(history[l][i].realPower);
     csv += "; apparentPower=";
-    csv += String(apparentPowers[i]);
-    csv += "; powerFactors=";
-    csv += String(powerFactors[i]);
+    csv += String(history[l][i].apparentPower);
+    csv += "; powerFactor=";
+    csv += String(history[l][i].powerFactor);
     csv += "; Vrms=";
-    csv += String(Vrmss[i]);
+    csv += String(history[l][i].Vrms);
     csv += "; Irms=";
-    csv += String(Irmss[i]);
+    csv += String(history[l][i].Irms);
+    csv += "\n";
+  }
+  server.send(200, "text/csv", csv);
+  IDLE
+}
+
+void handleHistory() {
+  String csv;
+  
+  csv += F("Vcc_1,realPower_0,apparentPower_0,powerFactor_0,Vrms_0,Irms_0,");
+  csv += F("Vcc_1,realPower_1,apparentPower_1,powerFactor_1,Vrms_1,Irms_1,");
+  csv += F("Vcc_1,realPower_2,apparentPower_2,powerFactor_2,Vrms_2,Irms_2\n");
+  for (uint16_t i = 0; i < HISTORY; i++) {
+    if (i == l) {
+      csv += "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n";
+    }
+    for (uint8_t j = 0; j < MCP_COUNT; j++) {
+      String csv1 = String(history[i][j].Vcc);
+      csv1 += ",";
+      csv1 += String(history[i][j].realPower);
+      csv1 += ",";
+      csv1 += String(history[i][j].apparentPower);
+      csv1 += ",";
+      csv1 += String(history[i][j].powerFactor);
+      csv1 += ",";
+      csv1 += String(history[i][j].Vrms);
+      csv1 += ",";
+      csv1 += String(history[i][j].Irms);
+      csv1 += ",";
+      csv += csv1;
+    }
     csv += "\n";
   }
   server.send(200, "text/csv", csv);
@@ -860,6 +889,7 @@ uint32_t initWeb() {
     server.on("/reboot", HTTP_GET, handleReboot);
     server.on("/default", HTTP_GET, handleResetToDefaults);
     server.on("/samples.csv", HTTP_GET, handleSamples);
+    server.on("/history.csv", HTTP_GET, handleHistory);
    #ifdef WFS_DEBUG
     server.on("/debug", HTTP_GET, handleDebug);
    #endif

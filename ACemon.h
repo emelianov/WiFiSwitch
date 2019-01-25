@@ -13,13 +13,22 @@
 
 #include "mcp3221.h"
 
+#define HISTORY 30
+
 #define ADC_COUNTS (1 << ADC_BITS)
 
-double realPowers[MCP_COUNT],
-      apparentPowers[MCP_COUNT],
-      powerFactors[MCP_COUNT],
-      Vrmss[MCP_COUNT],
-      Irmss[MCP_COUNT];
+typedef struct power {
+  float realPower;
+  float apparentPower;
+  float powerFactor;
+  float Vrms;
+  float Irms;
+  float Vcc;
+} power;
+
+power history[HISTORY][MCP_COUNT];
+uint16_t h = 1;
+uint16_t l = 0;
 
 uint8_t ch = 0;
 uint8_t mcp[MCP_COUNT] = {MCP_0, MCP_1, MCP_3};
@@ -35,9 +44,9 @@ uint32_t initA0() {
     long readVcc();
     //Calibration coefficients
     //These need to be set in order to obtain accurate results
-    double VCAL = 90;
-    double ICAL = 900;
-    double PHASECAL = 0;
+    float VCAL = 90;
+    float ICAL = 900;
+    float PHASECAL = 0;
 
     //--------------------------------------------------------------------------------------
     // Variable declaration for emon_calc procedure
@@ -45,14 +54,14 @@ uint32_t initA0() {
     int sampleV;                        //sample_ holds the raw analog read value
     int sampleI;
 
-    double lastFilteredV,filteredV;          //Filtered_ is the raw analog value minus the DC offset
-    double filteredI;
-    double offsetV;                          //Low-pass filter output
-    double offsetI;                          //Low-pass filter output
+    float lastFilteredV,filteredV;          //Filtered_ is the raw analog value minus the DC offset
+    float filteredI;
+    float offsetV;                          //Low-pass filter output
+    float offsetI;                          //Low-pass filter output
 
-    double phaseShiftedV;                             //Holds the calibrated phase shifted voltage.
+    float phaseShiftedV;                             //Holds the calibrated phase shifted voltage.
 
-    double sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
+    float sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
 
     int startV;                                       //Instantaneous voltage at start of sample window.
 
@@ -180,17 +189,17 @@ uint32_t queryA0() {
   //-------------------------------------------------------------------------------------------------------------------------
   //Calculation of the root of the mean of the voltage and current squared (rms)
   //Calibration coefficients applied.
+  history[h][ch].Vcc = ESP.getVcc();
+  float V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
+  history[h][ch].Vrms = V_RATIO * sqrt(sumV / numberOfSamples);
 
-  double V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  Vrmss[ch] = V_RATIO * sqrt(sumV / numberOfSamples);
-
-  double I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  Irmss[ch] = I_RATIO * sqrt(sumI / numberOfSamples);
+  float I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
+  history[h][ch].Irms = I_RATIO * sqrt(sumI / numberOfSamples);
 
   //Calculation power values
-  realPowers[ch] = V_RATIO * I_RATIO * sumP / numberOfSamples;
-  apparentPowers[ch] = Vrmss[ch] * Irmss[ch];
-  powerFactors[ch] = realPowers[ch] / apparentPowers[ch];
+  history[h][ch].realPower = V_RATIO * I_RATIO * sumP / numberOfSamples;
+  history[h][ch].apparentPower = history[h][ch].Vrms * history[h][ch].Irms;
+  history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
 
   //Reset accumulators
   sumV = 0;
@@ -198,8 +207,18 @@ uint32_t queryA0() {
   sumP = 0;
 //--------------------------------------------------------------------------------------
   WDEBUG("Ch: %d, Vrms: %s, Irms: %s, realPower: %s, powerFactor: %s, Samples count: %d, Mem: %d\n",
-        ch, String(Vrmss[ch]).c_str(), String(Irmss[ch]).c_str(), String(realPowers[ch]).c_str(), String(powerFactors[ch]).c_str(), numberOfSamples, ESP.getFreeHeap());
+        ch, String(history[h][ch].Vrms).c_str(), String(history[h][ch].Irms).c_str(), String(history[h][ch].realPower).c_str(), String(history[h][ch].powerFactor).c_str(), numberOfSamples, ESP.getFreeHeap());
   ch++;
-  if (ch >= MCP_COUNT) ch = 0;
+  if (ch >= MCP_COUNT) {
+    ch = 0;
+    h++;
+    if (h > HISTORY) {
+      h = 0;
+    }
+    l++;
+    if (l > HISTORY) {
+      l = 0;
+    }
+  }
   return A0_DELAY;
 }
