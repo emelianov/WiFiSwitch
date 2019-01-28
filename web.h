@@ -9,6 +9,7 @@
 #define BUSY ;
 #define IDLE ;
 #define SAVE_DELAY 5000
+#define SAVE_SAMPLES 100
 
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
@@ -33,8 +34,8 @@ void handleDebug() {
           (!status.rtcPresent)?"Failed":"Ok", rtc.lostPower()?"Failed":"Ok", now.unixtime(), time(NULL), getTime(),\
           ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), (n1.toString()).c_str(), (n2.toString()).c_str(), (n3.toString()).c_str()\
           );
-  server.sendHeader("Connection", "close");
-  server.sendHeader("Cache-Control", "no-store, must-revalidate");
+  server.sendHeader(F("Connection"), F("close"));
+  server.sendHeader(F("Cache-Control"), F("no-store, must-revalidate"));
   server.send(200, "text/xml", data);  
 }
 #endif
@@ -46,9 +47,10 @@ String swState(OverrideMode o) {
 // callback function that is called by Web server in case if /ajax_input?...
 void ajaxInputs() {
   uint8_t i;
-  char* p = data;
-  char  strTime[4][8];    // Schedule time strings buffer
-  uint16_t  minutesFromMidnight;
+  char* xmlBuffer = data + (SAVE_SAMPLES * sizeof(int16_t) * 2);
+  char* p = xmlBuffer;
+  //char  strTime[4][8];    // Schedule time strings buffer
+  //uint16_t  minutesFromMidnight;
   bool save = false;
   // Check if got Socket on/off switching or Schedule changes
   {
@@ -65,7 +67,8 @@ void ajaxInputs() {
     String v;
     
     for (i = 0; i < SOCKET_COUNT; i++) {
-      soc = String("SOC")+String(i);
+      soc = F("SOC");
+      soc += String(i);
       if (server.hasArg(soc)) {
         if (server.arg(soc) == "1") {
           //socket[i]->on();
@@ -75,12 +78,18 @@ void ajaxInputs() {
           //socket[i]->na();
         }
       }
-      sched1 = (String("TCB") + String(i*2));  // e.g. ?TCB2=1
-      sched2 = (String("TCB") + String(i*2+1));  // e.g. ?TCB3=1
-      tm11 =   (String("TIM") + String(i*4));    // e.g. ?TIM8=10:15AM
-      tm12 =   (String("TIM") + String(i*4+1));  // e.g. ?TIM9=11:00PM
-      tm13 =   (String("TIM") + String(i*4+2));  // e.g. ?TIM10=12:00PM
-      tm14 =   (String("TIM") + String(i*4+3));  // e.g. ?TIM11=21:45PM
+      sched1 = F("TCB");
+      sched1 += String(i*2);  // e.g. ?TCB2=1
+      sched2 = F("TCB");
+      sched2 += String(i*2+1);  // e.g. ?TCB3=1
+      tm11   =  F("TIM");
+      tm11   += String(i*4);    // e.g. ?TIM8=10:15AM
+      tm12   =  F("TIM");
+      tm12   += String(i*4+1);  // e.g. ?TIM9=11:00PM
+      tm13   = F("TIM");
+      tm13   += String(i*4+2);  // e.g. ?TIM10=12:00PM
+      tm14   = F("TIM");
+      tm14   += String(i*4+3);  // e.g. ?TIM11=21:45PM
       if (server.hasArg(sched1)) {          // First Schedule switch updateed
         if (server.arg(sched1) == "1") {    // Switch is turned On 
           socket[i]->schedule1.act=true;
@@ -116,12 +125,12 @@ void ajaxInputs() {
     }
     
   // Check if Feed Schedule changes
-    sched1 = "TCB16";
-    sched2 = "TCB17";
-    tm11 =   "TIM32";
-    tm12 =   "TIM33";
-    tm13 =   "TIM34";
-    tm14 =   "TIM35";
+    sched1 = F("TCB16");
+    sched2 = F("TCB17");
+    tm11 =   F("TIM32");
+    tm12 =   F("TIM33");
+    tm13 =   F("TIM34");
+    tm14 =   F("TIM35");
     if (server.hasArg(sched1)) {      // First Schedule Switch is updated
       //Serial.println(server.arg(sched1));
       if (server.arg(sched1) == "1") {  // On
@@ -161,7 +170,7 @@ void ajaxInputs() {
   // For second ?C14=1 etc
     #define SOCKET_FEED_BASE 13     
     for (i = 0; i < SOCKET_COUNT; i++) {
-      cArg = (String("C") + String(SOCKET_FEED_BASE + i));
+      cArg = (String(F("C")) + String(SOCKET_FEED_BASE + i));
       if (server.hasArg(cArg)) {
         v = server.arg(cArg);
         if (v == "1") {         // Override On
@@ -178,7 +187,8 @@ void ajaxInputs() {
   // Assign First Socket to first group ?SOCG0=0
   // Assign Third Socket to 4-th group ?SOCG2=3
     for (i = 0; i < SOCKET_COUNT; i++) {
-      cArg = (String("SOCG") + String(i));
+      cArg = F("SOCG");
+      cArg += String(i);
       if (server.hasArg(cArg)) {
         v = server.arg(cArg);
         if (v == "11") {      // Group1
@@ -200,7 +210,8 @@ void ajaxInputs() {
   // Assign First Socket name ?N0=First
   // Assign Third Socket name ?N2=Third
     for (i = 0; i < SOCKET_COUNT; i++) {
-      nArg = (String("N") + String(i));
+      nArg = F("N");
+      nArg +=String(i);
       if (server.hasArg(nArg)) {
         v = server.arg(nArg);
         v.replace("<",  "&lt;");
@@ -216,8 +227,8 @@ void ajaxInputs() {
   // New Mode will be saved to temprary variable until get actual period of time to override duration
     #define SOCKET_OVERRIDE_BASE 5
     for (i = 0; i < SOCKET_COUNT; i++) {
-      cArg = (String("C") + String(SOCKET_OVERRIDE_BASE + i));
-      tArg = (String("CD") + String(SOCKET_OVERRIDE_BASE + i));
+      cArg = (String(F("C")) + String(SOCKET_OVERRIDE_BASE + i));
+      tArg = (String(F("CD")) + String(SOCKET_OVERRIDE_BASE + i));
       if (server.hasArg(cArg)) {
         v = server.arg(cArg);
         if (v == "1") {
@@ -239,8 +250,8 @@ void ajaxInputs() {
     #define GROUP_BASE 1
     #define GROUP_OVERRIDE 1
     for (i = 0; i < GROUP_COUNT; i++) {
-      cArg = (String("C") + String(GROUP_BASE + i));
-      tArg = (String("CD") + String(GROUP_OVERRIDE + i));
+      cArg = (String(F("C")) + String(GROUP_BASE + i));
+      tArg = (String(F("CD")) + String(GROUP_OVERRIDE + i));
       if (server.hasArg(cArg)) {
         v = server.arg(cArg);
         if (v == "1") {
@@ -258,8 +269,8 @@ void ajaxInputs() {
     }
     
   // Feed override ?C0=1
-    cArg = "C0";
-    tArg = "CD0";
+    cArg = F("C0");
+    tArg = F("CD0");
     if (server.hasArg(cArg)) {
       v = server.arg(cArg);
       if (v == "1") {
@@ -277,7 +288,7 @@ void ajaxInputs() {
 
   // Check if Wave mode is changed
   // ?SOCG8=121
-    cArg = "SOCG8";
+    cArg = F("SOCG8");
     if (server.hasArg(cArg)) {
       v = server.arg(cArg);
       //if (pump != v && taskExists(wave.overrideTask))
@@ -285,7 +296,7 @@ void ajaxInputs() {
         wave.on(wave.period);
         save = true;
     }
-    cArg = "W";
+    cArg = F("W");
     if (server.hasArg(cArg)) {
       time_t t = strToTime24(server.arg(cArg));
       //if (wave.period != t && taskExists(wave.overrideTask)) {
@@ -293,7 +304,7 @@ void ajaxInputs() {
         save = true;
       //}
     }
-    cArg = "SEQ";
+    cArg = F("SEQ");
     if (server.hasArg(cArg)) {
       sequence = server.arg(cArg).toInt();
     }
@@ -375,15 +386,29 @@ void ajaxInputs() {
               timeToStr24(feedSchedule.duration()/60).c_str()
               );
   p += strlen(p);
-  sprintf_P(p, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>\n</state>"),
+  sprintf_P(p, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>\n"),
               pump.c_str(), timeToStr24(wave.period).c_str(), timeToStr(getTime()).c_str(), sequence);
   p += strlen(p);
   
+  int16_t* pV = (int16_t*)data;
+  int16_t* pI = (int16_t*)data + (SAVE_SAMPLES * sizeof(int16_t));
+  for (i = 0; i < SAVE_SAMPLES; i++) {
+    sprintf_P(p, PSTR("<v>%d</v><i>%d</i>\n"),
+              pV[i], pI[i]);
+    p += strlen(p);
+  }
+  p += strlen(p);
+  
+  sprintf_P(p, PSTR("\n</state>"));
   if (save) {           // If save flag set true queue save state
     taskDel(saveState); // Remove previous save request if any
     taskAddWithDelay(saveState, SAVE_DELAY);  // save in SAVE_DELAY mS
   }
-  server.send(200, "text/xml", data);                      // Send string as XML document to cliend.
+  WDEBUG("Mem: %d, DATA: %d\n", ESP.getFreeHeap(), strlen(xmlBuffer));
+  server.sendHeader(F("Connection"), F("close"));                       // Headers again free connection and
+  server.sendHeader(F("Cache-Control"), F("no-store, must-revalidate"));// Don't chaching
+  server.sendHeader(F("Access-Control-Allow-Origin"), F("*"));          // Helpful when page contains JavaScript code that performing outgoung requests
+  server.send(200, "text/xml", xmlBuffer);                // Send string as XML document to cliend.
                                                           // 200 - means Success html result code
 }
 
@@ -406,6 +431,7 @@ void listFile() {
 #endif
   byte mac[6];
   WiFi.macAddress(mac);
+  String ip = WiFi.localIP().toString();
   char* p = data;
   sprintf_P(p, PSTR("<html><head><meta charset='utf-8'>\
   <title>WiFiSocket - Maintains</title>\
@@ -573,9 +599,8 @@ function countTime() {\
   Upload file to local filesystem:<br>\
    <input type='file' name='update'>\
    <input type='submit' value='Upload file'>\
-  </form>"), getTime(), WiFi.localIP().toString().c_str(), name.c_str(), tz.c_str(), WIFI_SETUP_AP, mac[4], mac[5], VERSION);
+  </form>"), getTime(), ip.c_str(), sysName.c_str(), tz.c_str(), WIFI_SETUP_AP, mac[4], mac[5], VERSION);
   p += strlen(p);
- 
   String path = server.hasArg("dir")?server.arg("dir"):"/";
   Dir dir = SPIFFS.openDir(path);
   while(dir.next()){
@@ -599,7 +624,9 @@ function countTime() {\
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");
   server.sendHeader("Access-Control-Allow-Origin", "*");
+  WDEBUG("Pre Mem: %d, DATA: %d\n", ESP.getFreeHeap(), strlen(data));
   server.send(200, "text/html", data);
+  WDEBUG("Post Mem: %d, DATA: %d\n", ESP.getFreeHeap(), strlen(data));
 }
 // File upload. Called on upload finished
 void handleFile() {
@@ -744,7 +771,7 @@ void handleNetwork() {
     tz = server.arg("tz");
   }
   if(server.hasArg("name")) {
-    name = server.arg("name");
+    sysName = server.arg("name");
   }
   saveConfig();
   server.send(200, "text/plain", "OK");

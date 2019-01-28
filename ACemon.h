@@ -44,13 +44,20 @@ uint32_t initA0() {
     long readVcc();
     //Calibration coefficients
     //These need to be set in order to obtain accurate results
-    float VCAL = 90;
-    float ICAL = 900;
-    float PHASECAL = 0;
+    float VCAL = DEF_VCAL;
+    float ICAL = DEF_ICAL;
+    float PHASECAL = DEF_PHASECAL;
 
     //--------------------------------------------------------------------------------------
     // Variable declaration for emon_calc procedure
     //--------------------------------------------------------------------------------------
+ 
+uint32_t queryA0() { 
+  int16_t* fV;
+  int16_t* fI;
+  int SupplyVoltage=DEF_SUPPLY;
+  //int SupplyVoltage = readVcc();
+  const uint16_t timeout = 300; // Exact count of periods for 50 and 60Hz both
     int sampleV;                        //sample_ holds the raw analog read value
     int sampleI;
 
@@ -66,76 +73,56 @@ uint32_t initA0() {
     int startV;                                       //Instantaneous voltage at start of sample window.
 
     boolean lastVCross, checkVCross;                  //Used to measure number of times threshold is crossed.
- 
-uint32_t queryA0() { 
-  int16_t* fV;
-  int16_t* fI;
-  int SupplyVoltage=3300;
-  //int SupplyVoltage = readVcc();
-  const uint16_t timeout = 300; // Exact count of periods for 50 and 60Hz both
+
+
   unsigned int crossCount = 0;                             //Used to measure number of times threshold is crossed.
   unsigned int numberOfSamples = 0;                        //This is now incremented
-  #define F_COUNT sizeof(data) / sizeof(uint16_t) / 2
+  #define F_COUNT (sizeof(data) / sizeof(uint16_t) / 2)
   fV = (int16_t*)data;
   fI = (int16_t*)(data + F_COUNT * sizeof(uint16_t));
-  //-------------------------------------------------------------------------------------------------------------------------
-  // 1) Waits for the waveform to be close to 'zero' (mid-scale adc) part in sin curve.
-  //-------------------------------------------------------------------------------------------------------------------------
-  boolean st=false;                                  //an indicator to exit the while loop
-
-  unsigned long start = millis();    //millis()-start makes sure it doesnt get stuck in the loop if there is an error.
-/*
-  while(st==false)                                   //the while loop...
-  {
-    startV = analogRead(inPinV);                    //using the voltage waveform
-    if ((startV < (ADC_COUNTS*0.55)) && (startV > (ADC_COUNTS*0.45))) st=true;  //check its within range
-    if ((millis()-start)>timeout) st = true;
-  }
-*/
+  
+  // 1) As we using timeout that fits exact number of wave periods no need to find zerr-crossing as in original algorythm
   //-------------------------------------------------------------------------------------------------------------------------
   // 2) Main measurement loop
   //-------------------------------------------------------------------------------------------------------------------------
-  start = millis();
-
-  //while ((crossCount < crossings) && ((millis()-start)<timeout))
-  while ((millis() - start) < timeout && numberOfSamples < F_COUNT)
+  unsigned long start = millis();    //millis()-start makes sure it doesnt get stuck in the loop if there is an error.
+  
+  while ((millis() - start) < timeout && numberOfSamples < F_COUNT) // control numberOfSmples just to escape overflow
   {
-    //numberOfSamples++;                       //Count number of times looped.
-    //lastFilteredV = filteredV;               //Used for delay/phase compensation
-
     //-----------------------------------------------------------------------------
     // A) Read in raw voltage and current samples
     //-----------------------------------------------------------------------------
-    sampleV = mcp3221_read(MCP_V);                 //Read in raw voltage signal
-    sampleI = mcp3221_read(mcp[ch]);               //Read in raw current signal
-    fV[numberOfSamples] = sampleV;
-    fI[numberOfSamples] = sampleI;
-    numberOfSamples++;                       //Count number of times looped.
+    fV[numberOfSamples] = mcp3221_read(MCP_V);                 //Read in raw voltage signal
+    fI[numberOfSamples] = mcp3221_read(mcp[ch]);               //Read in raw current signal
+    numberOfSamples++;                                         //Count number of times looped.
   }
+  // Calculate and remove offset
   offsetV = 0;
   offsetI = 0;
   for (uint16_t i = 0; i < numberOfSamples; i++) {
     offsetV += fV[i];
     offsetI += fI[i];
   }
-
   offsetV /= (numberOfSamples);
   offsetI /= (numberOfSamples);
   for (uint16_t i = 0; i < numberOfSamples; i++) {
     fV[i] -= offsetV;
     fI[i] -= offsetI;
   }
+
   // Approximate dataset
   for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
     fV[i] = (fV[i - 2] + fV[i - 1] + fV[i] + fV[i  + 1] + fV[i + 2])/5;
     fI[i] = (fI[i - 2] + fI[i - 1] + fI[i] + fI[i  + 1] + fI[i + 2])/5;
   }
+  // Second approximation pass
   for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
     fV[i] = (fV[i - 2] + fV[i - 1] + fV[i] + fV[i  + 1] + fV[i + 2])/5;
     fI[i] = (fI[i - 2] + fI[i - 1] + fI[i] + fI[i  + 1] + fI[i + 2])/5;
   }
-
-  for (uint16_t i = 0; i < numberOfSamples; i++) {
+  
+  filteredV = fV[2];
+  for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
     sampleV = fV[i];
     sampleI = - fI[i];
     lastFilteredV = filteredV;               //Used for delay/phase compensation
@@ -144,9 +131,9 @@ uint32_t queryA0() {
     //     then subtract this - signal is now centred on 0 counts.
     //-----------------------------------------------------------------------------
    // offsetV = offsetV + ((sampleV-offsetV)/4096);
-    filteredV = sampleV;// - offsetV;
+    filteredV = (abs(sampleV) > NOISE_FLOOR)?sampleV:0;// - offsetV;
    // offsetI = offsetI + ((sampleI-offsetI)/4096);
-    filteredI = sampleI;// - offsetI;
+    filteredI = (abs(sampleI) > NOISE_FLOOR)?sampleI:0;// - offsetI;
 
     //-----------------------------------------------------------------------------
     // C) Root-mean-square method voltage
@@ -171,17 +158,6 @@ uint32_t queryA0() {
     instP = phaseShiftedV * filteredI;          //Instantaneous Power
     sumP +=instP;                               //Sum
 
-    //-----------------------------------------------------------------------------
-    // G) Find the number of times the voltage has crossed the initial voltage
-    //    - every 2 crosses we will have sampled 1 wavelength
-    //    - so this method allows us to sample an integer number of half wavelengths which increases accuracy
-    //-----------------------------------------------------------------------------
-    lastVCross = checkVCross;
-    if (sampleV > startV) checkVCross = true;
-                     else checkVCross = false;
-    if (numberOfSamples==1) lastVCross = checkVCross;
-
-    //if (lastVCross != checkVCross) crossCount++;
   }
 
   //-------------------------------------------------------------------------------------------------------------------------
@@ -191,13 +167,13 @@ uint32_t queryA0() {
   //Calibration coefficients applied.
   history[h][ch].Vcc = ESP.getVcc();
   float V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  history[h][ch].Vrms = V_RATIO * sqrt(sumV / numberOfSamples);
+  history[h][ch].Vrms = V_RATIO * sqrt(sumV / (numberOfSamples - 4));
 
   float I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  history[h][ch].Irms = I_RATIO * sqrt(sumI / numberOfSamples);
+  history[h][ch].Irms = I_RATIO * sqrt(sumI / (numberOfSamples - 4));
 
   //Calculation power values
-  history[h][ch].realPower = V_RATIO * I_RATIO * sumP / numberOfSamples;
+  history[h][ch].realPower = V_RATIO * I_RATIO * sumP / (numberOfSamples - 4);
   history[h][ch].apparentPower = history[h][ch].Vrms * history[h][ch].Irms;
   history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
 
@@ -206,17 +182,24 @@ uint32_t queryA0() {
   sumI = 0;
   sumP = 0;
 //--------------------------------------------------------------------------------------
+ #ifdef WFS_DEBUG
+  String sVrms = String(history[h][ch].Vrms);
+  String sIrms = String(history[h][ch].Irms);
+  String sRealPower = String(history[h][ch].realPower);
+  String sPowerFactor = String(history[h][ch].powerFactor);
+  String sApparentPower = String( history[h][ch].apparentPower);
   WDEBUG("Ch: %d, Vrms: %s, Irms: %s, realPower: %s, powerFactor: %s, Samples count: %d, Mem: %d\n",
-        ch, String(history[h][ch].Vrms).c_str(), String(history[h][ch].Irms).c_str(), String(history[h][ch].realPower).c_str(), String(history[h][ch].powerFactor).c_str(), numberOfSamples, ESP.getFreeHeap());
+        ch, sVrms.c_str(), sIrms.c_str(), sRealPower.c_str(), sPowerFactor.c_str(), numberOfSamples, ESP.getFreeHeap());
+ #endif
   ch++;
   if (ch >= MCP_COUNT) {
     ch = 0;
     h++;
-    if (h > HISTORY) {
+    if (h >= HISTORY) {
       h = 0;
     }
     l++;
-    if (l > HISTORY) {
+    if (l >= HISTORY) {
       l = 0;
     }
   }

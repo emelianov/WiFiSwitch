@@ -2808,7 +2808,9 @@ opacity:0.5;pointer-events:none;
                             SocketXMLupdate(this.responseXML.getElementsByTagName("Socket"),
                                 this.responseXML.getElementsByTagName("Manual"),
                                 this.responseXML.getElementsByTagName("Enabled"),
-                                this.responseXML.getElementsByTagName("SState"))
+                                this.responseXML.getElementsByTagName("SState")),
+                            RawDataUpdate(this.responseXML.getElementsByTagName("v"),
+                            this.responseXML.getElementsByTagName("i"))
                         ) && (console.log(this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue));
                 };
             var n = "";
@@ -2835,6 +2837,13 @@ opacity:0.5;pointer-events:none;
                 t.send(null),
                 strWaveSelection = "";
             setTimeout("GetArduinoIO()", 1e3)
+        }
+
+        function rawDataUpdate(x, y) {
+            for (var i = 0; i < x.length; i++) {
+            //x[i].childNodes[0].nodeValue
+            //y[i].childNodes[0].nodeValue
+            }
         }
 
         function DuratonUpdate(x) {

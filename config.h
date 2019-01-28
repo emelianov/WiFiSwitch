@@ -12,7 +12,7 @@ WiFiManagerParameter pGw("gw", "Default gateway", gw.c_str(), 16);
 WiFiManagerParameter pDns("dns", "DNS", dns.c_str(), 16);
 */
 WiFiManagerParameter pNameT("Unique Address");
-WiFiManagerParameter pName("name", "DEVICE NAME", name.c_str(), 40);
+WiFiManagerParameter pName("name", "DEVICE NAME", sysName.c_str(), 40);
 //WiFiManagerParameter pNtp("NTP Servers");
 //WiFiManagerParameter pNtp1("ntp1", "NTP server", ntp1.c_str(), 40);
 //WiFiManagerParameter pNtp2("ntp2", "NTP server", ntp2.c_str(), 40);
@@ -123,7 +123,7 @@ uint32_t readConfig() {
         tz = xmlData.toInt();
        } else if 
       (xmlTag.endsWith(F("/name"))) {
-        name = xmlData;
+        sysName = xmlData;
        }
       xmlTag = "";
       xmlData = "";
@@ -144,7 +144,7 @@ uint32_t saveConfig() {
 //   mask = pMask.getValue();
 //   gw = pGw.getValue();
 //   dns = pDns.getValue();
-//   name = pName.getValue();
+//   sysName = pName.getValue();
 //   ntp1 = pNtp1.getValue();
 //   ntp2 = pNtp2.getValue();
 //   ntp3 = pNtp3.getValue();
@@ -158,7 +158,7 @@ uint32_t saveConfig() {
   //    sprintf_P(buf, PSTR("<ip>%s</ip><mask>%s</mask>\n<gw>%s</gw>\n<dns>%s</dns>"), ip.c_str(), mask.c_str(), gw.c_str(), dns.c_str());
   //    configFile.write((uint8_t*)buf, strlen(buf));
   //  }
-    sprintf_P(buf, PSTR("<name>%s</name><ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone></config>"), name.c_str(), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt());
+    sprintf_P(buf, PSTR("<name>%s</name><ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone></config>"), sysName.c_str(), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt());
     configFile.write((uint8_t*)buf, strlen(buf));
     configFile.close();
    }

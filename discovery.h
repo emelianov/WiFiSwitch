@@ -12,12 +12,12 @@
 uint32_t discovery() {
 #ifdef MACOS
     // MDNS
-    if (MDNS.begin(name.c_str())) {
+    if (MDNS.begin(sysName.c_str())) {
       MDNS.addService("http", "tcp", 80);  // Add service to MDNS-SD
       //Serial.println("mDNS responder started");
     }
     // LLMNR
-    LLMNR.begin(name.c_str());
+    LLMNR.begin(sysName.c_str());
     //Serial.println("LLMNR reponder started");
 #else
     // SSPD

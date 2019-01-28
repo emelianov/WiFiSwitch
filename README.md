@@ -8,9 +8,8 @@
 * [TinyXML](https://github.com/adafruit/TinyXML)
 * [A fork of Jeelab's fantastic RTC library](https://github.com/adafruit/RTClib)
 * [ESP8266 WiFi Connection manager with web captive portal](https://github.com/tzapu/WiFiManager)
-* [A realtime digital signal processing (DSP) library for Arduino](https://github.com/JonHub/Filters)
 * [Extremely simple tar extractor Arduino library](https://github.com/emelianov/untarArduino)
-* [AsyncPing](https://github.com/akaJes/AsyncPing)
+* [ESP8266Ping with Async extension](https://github.com/emelianov/ESP8266Ping)
 
 ### Release notes
 

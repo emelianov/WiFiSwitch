@@ -21,9 +21,21 @@ struct timeval {
 RTC_DS3231 rtc;
 int32_t timeZone = 0;
 uint8_t ntpId = 0;
+
+uint32_t syncRTC() {
+  WDEBUG("TimeZone: %s, TimeOffset: %d\n", tz.c_str(), timeZone);
+  if (time(NULL) > DEF_TIME) {
+    status.ntpSync = true;
+    if (status.rtcPresent) {
+      rtc.adjust(DateTime(time(NULL)));
+      status.rtcValid = !rtc.lostPower();
+    }
+  }
+  return NTP_CHECK_DELAY;
+}
+
 //Update time from NTP server
 uint32_t initNTP() {
-  WDEBUG("TimeZone: %s, TimeOffset: %d\n", tz.c_str(), timeZone);
   timeZone = atoi(tz.c_str()) * 3600;
  /*
   if (time(NULL) < DEF_TIME) {
@@ -39,16 +51,8 @@ uint32_t initNTP() {
     }
   */
   configTime(timeZone, 0, ntp1.c_str(), ntp2.c_str(), ntp3.c_str());
-  //  return NTP_CHECK_DELAY;
-  //}
-  if (time(NULL) > DEF_TIME) {
-    status.ntpSync = true;
-    if (status.rtcPresent) {
-      rtc.adjust(DateTime(time(NULL)));
-      status.rtcValid = !rtc.lostPower();
-    }
-  }
-  return NTP_CHECK_DELAY;
+  taskAddWithDelay(syncRTC, NTP_CHECK_DELAY);
+  return RUN_DELETE;
 }
 
 time_t getTime() {

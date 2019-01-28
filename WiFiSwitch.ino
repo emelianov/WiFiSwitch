@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-#define VERSION "0.7.2"
+#define VERSION "0.7.3"
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -39,7 +39,9 @@ struct statuses {
 };
 events event;
 statuses status;
-char data[9000];   // sprintf buffer
+
+#define DATA9K 9000
+char data[DATA9K];   // sprintf buffer
 
 #define PUMP_NONE         "100"
 #define PUMP_SINGLE       "110"
@@ -60,8 +62,8 @@ String ntp3 = "time.apple.com";
 String tz   = "5";
 String admin = "admin";
 String pass = "password";
-float amps = 0;     // Current value from A0
-String name = "socket";
+//float amps = 0;     // Current value from A0
+String sysName = "socket";
 uint32_t wifiStart();
 
 #include "ACemon.h"
@@ -76,7 +78,7 @@ uint32_t wifiStart();
 uint8_t waitWF;
 uint32_t wifiStart() {
   WiFi.mode(WIFI_OFF);
-  delay(100);
+  delay(1000);
   WiFi.mode(WIFI_STA);
   WiFi.begin();
   waitWF = 1;
@@ -103,7 +105,7 @@ uint32_t wifiWait() {
     WDEBUG("IP Address: %s\n", WiFi.localIP().toString().c_str());
     event.wifiConnected++;
     randomSeed(millis());
-    //taskAdd(initPing);
+    taskAdd(initPing);
   }
   return RUN_DELETE;
 }
@@ -119,7 +121,10 @@ uint32_t restartESP() {
   return RUN_DELETE;
 }
 
+uint32_t stopPing();
+
 uint32_t wifiManager() {
+  stopPing();
   server.stop();
   WiFiManager wifiManager;
   WiFi.mode(WIFI_OFF);
@@ -144,7 +149,7 @@ uint32_t wifiManager() {
   //} 
   //if you get here you have connected to the WiFi
   if (event.saveParams > 0) {
-     name = pName.getValue();
+     sysName = pName.getValue();
      saveConfig();
      delay(1000);
      ESP.restart();
@@ -196,7 +201,8 @@ void setup() {
   taskAdd(initRTC);       // Add task with RTC init
   taskAdd(initSockets);   // Add task to initilize Sockets control
   taskAddWithDelay(initA0, 5000);        // Add task to initialize ADC query
-  taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
+  taskAddWithDelay(initNTP, 5000);  // Run initNTP()
+  //taskAddWithSemaphore(initNTP, &event.wifiConnected);  // Run initNTP() on Wi-Fi connection
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAddWithSemaphore(discovery, &event.wifiConnected);
   taskAddWithSemaphore(initUpdate, &event.wifiConnected);
