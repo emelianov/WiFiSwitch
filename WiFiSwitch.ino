@@ -108,7 +108,7 @@ uint32_t wifiWait() {
    #endif
     event.wifiConnected++;
     randomSeed(millis());
-    taskAdd(initPing);
+    //taskAdd(initPing);
   }
   return RUN_DELETE;
 }
