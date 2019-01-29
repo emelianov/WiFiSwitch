@@ -102,7 +102,10 @@ uint32_t wifiWait() {
       return RUN_DELETE;
     }
   } else {
-    WDEBUG("IP Address: %s\n", WiFi.localIP().toString().c_str());
+   #ifdef WFS_DEBUG
+    String ip = WiFi.localIP().toString();
+    WDEBUG("IP Address: %s\n", ip.c_str());
+   #endif
     event.wifiConnected++;
     randomSeed(millis());
     taskAdd(initPing);

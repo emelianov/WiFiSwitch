@@ -24,6 +24,7 @@ uint32_t replyTask() {
       taskAddWithDelay(pingTask, PING_RETRY);
     }
   } else {
+    pingRetry = PING_COUNT;
     WDEBUG("GW is OK\n");
   }
   taskAddWithDelay(pingTask, PING_DEFAULT);

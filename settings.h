@@ -3,7 +3,7 @@
 
 // Switch to debug NodeNCU 1.0 mode
 // If not defined -- production WeMos mini
-#define WFS_DEBUG
+//#define WFS_DEBUG
 
 
 #define MCP_COUNT 3
