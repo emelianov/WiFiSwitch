@@ -37,19 +37,6 @@ uint32_t syncRTC() {
 //Update time from NTP server
 uint32_t initNTP() {
   timeZone = atoi(tz.c_str()) * 3600;
- /*
-  if (time(NULL) < DEF_TIME) {
-    if (ntpId == 0) {
-      configTime(timeZone, 0, ntp1.c_str());
-      ntpId++;
-    } else if (ntpId == 1) {
-      configTime(timeZone, 0, ntp2.c_str());
-      ntpId++;
-    } else {
-      configTime(timeZone, 0, ntp3.c_str());
-      ntpId = 0;
-    }
-  */
   configTime(timeZone, 0, ntp1.c_str(), ntp2.c_str(), ntp3.c_str());
   taskAddWithDelay(syncRTC, NTP_CHECK_DELAY);
   return RUN_DELETE;
@@ -57,14 +44,7 @@ uint32_t initNTP() {
 
 time_t getTime() {
   time_t t = 0;
-/*  if (!rtc.lostPower()) {
-    DateTime now = rtc.now();
-    t = now.unixtime()+timeZone;
-  } else { */
-    //if (status.ntpSync) {
-      t = time(NULL);
-    //}
-//  }
+  t = time(NULL);
   return t % 86400;
 }
   

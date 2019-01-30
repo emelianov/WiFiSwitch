@@ -19,15 +19,18 @@ uint32_t replyTask() {
       WDEBUG("GW failed. Restarting Wi-Fi...\n");
       pingRetry = PING_COUNT;
       taskAdd(wifiStart);
+      return RUN_DELETE;
     } else {
       WDEBUG("GW failed. Attempts left: %d\n", pingRetry);
       taskAddWithDelay(pingTask, PING_RETRY);
+      return RUN_DELETE;
     }
   } else {
     pingRetry = PING_COUNT;
     WDEBUG("GW is OK\n");
+    taskAddWithDelay(pingTask, PING_DEFAULT);
+    return RUN_DELETE;
   }
-  taskAddWithDelay(pingTask, PING_DEFAULT);
   return RUN_DELETE;
 }
 

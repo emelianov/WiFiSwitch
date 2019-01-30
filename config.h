@@ -158,7 +158,7 @@ uint32_t saveConfig() {
   //    sprintf_P(buf, PSTR("<ip>%s</ip><mask>%s</mask>\n<gw>%s</gw>\n<dns>%s</dns>"), ip.c_str(), mask.c_str(), gw.c_str(), dns.c_str());
   //    configFile.write((uint8_t*)buf, strlen(buf));
   //  }
-    sprintf_P(buf, PSTR("<name>%s</name><ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone></config>"), sysName.c_str(), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt());
+    sprintf_P(buf, PSTR("<version>%s</version><name>%s</name><ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone></config>"), VERSION, sysName.c_str(), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt());
     configFile.write((uint8_t*)buf, strlen(buf));
     configFile.close();
    }

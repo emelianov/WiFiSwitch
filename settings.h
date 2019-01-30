@@ -1,17 +1,15 @@
 #pragma once
 // Settings mostly for AC power meter
 
-// Switch to debug NodeNCU 1.0 mode
-// If not defined -- production WeMos mini
-//#define WFS_DEBUG
-
-
 #define MCP_COUNT 3
 
 // Voltage/Current aproximation window size
 #define APPROX_WINDOW 5
 
-#ifdef WFS_DEBUG
+// Switch to debug NodeNCU 1.0 mode
+// If not defined -- production WeMos mini
+#ifdef ARDUINO_ESP8266_NODEMCU
+ #define WFS_DEBUG
 //Debug settings
  #define WDEBUG(format, ...) Serial.printf_P(PSTR(format), ##__VA_ARGS__);
 
@@ -37,15 +35,16 @@
 
 // MCP3221 addresses
  #define MCP_V 0x4E
- #define MCP_1 0x4F
- #define MCP_3 0x4C
- #define MCP_0 0x4D
+ #define MCP_0 0x4C
+ #define MCP_1 0x4D
+ #define MCP_3 0x4F
+
 // Noise truncation level
  #define NOISE_FLOOR 2
 // Voltage callibration
- #define DEF_VCAL     0.328
+ #define DEF_VCAL     112.5
 // Current callibration
- #define DEF_ICAL    2.6
+ #define DEF_ICAL    17.3
 // Voltage shift callibration
  #define DEF_PHASECAL  1
 // ADC power voltage

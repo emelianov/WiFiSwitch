@@ -124,7 +124,7 @@ uint32_t queryA0() {
   filteredV = fV[2];
   for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
     sampleV = fV[i];
-    sampleI = - fI[i];
+    sampleI = fI[i];
     lastFilteredV = filteredV;               //Used for delay/phase compensation
     //-----------------------------------------------------------------------------
     // B) Apply digital low pass filters to extract the 2.5 V or 1.65 V dc offset,

@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-#define VERSION "0.7.3"
+const char* VERSION = "0.7.4";
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -62,7 +62,6 @@ String ntp3 = "time.apple.com";
 String tz   = "5";
 String admin = "admin";
 String pass = "password";
-//float amps = 0;     // Current value from A0
 String sysName = "socket";
 uint32_t wifiStart();
 
@@ -91,9 +90,7 @@ uint32_t wifiWait() {
   if(WiFi.status() != WL_CONNECTED) {
     if (waitWF <= WIFI_CHECK_COUNT) {
       WDEBUG(".");
-      //if (waitWF > 0) {
-        waitWF++;
-      //}
+      waitWF++;
       return WIFI_CHECK_DELAY;
     } else {
       waitWF = 1;
@@ -108,13 +105,14 @@ uint32_t wifiWait() {
    #endif
     event.wifiConnected++;
     randomSeed(millis());
-    //taskAdd(initPing);
+    taskAdd(initPing);
   }
   return RUN_DELETE;
 }
 void cbSaveParams() {
   event.saveParams++;
 }
+
 void cbConnected(WiFiManager *wfm) {
 }
 
@@ -138,25 +136,16 @@ uint32_t wifiManager() {
   wifiManager.setTimeout(120);
   wifiManager.addParameter(&pNameT);
   wifiManager.addParameter(&pName);
-  //wifiManager.setConnectTimeout(WIFI_CHECK_DELAY * WIFI_CHECK_COUNT);
-  //while(
-  //  wifiManager.autoConnect()) {
-    char apname[sizeof(WIFI_SETUP_AP)+5];
-    byte mac[6];
-    WiFi.macAddress(mac);
-    sprintf(apname, "%s%02X%02X", WIFI_SETUP_AP, mac[4], mac[5]);
-    wifiManager.startConfigPortal(apname);
-    //wifiManager.startConfigPortal(WIFI_SETUP_AP);//) {
-    WDEBUG("Connected to %s\n", WiFi.SSID().c_str());
-    //event.wifiConnected++;
-  //} 
-  //if you get here you have connected to the WiFi
-  if (event.saveParams > 0) {
-     sysName = pName.getValue();
-     saveConfig();
-     delay(1000);
-     ESP.restart();
-  }
+  char apname[sizeof(WIFI_SETUP_AP)+5];
+  byte mac[6];
+  WiFi.macAddress(mac);
+  sprintf_P(apname, PSTR("%s%02X%02X"), WIFI_SETUP_AP, mac[4], mac[5]);
+  wifiManager.startConfigPortal(apname);
+  WDEBUG("Connected to %s\n", WiFi.SSID().c_str());
+  sysName = pName.getValue();
+  saveConfig();
+  delay(1000);
+  ESP.restart();
   RUN_DELETE;
 }
 
