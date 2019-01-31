@@ -42,11 +42,11 @@
 // Noise truncation level
  #define NOISE_FLOOR 2
 // Voltage callibration
- #define DEF_VCAL     112.5
+ #define DEF_VCAL     125.8
 // Current callibration
- #define DEF_ICAL    17.3
+ #define DEF_ICAL    18.9
 // Voltage shift callibration
  #define DEF_PHASECAL  1
 // ADC power voltage
- #define DEF_SUPPLY   3300
+ #define DEF_SUPPLY   3000
 #endif

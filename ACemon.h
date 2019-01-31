@@ -41,39 +41,32 @@ uint32_t initA0() {
 }
 
 
-    long readVcc();
-    //Calibration coefficients
-    //These need to be set in order to obtain accurate results
-    float VCAL = DEF_VCAL;
-    float ICAL = DEF_ICAL;
-    float PHASECAL = DEF_PHASECAL;
+//Calibration coefficients
+//These need to be set in order to obtain accurate results
+float VCAL = DEF_VCAL;
+float ICAL = DEF_ICAL;
+float PHASECAL = DEF_PHASECAL;
 
-    //--------------------------------------------------------------------------------------
-    // Variable declaration for emon_calc procedure
-    //--------------------------------------------------------------------------------------
- 
 uint32_t queryA0() { 
+  //--------------------------------------------------------------------------------------
+  // Variable declaration for emon_calc procedure
+  //--------------------------------------------------------------------------------------
+
   int16_t* fV;
   int16_t* fI;
   int SupplyVoltage=DEF_SUPPLY;
-  //int SupplyVoltage = readVcc();
   const uint16_t timeout = 300; // Exact count of periods for 50 and 60Hz both
-    int sampleV;                        //sample_ holds the raw analog read value
-    int sampleI;
+  int sampleV;                        //sample_ holds the raw analog read value
+  int sampleI;
 
-    float lastFilteredV,filteredV;          //Filtered_ is the raw analog value minus the DC offset
-    float filteredI;
-    float offsetV;                          //Low-pass filter output
-    float offsetI;                          //Low-pass filter output
+  float lastFilteredV,filteredV;          //Filtered_ is the raw analog value minus the DC offset
+  float filteredI;
+  float offsetV;                          //Low-pass filter output
+  float offsetI;                          //Low-pass filter output
 
-    float phaseShiftedV;                             //Holds the calibrated phase shifted voltage.
+  float phaseShiftedV;                             //Holds the calibrated phase shifted voltage.
 
-    float sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
-
-    int startV;                                       //Instantaneous voltage at start of sample window.
-
-    boolean lastVCross, checkVCross;                  //Used to measure number of times threshold is crossed.
-
+  float sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
 
   unsigned int crossCount = 0;                             //Used to measure number of times threshold is crossed.
   unsigned int numberOfSamples = 0;                        //This is now incremented
@@ -85,6 +78,7 @@ uint32_t queryA0() {
   //-------------------------------------------------------------------------------------------------------------------------
   // 2) Main measurement loop
   //-------------------------------------------------------------------------------------------------------------------------
+  SupplyVoltage = ESP.getVcc();
   unsigned long start = millis();    //millis()-start makes sure it doesnt get stuck in the loop if there is an error.
   
   while ((millis() - start) < timeout && numberOfSamples < F_COUNT) // control numberOfSmples just to escape overflow
@@ -165,7 +159,7 @@ uint32_t queryA0() {
   //-------------------------------------------------------------------------------------------------------------------------
   //Calculation of the root of the mean of the voltage and current squared (rms)
   //Calibration coefficients applied.
-  history[h][ch].Vcc = ESP.getVcc();
+  history[h][ch].Vcc = SupplyVoltage;
   float V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
   history[h][ch].Vrms = V_RATIO * sqrt(sumV / (numberOfSamples - 4));
 

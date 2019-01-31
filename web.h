@@ -879,15 +879,15 @@ void handleHistory() {
     for (uint8_t j = 0; j < MCP_COUNT; j++) {
       String csv1 = String(history[i][j].Vcc);
       csv1 += ",";
-      csv1 += String(history[i][j].realPower);
+      csv1 += String(history[i][j].realPower, 5);
       csv1 += ",";
-      csv1 += String(history[i][j].apparentPower);
+      csv1 += String(history[i][j].apparentPower, 5);
       csv1 += ",";
-      csv1 += String(history[i][j].powerFactor);
+      csv1 += String(history[i][j].powerFactor, 5);
       csv1 += ",";
-      csv1 += String(history[i][j].Vrms);
+      csv1 += String(history[i][j].Vrms, 5);
       csv1 += ",";
-      csv1 += String(history[i][j].Irms);
+      csv1 += String(history[i][j].Irms,5);
       csv1 += ",";
       csv += csv1;
     }
