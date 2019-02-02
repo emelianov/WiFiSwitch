@@ -21,10 +21,11 @@
  #define MCP_1 0x4A
  #define MCP_3 0x4A
  #define NOISE_FLOOR 2
- #define DEF_VCAL     90
+ #define DEF_VCAL     90*60
  #define DEF_ICAL     900
  #define DEF_PHASECAL  1
  #define DEF_SUPPLY   3300
+ #define VOLTAGE 220
 
 #else
 //Production settings
@@ -42,11 +43,13 @@
 // Noise truncation level
  #define NOISE_FLOOR 2
 // Voltage callibration
- #define DEF_VCAL     125.8
+ #define DEF_VCAL     121.6
 // Current callibration
- #define DEF_ICAL    18.9
+ #define DEF_ICAL    20.8
 // Voltage shift callibration
  #define DEF_PHASECAL  1
 // ADC power voltage
  #define DEF_SUPPLY   3000
+// Wall AC voltage
+ #define VOLTAGE 110
 #endif

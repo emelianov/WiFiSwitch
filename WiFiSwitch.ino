@@ -82,7 +82,10 @@ uint32_t wifiStart() {
   WiFi.begin();
   waitWF = 1;
   taskAddWithDelay(wifiWait, WIFI_CHECK_DELAY);
-  WDEBUG("Connecting to %s\n", WiFi.SSID().c_str());
+ #ifdef WFS_DEBUG
+  String ssid = WiFi.SSID();
+  WDEBUG("Connecting to %s\n", ssid.c_str());
+ #endif
   return RUN_DELETE;
 }
 
