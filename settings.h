@@ -26,6 +26,7 @@
  #define DEF_PHASECAL  1
  #define DEF_SUPPLY   3300
  #define VOLTAGE 220
+ #define HZ 50
 
 #else
 //Production settings
@@ -43,13 +44,14 @@
 // Noise truncation level
  #define NOISE_FLOOR 2
 // Voltage callibration
- #define DEF_VCAL     121.6
+ #define DEF_VCAL     150.0
 // Current callibration
  #define DEF_ICAL    20.8
 // Voltage shift callibration
  #define DEF_PHASECAL  1
 // ADC power voltage
  #define DEF_SUPPLY   3000
-// Wall AC voltage
+// Wall AC voltage params
  #define VOLTAGE 110
+ #define HZ 60
 #endif

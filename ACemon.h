@@ -9,6 +9,12 @@
   modified to use up to 12 bits ADC resolution (ex. Arduino Due)
   by boredman@boredomprojects.net 26.12.2013
   Low Pass filter for offset removal replaces HP filter 1/1/2015 - RW
+
+  Filterring is based on
+  https://www.norwegiancreations.com/2016/03/arduino-tutorial-simple-high-pass-band-pass-and-band-stop-filtering/
+  
+  Constants aligned for 60Hz
+
 */
 
 #include "mcp3221.h"
@@ -42,7 +48,7 @@ uint32_t initA0() {
 }
 
 
-//Calibration coefficients
+//Calibration constants
 //These need to be set in order to obtain accurate results
 float VCAL = DEF_VCAL;
 float ICAL = DEF_ICAL;
@@ -111,14 +117,36 @@ uint32_t queryA0() {
     fI[i] = (fI[i - 2] + fI[i - 1] + fI[i] + fI[i  + 1] + fI[i + 2])/5;
   }
   // Second approximation pass
+/*
   for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
     fV[i] = (fV[i - 2] + fV[i - 1] + fV[i] + fV[i  + 1] + fV[i + 2])/5;
     fI[i] = (fI[i - 2] + fI[i - 1] + fI[i] + fI[i  + 1] + fI[i + 2])/5;
   }
-  
-  filteredV =(abs(fV[2]) > NOISE_FLOOR)?fV[2]:0;
-  filteredV *= VTUNE;
+*/
+ 
+  float EMA_a_low = 0.001;    // initialization of EMA alpha
+  float EMA_a_high = 0.1;     // idencical for V and I both to get the same phase shift
+ 
+  float EMA_S_lowV = 0;       //initialization of EMA S
+  float EMA_S_highV = 0;      // for V
+  float EMA_S_lowI = 0;       //initialization of EMA S
+  float EMA_S_highI = 0;      //for I
+  //run the EMA
   for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
+    EMA_S_lowV = (EMA_a_low * fV[i]) + ((1-EMA_a_low) * EMA_S_lowV);
+    EMA_S_highV = (EMA_a_high * fV[i]) + ((1-EMA_a_high) * EMA_S_highV);
+    fV[i] = EMA_S_highV - EMA_S_lowV;      // find the band-pass
+
+    EMA_S_lowI = (EMA_a_low * fI[i]) + ((1-EMA_a_low) * EMA_S_lowI);
+    EMA_S_highI = (EMA_a_high * fI[i]) + ((1-EMA_a_high) * EMA_S_highI);
+    fI[i] = EMA_S_highI - EMA_S_lowI;      // find the band-pass
+  }
+
+  uint16_t strip = numberOfSamples * 1000 / (timeout * HZ);
+  Serial.println(strip);
+  //filteredV =(abs(fV[2]) > NOISE_FLOOR)?fV[2]:0;
+  filteredV = VTUNE * fV[strip];
+  for (uint16_t i = strip; i < numberOfSamples - strip; i++) {
     sampleV = fV[i];
     sampleI = fI[i];
     lastFilteredV = filteredV;               //Used for delay/phase compensation
@@ -164,13 +192,13 @@ uint32_t queryA0() {
   //Calibration coefficients applied.
   history[h][ch].Vcc = SupplyVoltage;
   float V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  history[h][ch].Vrms = V_RATIO * sqrt(sumV / (numberOfSamples - 4));
+  history[h][ch].Vrms = V_RATIO * sqrt(sumV / (numberOfSamples -2 *  strip));
 
   float I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  history[h][ch].Irms = I_RATIO * sqrt(sumI / (numberOfSamples - 4));
+  history[h][ch].Irms = I_RATIO * sqrt(sumI / (numberOfSamples - 2 * strip));
 
   //Calculation power values
-  history[h][ch].realPower = V_RATIO * I_RATIO * sumP / (numberOfSamples - 4);
+  history[h][ch].realPower = V_RATIO * I_RATIO * sumP / (numberOfSamples - 2 * strip);
   history[h][ch].apparentPower = history[h][ch].Vrms * history[h][ch].Irms;
   history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
   history[h][ch].Vtune = VTUNE;
