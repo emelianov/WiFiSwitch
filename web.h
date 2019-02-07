@@ -869,12 +869,12 @@ void handleSamples() {
 void handleHistory() {
   String csv;
   
-  csv += F("Vcc_1,realPower_0,apparentPower_0,powerFactor_0,Vrms_0,Irms_0,Vtune,");
-  csv += F("Vcc_1,realPower_1,apparentPower_1,powerFactor_1,Vrms_1,Irms_1,Vtune,");
-  csv += F("Vcc_1,realPower_2,apparentPower_2,powerFactor_2,Vrms_2,Irms_2,Vtune\n");
+  csv += F("Vcc_1,realPower_0,apparentPower_0,powerFactor_0,Vrms_0,Irms_0,Vtune_0,Itune_0,");
+  csv += F("Vcc_1,realPower_1,apparentPower_1,powerFactor_1,Vrms_1,Irms_1,Vtune_1,Itune_1,");
+  csv += F("Vcc_1,realPower_2,apparentPower_2,powerFactor_2,Vrms_2,Irms_2,Vtune_2,Itune_2\n");
   for (uint16_t i = 0; i < HISTORY; i++) {
     if (i == l) {
-      csv += "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n";
+      csv += "0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0\n";
     }
     for (uint8_t j = 0; j < MCP_COUNT; j++) {
       String csv1 = String(history[i][j].Vcc);
@@ -890,6 +890,8 @@ void handleHistory() {
       csv1 += String(history[i][j].Irms,5);
       csv1 += ",";
       csv1 += String(history[i][j].Vtune,5);
+      csv1 += ",";
+      csv1 += String(history[i][j].Itune,5);
       csv1 += ",";
       csv += csv1;
     }

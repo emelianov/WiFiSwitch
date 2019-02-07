@@ -31,6 +31,7 @@ typedef struct power {
   float Irms;
   float Vcc;
   float Vtune;
+  float Itune;
 } power;
 
 power history[HISTORY][MCP_COUNT];
@@ -54,6 +55,7 @@ float VCAL = DEF_VCAL;
 float ICAL = DEF_ICAL;
 float PHASECAL = DEF_PHASECAL;
 float VTUNE = 1.0;
+float ITUNE = 1.0;
 uint32_t queryA0() { 
   //--------------------------------------------------------------------------------------
   // Variable declaration for emon_calc procedure
@@ -159,7 +161,8 @@ uint32_t queryA0() {
     filteredV *= VTUNE;
    // offsetI = offsetI + ((sampleI-offsetI)/4096);
     filteredI = (abs(sampleI) > NOISE_FLOOR)?sampleI:0;// - offsetI;
-
+    filteredI *= ITUNE;
+    
     //-----------------------------------------------------------------------------
     // C) Root-mean-square method voltage
     //-----------------------------------------------------------------------------
@@ -202,8 +205,10 @@ uint32_t queryA0() {
   history[h][ch].apparentPower = history[h][ch].Vrms * history[h][ch].Irms;
   history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
   history[h][ch].Vtune = VTUNE;
-
+  history[h][ch].Itune = ITUNE;
+  
   if (abs(history[h][ch].Vrms - VOLTAGE) < 10) VTUNE = VTUNE * VOLTAGE / history[h][ch].Vrms;
+  ITUNE = (history[h][ch].realPower > 0)?exp(0.5/history[h][ch].realPower):1.0;
   //Reset accumulators
   sumV = 0;
   sumI = 0;
@@ -216,8 +221,9 @@ uint32_t queryA0() {
   String sPowerFactor = String(history[h][ch].powerFactor);
   String sApparentPower = String( history[h][ch].apparentPower);
   String sVtune = String(history[h][ch].Vtune);
-  WDEBUG("Ch: %d, Vrms: %s, Irms: %s, realPower: %s, powerFactor: %s, Samples count: %d, Mem: %d, Vtune: %s\n",
-        ch, sVrms.c_str(), sIrms.c_str(), sRealPower.c_str(), sPowerFactor.c_str(), numberOfSamples, ESP.getFreeHeap(), sVtune.c_str());
+  String sItune = String(history[h][ch].Itune);
+  WDEBUG("Ch: %d, Vrms: %s, Irms: %s, realPower: %s, powerFactor: %s, Samples count: %d, Mem: %d, Vtune: %s, Itune: %s\n",
+        ch, sVrms.c_str(), sIrms.c_str(), sRealPower.c_str(), sPowerFactor.c_str(), numberOfSamples, ESP.getFreeHeap(), sVtune.c_str(), sItune.c_str());
  #endif
   ch++;
   if (ch >= MCP_COUNT) {
