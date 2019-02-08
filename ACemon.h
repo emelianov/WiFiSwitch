@@ -203,12 +203,13 @@ uint32_t queryA0() {
   //Calculation power values
   history[h][ch].realPower = V_RATIO * I_RATIO * sumP / (numberOfSamples - 2 * strip);
   history[h][ch].apparentPower = history[h][ch].Vrms * history[h][ch].Irms;
-  history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
+  if (history[h][ch].apparentPower != 0) history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
   history[h][ch].Vtune = VTUNE;
   history[h][ch].Itune = ITUNE;
   
   if (abs(history[h][ch].Vrms - VOLTAGE) < 10) VTUNE = VTUNE * VOLTAGE / history[h][ch].Vrms;
-  ITUNE = (history[h][ch].realPower > 0)?exp(0.5/history[h][ch].realPower):1.0;
+  if (history[h][ch].realPower > 2) ITUNE = exp(2/history[h][ch].realPower);
+  
   //Reset accumulators
   sumV = 0;
   sumI = 0;
