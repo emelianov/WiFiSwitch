@@ -309,11 +309,16 @@ void ajaxInputs() {
       sequence = server.arg(cArg).toInt();
     }
   }
-
+  float p1 = 0;
+  float p2 = 0;
+  float p3 = 0;
+  if (history[l][0].Irms > I_NOISE_FLOOR && history[l][0].realPower > 0) p1 = history[l][0].realPower;
+  if (history[l][1].Irms > I_NOISE_FLOOR && history[l][1].realPower > 0) p2 = history[l][1].realPower;
+  if (history[l][2].Irms > I_NOISE_FLOOR && history[l][2].realPower > 0) p3 = history[l][2].realPower;
   sprintf_P(p, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d.%02d</analog><analog>%d.%02d</analog><analog>%d.%02d</analog>\n"),
-              abs((int)history[l][0].realPower), abs((int)(history[l][0].realPower*100)%100),
-              abs((int)history[l][1].realPower), abs((int)(history[l][1].realPower*100)%100),
-              abs((int)history[l][2].realPower), abs((int)(history[l][2].realPower*100)%100));
+              abs((int)p1), abs((int)(p1*100)%100),
+              abs((int)p2), abs((int)(p2*100)%100),
+              abs((int)p3), abs((int)(p3*100)%100));
   p += strlen(p);
   //Global feed mode
   sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
@@ -389,7 +394,7 @@ void ajaxInputs() {
   sprintf_P(p, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>\n"),
               pump.c_str(), timeToStr24(wave.period).c_str(), timeToStr(getTime()).c_str(), sequence);
   p += strlen(p);
-  
+  /*
   int16_t* pV = (int16_t*)data;
   int16_t* pI = (int16_t*)data + (SAVE_SAMPLES * sizeof(int16_t));
   for (i = 0; i < SAVE_SAMPLES; i++) {
@@ -398,7 +403,7 @@ void ajaxInputs() {
     p += strlen(p);
   }
   p += strlen(p);
-  
+  */
   sprintf_P(p, PSTR("\n</state>"));
   if (save) {           // If save flag set true queue save state
     taskDel(saveState); // Remove previous save request if any

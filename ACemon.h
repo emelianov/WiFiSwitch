@@ -55,7 +55,7 @@ float VCAL = DEF_VCAL;
 float ICAL = DEF_ICAL;
 float PHASECAL = DEF_PHASECAL;
 float VTUNE = 1.0;
-float ITUNE = 1.0;
+float ITUNE[MCP_COUNT] = {1.0, 1.0, 1.0};
 uint32_t queryA0() { 
   //--------------------------------------------------------------------------------------
   // Variable declaration for emon_calc procedure
@@ -157,11 +157,11 @@ uint32_t queryA0() {
     //     then subtract this - signal is now centred on 0 counts.
     //-----------------------------------------------------------------------------
    // offsetV = offsetV + ((sampleV-offsetV)/4096);
-    filteredV = (abs(sampleV) > NOISE_FLOOR)?sampleV:0;// - offsetV;
+    filteredV = (abs(sampleV) > RAW_NOISE_FLOOR)?sampleV:0;// - offsetV;
     filteredV *= VTUNE;
    // offsetI = offsetI + ((sampleI-offsetI)/4096);
-    filteredI = (abs(sampleI) > NOISE_FLOOR)?sampleI:0;// - offsetI;
-    filteredI *= ITUNE;
+    filteredI = (abs(sampleI) > RAW_NOISE_FLOOR)?sampleI:0;// - offsetI;
+    filteredI *= ITUNE[ch];
     
     //-----------------------------------------------------------------------------
     // C) Root-mean-square method voltage
@@ -203,12 +203,22 @@ uint32_t queryA0() {
   //Calculation power values
   history[h][ch].realPower = V_RATIO * I_RATIO * sumP / (numberOfSamples - 2 * strip);
   history[h][ch].apparentPower = history[h][ch].Vrms * history[h][ch].Irms;
-  if (history[h][ch].apparentPower != 0) history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
+  if (history[h][ch].apparentPower != 0)
+    history[h][ch].powerFactor = history[h][ch].realPower / history[h][ch].apparentPower;
   history[h][ch].Vtune = VTUNE;
-  history[h][ch].Itune = ITUNE;
-  
-  if (abs(history[h][ch].Vrms - VOLTAGE) < 10) VTUNE = VTUNE * VOLTAGE / history[h][ch].Vrms;
-  if (history[h][ch].realPower > 2) ITUNE = exp(2/history[h][ch].realPower);
+  history[h][ch].Itune = ITUNE[ch];
+
+// Automatic Voltage calibration.
+// As Vrms is predefined (110 for USA and 220 for Europe) we can scale measured value. Scaling limited by 10V as bigger difference means something wrong with power network or device.
+  if (abs(history[h][ch].Vrms - VOLTAGE) < 10)
+    VTUNE *= VOLTAGE / history[h][ch].Vrms;
+  else
+    VTUNE = 1.0;
+// Automatic Current calibration.
+// Current amplification function is C = exp(2/(Vrms*Irms/Cx)), Cx -- old C value.
+// Limited by 2W load as data below is unstable.
+  if (history[h][ch].apparentPower/ITUNE[ch] > 2)
+    ITUNE[ch] = exp(2/history[h][ch].apparentPower*ITUNE[ch]);
   
   //Reset accumulators
   sumV = 0;
@@ -223,8 +233,8 @@ uint32_t queryA0() {
   String sApparentPower = String( history[h][ch].apparentPower);
   String sVtune = String(history[h][ch].Vtune);
   String sItune = String(history[h][ch].Itune);
-  WDEBUG("Ch: %d, Vrms: %s, Irms: %s, realPower: %s, powerFactor: %s, Samples count: %d, Mem: %d, Vtune: %s, Itune: %s\n",
-        ch, sVrms.c_str(), sIrms.c_str(), sRealPower.c_str(), sPowerFactor.c_str(), numberOfSamples, ESP.getFreeHeap(), sVtune.c_str(), sItune.c_str());
+  WDEBUG("Ch: %d, Vrms: %s, Irms: %s, apparentPower: %s, powerFactor: %s, Samples count: %d, Mem: %d, Vtune: %s, Itune: %s\n",
+        ch, sVrms.c_str(), sIrms.c_str(), sApparentPower.c_str(), sPowerFactor.c_str(), numberOfSamples, ESP.getFreeHeap(), sVtune.c_str(), sItune.c_str());
  #endif
   ch++;
   if (ch >= MCP_COUNT) {

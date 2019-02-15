@@ -20,7 +20,8 @@
  #define MCP_0 0x4A
  #define MCP_1 0x4A
  #define MCP_3 0x4A
- #define NOISE_FLOOR 2
+ #define RAW_NOISE_FLOOR 2
+ #define I_NOISE_FLOOR 0.01
  #define DEF_VCAL     90*60
  #define DEF_ICAL     900
  #define DEF_PHASECAL  1
@@ -42,9 +43,12 @@
  #define MCP_3 0x4F
 
 // Noise truncation level
- #define NOISE_FLOOR 2
+// Strip level just after ADC
+ #define RAW_NOISE_FLOOR 2
+// Strip level acter calculations
+ #define I_NOISE_FLOOR 0.01
 // Voltage callibration
- #define DEF_VCAL     168.0
+ #define DEF_VCAL     144.5
 // Current callibration
  #define DEF_ICAL    23.0
 // Voltage shift callibration
