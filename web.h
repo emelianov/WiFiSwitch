@@ -309,16 +309,19 @@ void ajaxInputs() {
       sequence = server.arg(cArg).toInt();
     }
   }
-  float p1 = 0;
-  float p2 = 0;
-  float p3 = 0;
-  if (history[l][0].Irms > I_NOISE_FLOOR && history[l][0].realPower > 0) p1 = history[l][0].realPower;
-  if (history[l][1].Irms > I_NOISE_FLOOR && history[l][1].realPower > 0) p2 = history[l][1].realPower;
-  if (history[l][2].Irms > I_NOISE_FLOOR && history[l][2].realPower > 0) p3 = history[l][2].realPower;
+  double p1 = 0;
+  double p2 = 0;
+  double p3 = 0;
+//  if (history[l][0].Irms > I_NOISE_FLOOR && history[l][0].realPower > 0) p1 = history[l][0].realPower;
+//  if (history[l][1].Irms > I_NOISE_FLOOR && history[l][1].realPower > 0) p2 = history[l][1].realPower;
+//  if (history[l][2].Irms > I_NOISE_FLOOR && history[l][2].realPower > 0) p3 = history[l][2].realPower;
+  if (history[l][0].Irms > I_NOISE_FLOOR) p1 = history[l][0].realPower;
+  if (history[l][1].Irms > I_NOISE_FLOOR) p2 = history[l][1].realPower;
+  if (history[l][2].Irms > I_NOISE_FLOOR) p3 = history[l][2].realPower;
   sprintf_P(p, PSTR("<?xml version = \"1.0\" ?>\n<state>\n<analog>%d.%02d</analog><analog>%d.%02d</analog><analog>%d.%02d</analog>\n"),
-              abs((int)p1), abs((int)(p1*100)%100),
-              abs((int)p2), abs((int)(p2*100)%100),
-              abs((int)p3), abs((int)(p3*100)%100));
+              abs((int16_t)p1), abs((int16_t)(p1*100)%100),
+              abs((int16_t)p2), abs((int16_t)(p2*100)%100),
+              abs((int16_t)p3), abs((int16_t)(p3*100)%100));
   p += strlen(p);
   //Global feed mode
   sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),

@@ -24,14 +24,14 @@
 #define ADC_COUNTS (1 << ADC_BITS)
 
 typedef struct power {
-  float realPower;
-  float apparentPower;
-  float powerFactor;
-  float Vrms;
-  float Irms;
-  float Vcc;
-  float Vtune;
-  float Itune;
+  double realPower;
+  double apparentPower;
+  double powerFactor;
+  double Vrms;
+  double Irms;
+  double Vcc;
+  double Vtune;
+  double Itune;
 } power;
 
 power history[HISTORY][MCP_COUNT];
@@ -51,11 +51,11 @@ uint32_t initA0() {
 
 //Calibration constants
 //These need to be set in order to obtain accurate results
-float VCAL = DEF_VCAL;
-float ICAL = DEF_ICAL;
-float PHASECAL = DEF_PHASECAL;
-float VTUNE = 1.0;
-float ITUNE[MCP_COUNT] = {1.0, 1.0, 1.0};
+double VCAL = DEF_VCAL;
+double ICAL = DEF_ICAL;
+double PHASECAL = DEF_PHASECAL;
+double VTUNE = 1.0;
+double ITUNE[MCP_COUNT] = {1.0, 1.0, 1.0};
 uint32_t queryA0() { 
   //--------------------------------------------------------------------------------------
   // Variable declaration for emon_calc procedure
@@ -68,14 +68,16 @@ uint32_t queryA0() {
   int sampleV;                        //sample_ holds the raw analog read value
   int sampleI;
 
-  float lastFilteredV,filteredV;          //Filtered_ is the raw analog value minus the DC offset
-  float filteredI;
-  float offsetV;                          //Low-pass filter output
-  float offsetI;                          //Low-pass filter output
+  double lastFilteredV,filteredV;          //Filtered_ is the raw analog value minus the DC offset
+  double filteredI;
+  double offsetV;                          //Low-pass filter output
+  double offsetI;                          //Low-pass filter output
 
-  float phaseShiftedV;                             //Holds the calibrated phase shifted voltage.
+  double phaseShiftedV;                             //Holds the calibrated phase shifted voltage.
 
-  float sqV,sumV,sqI,sumI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
+  double sqV,sqI,instP,sumP;              //sq = squared, sum = Sum, inst = instantaneous
+  double sumV = 0;
+  double sumI = 0;
 
   unsigned int crossCount = 0;                             //Used to measure number of times threshold is crossed.
   unsigned int numberOfSamples = 0;                        //This is now incremented
@@ -126,13 +128,13 @@ uint32_t queryA0() {
   }
 */
  
-  float EMA_a_low = 0.001;    // initialization of EMA alpha
-  float EMA_a_high = 0.1;     // idencical for V and I both to get the same phase shift
+  double EMA_a_low = 0.001;    // initialization of EMA alpha
+  double EMA_a_high = 0.1;     // idencical for V and I both to get the same phase shift
  
-  float EMA_S_lowV = 0;       //initialization of EMA S
-  float EMA_S_highV = 0;      // for V
-  float EMA_S_lowI = 0;       //initialization of EMA S
-  float EMA_S_highI = 0;      //for I
+  double EMA_S_lowV = 0;       //initialization of EMA S
+  double EMA_S_highV = 0;      // for V
+  double EMA_S_lowI = 0;       //initialization of EMA S
+  double EMA_S_highI = 0;      //for I
   //run the EMA
   for (uint16_t i = 2; i < numberOfSamples - 2; i++) {
     EMA_S_lowV = (EMA_a_low * fV[i]) + ((1-EMA_a_low) * EMA_S_lowV);
@@ -194,10 +196,10 @@ uint32_t queryA0() {
   //Calculation of the root of the mean of the voltage and current squared (rms)
   //Calibration coefficients applied.
   history[h][ch].Vcc = SupplyVoltage;
-  float V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
-  history[h][ch].Vrms = V_RATIO * sqrt(sumV / (numberOfSamples -2 *  strip));
+  double V_RATIO = VCAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
+  history[h][ch].Vrms = V_RATIO * sqrt(sumV / (numberOfSamples - 2 *  strip));
 
-  float I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
+  double I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
   history[h][ch].Irms = I_RATIO * sqrt(sumI / (numberOfSamples - 2 * strip));
 
   //Calculation power values
@@ -230,7 +232,7 @@ uint32_t queryA0() {
   String sIrms = String(history[h][ch].Irms);
   String sRealPower = String(history[h][ch].realPower);
   String sPowerFactor = String(history[h][ch].powerFactor);
-  String sApparentPower = String( history[h][ch].apparentPower);
+  String sApparentPower = String(history[h][ch].apparentPower);
   String sVtune = String(history[h][ch].Vtune);
   String sItune = String(history[h][ch].Itune);
   WDEBUG("Ch: %d, Vrms: %s, Irms: %s, apparentPower: %s, powerFactor: %s, Samples count: %d, Mem: %d, Vtune: %s, Itune: %s\n",
