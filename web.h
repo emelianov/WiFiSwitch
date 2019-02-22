@@ -922,7 +922,7 @@ uint32_t initWeb() {
     server.on("/list", HTTP_GET, listFile);                   // List/Upload/Delete page
     server.on("/delete", HTTP_GET, handleDelete);             // Delete File
     server.on("/edit", HTTP_POST, handleFile, handleFileUpload);    // Upload file
-    server.onNotFound(anyFile);                               // call function anyFile() on any other requests
+    //server.onNotFound(anyFile);                               // call function anyFile() on any other requests => moved to alexa.h
     //server.on("/socket", HTTP_GET, handleOverride);
     server.on("/net", HTTP_POST, handleNetwork);
     server.on("/reboot", HTTP_GET, handleReboot);

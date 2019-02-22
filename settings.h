@@ -11,7 +11,7 @@
 #ifdef ARDUINO_ESP8266_NODEMCU
  #define WFS_DEBUG
 //Debug settings
- #define WDEBUG(format, ...) Serial.printf_P(PSTR(format), ##__VA_ARGS__);
+ #define WDEBUG(format, ...) Serial.printf_P((format), ##__VA_ARGS__);
 
  #define SDA 4
  #define SCL 5

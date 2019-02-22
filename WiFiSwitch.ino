@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-const char* VERSION = "0.7.12";
+const char* VERSION = "0.8.0";
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8
@@ -73,6 +73,7 @@ uint32_t wifiStart();
 #include "discovery.h"
 #include "update.h"
 #include "ping.h"
+#include "alexa.h"
 
 uint8_t waitWF;
 uint32_t wifiStart() {
@@ -201,6 +202,7 @@ void setup() {
   taskAddWithSemaphore(initWeb, &event.wifiConnected);  // Run initWeb() on Wi-Fi connection
   taskAddWithSemaphore(discovery, &event.wifiConnected);
   taskAddWithSemaphore(initUpdate, &event.wifiConnected);
+  taskAddWithSemaphore(initAlexa, &event.wifiConnected);
   //taskAdd(printTime);     //For debug
   taskAdd(checkKey);      // Key query
   taskAddWithSemaphore(keyPressed, &event.keyPressed);  // Run keyPressed() on keyPressed event
