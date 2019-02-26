@@ -355,12 +355,12 @@
             position: fixed;
             top: 0;
         }
-        
+    /*
         .show_nav .btn-group.btn-toggle.realtime {
             right: -75px;
             width: 51px;
         }
-        
+*/
         .default_grey {
             pointer-events: none;
             opacity: 0.42;
@@ -445,7 +445,7 @@ opacity:0.5;pointer-events:none;
         }
         
         .big-chart {
-            height: 180px;
+            height: 250px;
             margin: 0 auto;
             width: 100%;
         }
@@ -1160,18 +1160,7 @@ opacity:0.5;pointer-events:none;
                 <div class="col-sm-4 chart_set_iphone">
                     <div class="set_chart_space1">
                         <div class="chart_space1">
-                            <div class="re">
-                                <h4 class="text-center">
-                                    <div class="btn-group btn-toggle realtime">
-<!--
-                                        <button class="btn btn-xs btn-default">off</button>
-                                        <button class="btn btn-xs btn-success active">live</button>
--->
-                                    </div>
-                                </h4>
-                            </div>
                             <div id="chart1" class="big-chart">
-
                             </div>
                         </div>
                     </div>
@@ -2692,7 +2681,7 @@ opacity:0.5;pointer-events:none;
                 $('.set_chart_space1').each(function() {
                     var topDistance = $(this).offset().top;
                     
-                    if ((topDistance + 1) < scrollTop && scrollTop < 1500) {
+                    if ((topDistance + 1) < scrollTop) {
                         $('.chart_space1').addClass('show_nav');
 
                     } else {
@@ -2832,14 +2821,14 @@ opacity:0.5;pointer-events:none;
                 changeStateWave && (changeStateWave = !1, n += "W=" + docWave.value + "&")
                 if (n.length > 0) n += "SEQ=" + sequence;
             }
-            console.log(n),
-                t.open("GET", "/ajax_inputs?" + n + e, !0),
-                t.send(null),
-                strWaveSelection = "";
+            //console.log(n),
+            t.open("GET", "/ajax_inputs?" + n + e, !0);
+            t.send(null);
+            strWaveSelection = "";
             setTimeout("GetArduinoIO()", 1e3)
         }
 
-        function rawDataUpdate(x, y) {
+        function RawDataUpdate(x, y) {
             for (var i = 0; i < x.length; i++) {
             //x[i].childNodes[0].nodeValue
             //y[i].childNodes[0].nodeValue
@@ -3436,217 +3425,221 @@ opacity:0.5;pointer-events:none;
 
 
     <script type='text/javascript'>
-        var plot, plot1, plot2;
         $(document).ready(function() {
+            $.getScript('https://www.amcharts.com/lib/4/core.js', function() {
+                $.getScript('https://www.amcharts.com/lib/4/charts.js', function() {
+                    $.getScript('https://www.amcharts.com/lib/4/themes/animated.js', function() {
+                        // Themes begin
+                        am4core.useTheme(am4themes_animated);
+                        // Themes end
 
-            $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.min.js', function() {
-                $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.pie.min.js', function() {
-                    $.getScript('http://cdnjs.cloudflare.com/ajax/libs/flot/0.8.2/jquery.flot.resize.min.js', function() {
+                        var chart = am4core.create("chart1", am4charts.XYChart);
+                        chart.hiddenState.properties.opacity = 0;
+                        chart.padding(0, 0, 0, 0);
+                        chart.zoomOutButton.disabled = true;
+                        //chart.colors.step = 100;
+                        chart.legend = new am4charts.Legend();
 
-                        // styles for all charts
-                        gridStyle = {
-                            borderColor: '#ddd',
-                            borderWidth: 1,
-                            hoverable: true,
-                            clickable: true
-                        };
+                        var data = [];
+                        var i = 0;
 
-                        // static charts
-                        var d1 = [];
-                        for (var i = 0; i < 14; i += 0.2) {
-                            d1.push([i, Math.sin(i)]);
+                        for (i = 0; i <= 30; i++) {
+                            //visits -= Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 10);
+                            data.push({ date: new Date().setSeconds(i - 30), value: 0, value2: 0, value3: 0 });
                         }
-                        var d2 = [
-                            [0, 3],
-                            [4, 8],
-                            [8, 5],
-                            [9, 13]
-                        ];
-                        var d3 = [
-                            [0, 12],
-                            [7, 12],
-                            [12, 13]
-                        ];
+
+                        chart.data = data;
+
+                        var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
+                        dateAxis.renderer.grid.template.location = 0;
+                        dateAxis.renderer.minGridDistance = 30;
+                        dateAxis.dateFormats.setKey("second", "ss");
+                        dateAxis.periodChangeDateFormats.setKey("second", "[bold]h:mm a");
+                        dateAxis.periodChangeDateFormats.setKey("minute", "[bold]h:mm a");
+                        dateAxis.periodChangeDateFormats.setKey("hour", "[bold]h:mm a");
+                        dateAxis.renderer.inside = true;
+                        dateAxis.renderer.axisFills.template.disabled = true;
+                        dateAxis.renderer.ticks.template.disabled = true;
+                        
+                        seriesColor = am4core.color("red");
+                        series2Color = am4core.color("green");
+                        series3Color = am4core.color("blue");
+
+                        var valueAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                        valueAxis.tooltip.disabled = true;
+                        valueAxis.interpolationDuration = 500;
+                        valueAxis.rangeChangeDuration = 500;
+                        valueAxis.renderer.inside = true;
+                        valueAxis.renderer.minLabelPosition = 0.05;
+                        valueAxis.renderer.maxLabelPosition = 0.95;
+                        valueAxis.renderer.axisFills.template.disabled = true;
+                        valueAxis.renderer.ticks.template.disabled = true;
+                        valueAxis.color = seriesColor;
+                        valueAxis.stroke = seriesColor;
+                        valueAxis.title.text = "Total Watt";
+
+                        var rightAxis = chart.yAxes.push(new am4charts.ValueAxis());
+                        rightAxis.tooltip.disabled = true;
+                        rightAxis.interpolationDuration = 500;
+                        rightAxis.rangeChangeDuration = 500;
+                        rightAxis.renderer.inside = true;
+                        rightAxis.renderer.minLabelPosition = 0.05;
+                        rightAxis.renderer.maxLabelPosition = 0.95;
+                        rightAxis.renderer.axisFills.template.disabled = true;
+                        rightAxis.renderer.ticks.template.disabled = true;
+                        rightAxis.renderer.opposite = true;
+                        //rightAxis.fill = series2Color;
+                        //rightAxis.stroke = series2Color;
+                        rightAxis.title.text = "Watt";
 
 
-                        // real-time chart
-                        // we use an inline data source in the example, usually data would
-                        // be fetched from a server
-                        var data = [[],[],[]]
-                            totalPoints = 200;
+                        var series = chart.series.push(new am4charts.LineSeries());
+                        series.dataFields.dateX = "date";
+                        series.dataFields.valueY = "value";
+                        series.interpolationDuration = 500;
+                        series.defaultState.transitionDuration = 0;
+                        series.tensionX = 0.8;
+                        series.yAxis = valueAxis;
+                        series.name = "Total Watt";
+                        series.tooltipText = "{name}: [bold]{valueY}[/]";
+                        series.stroke = seriesColor;
 
-                        function getRandomData(a) {
+                        var series2 = chart.series.push(new am4charts.LineSeries());
+                        series2.dataFields.dateX = "date";
+                        series2.dataFields.valueY = "value2";
+                        series2.interpolationDuration = 500;
+                        series2.defaultState.transitionDuration = 0;
+                        series2.tensionX = 0.8;
+                        series2.yAxis = rightAxis;
+                        series2.name = $(document.getElementsByClassName("socket_name"))[6 * 2].innerHTML;
+                        series2.tooltipText = "{name}: [bold]{valueY}[/]";
+                        //seriae2.fill = series2Color;
+                        series2.stroke = series2Color;
 
-                            if (data[a].length > 0)
-                                data[a] = data[a].slice(1);
+                        var series3 = chart.series.push(new am4charts.LineSeries());
+                        series3.dataFields.dateX = "date";
+                        series3.dataFields.valueY = "value3";
+                        series3.interpolationDuration = 500;
+                        series3.defaultState.transitionDuration = 0;
+                        series3.tensionX = 0.8;
+                        series3.yAxis = rightAxis;
+                        series3.name = $(document.getElementsByClassName("socket_name"))[7 * 2].innerHTML;
+                        series3.tooltipText = "{name}: [bold]{valueY}[/]";
+                        //series3.fill = series3Color;
+                        series3.stroke = series3Color;
 
-                            // do a random walk
-                            while (data[a].length < totalPoints) {
-                                var prev = data[a].length > 0 ? data[a][data[a].length - 1] : 0;
-                                //var y = prev + Math.random() * 10-5;
-                                if (a == 0)
-                                    var y = document.getElementsByClassName("analog")[0].innerHTML;
-                                else if (a == 1)
-                                    var y = document.getElementsByClassName("analog")[6].innerHTML;
-                                else if (a == 2)
-                                    var y = document.getElementsByClassName("analog")[7].innerHTML;
-                                if (y < 0)
-                                    y = 0;
-                                if (y > 5000)
-                                    y = 5000;
-                                if (plot != undefined && plot1 != undefined && plot2 != undefined && 
-                                    (
-                                        (y > plot.getAxes().yaxis.options.max || y < 0.9 * plot.getAxes().yaxis.options.max) ||
-                                        (y > plot1.getAxes().yaxis.options.max || y < 0.9 * plot1.getAxes().yaxis.options.max) ||
-                                        (y > plot2.getAxes().yaxis.options.max || y < 0.9 * plot2.getAxes().yaxis.options.max)
-                                    )
-                                    ) {
-                                    plot.getAxes().yaxis.options.min = 0;
-                                    plot.getAxes().yaxis.options.max = (Math.trunc(y / 10) + 1) * 10;
-                                    plot.setupGrid();
-                                    plot1.getAxes().yaxis.options.min = 0;
-                                    plot1.getAxes().yaxis.options.max = (Math.trunc(y / 10) + 1) * 10;
-                                    plot1.setupGrid();
-                                    plot2.getAxes().yaxis.options.min = 0;
-                                    plot2.getAxes().yaxis.options.max = (Math.trunc(y / 10) + 1) * 10;;
-                                    plot2.setupGrid();
-                                    //plot.draw();
+
+                        chart.events.on("datavalidated", function () {
+                            dateAxis.zoom({ start: 1 / 15, end: 1.2 }, false, true);
+                        });
+
+                        dateAxis.interpolationDuration = 500;
+                        dateAxis.rangeChangeDuration = 500;
+
+                        document.addEventListener("visibilitychange", function() {
+                            if (document.hidden) {
+                                if (interval) {
+                                    clearInterval(interval);
                                 }
-                                data[a].push(Math.round(y * 20) / 20);
-                            }
-
-                            // zip the generated y values with the x values
-                            var res = [];
-                            for (var i = 0; i < data[a].length; ++i) {
-                                res.push([i, data[a][i]])
-                            }
-                            return res;
-
-
-                        }
-
-                        // setup control widget
-                        var updateInterval = 300;
-                        $("#updateInterval").val(updateInterval).change(function() {
-                            var v = $(this).val();
-                            if (v && !isNaN(+v)) {
-                                updateInterval = +v;
-                                if (updateInterval < 1)
-                                    updateInterval = 1;
-                                if (updateInterval > 2000)
-                                    updateInterval = 2000;
-                                $(this).val("" + updateInterval);
-                            }
-                        });
-
-                        // realtime plot
-                        var options = {
-                            grid: gridStyle,
-                            //series:{shadowSize:0,lines:{show:true,fill:true,fillColor:'rgba(40,200,40,.5)'},color:'#5cb85c'},
-                            series: {
-                                shadowSize: 0,
-                                lines: {
-                                    show: true,
-                                    fill: true,
-                                    fillColor: 'rgba(200,220,200,.6)'
-                                },
-                                color: '#99bb99'
-                            },
-                            yaxis: {
-                                min: 0,
-                                max: 5,
-                                font: '#ddd'
-                            },
-                            //xaxis:{show:true}
-                            xaxis: {
-                                ticks: [
-                                    [0, '65 sec'],
-                                    [30, '55 sec'],
-                                    [60, '45 sec'],
-                                    [90, '35 sec'],
-                                    [120, '25 sec'],
-                                    [150, '15 sec'],
-                                    [180, '5 sec']
-                                ]
-                            }
-                        };
-
-                        //var plot = $.plot($("#chart1"), [getRandomData()], options);
-                        plot = $.plot($("#chart1"), [getRandomData(0)], options);
-                        plot1 = $.plot($("#chart2"), [getRandomData(1)], options);
-                        plot2 = $.plot($("#chart3"), [getRandomData(2)], options);
-                        var realTime;
-
-                        function update() {
-                            plot.setData([getRandomData(0), 100]);
-                            plot.draw();
-                            plot1.setData([getRandomData(1), 100]);
-                            plot1.draw();
-                            plot2.setData([getRandomData(2), 100]);
-                            plot2.draw();
-                            realTime = setTimeout(update, updateInterval);
-                        }
-
-                        update();
-
-                        $("#chart1").bind("plothover", function(event, pos, item) {
-                            $("#tooltip").remove();
-                            if (item) {
-                                var tooltip = item.series.data[item.dataIndex][1];
-                                $('<a href="#" class="tooltip" id="tooltip">' + tooltip + '</a>')
-                                    .css({
-                                        top: item.pageY + 5,
-                                        left: item.pageX + 5
-                                    })
-                                    .appendTo("body").fadeIn(200);
-                            }
-                        });
-                        $("#chart2").bind("plothover", function(event, pos, item) {
-                            $("#tooltip").remove();
-                            if (item) {
-                                var tooltip = item.series.data[item.dataIndex][1];
-                                $('<a href="#" class="tooltip" id="tooltip">' + tooltip + '</a>')
-                                    .css({
-                                        top: item.pageY + 5,
-                                        left: item.pageX + 5
-                                    })
-                                    .appendTo("body").fadeIn(200);
-                            }
-                        });
-                        $("#chart3").bind("plothover", function(event, pos, item) {
-                            $("#tooltip").remove();
-                            if (item) {
-                                var tooltip = item.series.data[item.dataIndex][1];
-                                $('<a href="#" class="tooltip" id="tooltip">' + tooltip + '</a>')
-                                    .css({
-                                        top: item.pageY + 5,
-                                        left: item.pageX + 5
-                                    })
-                                    .appendTo("body").fadeIn(200);
-                            }
-                        });
-
-                        $('.realtime1').click(function() {
-                            var activeBtn = $(this).find(".active");
-
-                            if (activeBtn.text() === "off") {
-                                update();
-                                $(this).find(":contains('off')").removeClass("btn-danger");
                             } else {
-                                clearTimeout(realTime);
-                                $(this).find(":contains('off')").addClass("btn-danger");
+                                startInterval();
                             }
+                        }, false);
 
-                            $('.realtime>.btn').toggleClass("active btn-success");
+                        // add data
+                        var interval;
+                        function startInterval() {
+                            interval = setInterval(function() {
+                            //visits = visits + Math.round((Math.random() < 0.5 ? 1 : -1) * Math.random() * 5);
+                            visits = Math.round(document.getElementsByClassName("analog")[0].innerHTML);
+                            visits2 = Math.round(document.getElementsByClassName("analog")[6].innerHTML);
+                            visits3 = Math.round(document.getElementsByClassName("analog")[7].innerHTML);
+                            var lastdataItem = series.dataItems.getIndex(series.dataItems.length - 1);
+                            chart.addData( { date: new Date(lastdataItem.dateX.getTime() + 1000), value: visits, value2: visits2, value3: visits3 }, 1);
+                        }, 1000);
+                        }
 
-                        }); //toggle click
+                        startInterval();
 
+                        // all the below is optional, makes some fancy effects
+                        // gradient fill of the series
+                        //series.fillOpacity = 1;
+                        //var gradient = new am4core.LinearGradient();
+                        //gradient.addColor(chart.colors.getIndex(0), 0.2);
+                        //gradient.addColor(chart.colors.getIndex(0), 0);
+                        //series.fill = gradient;
+
+                        // this makes date axis labels to fade out
+                        dateAxis.renderer.labels.template.adapter.add("fillOpacity", function (fillOpacity, target) {
+                            var dataItem = target.dataItem;
+                            return dataItem.position;
+                        })
+
+                        // need to set this, otherwise fillOpacity is not changed and not set
+                        dateAxis.events.on("validated", function () {
+                            am4core.iter.each(dateAxis.renderer.labels.iterator(),
+                                function (label) {
+                                    label.fillOpacity = label.fillOpacity;
+                                })
+                        })
+
+                        // this makes date axis labels which are at equal minutes to be rotated
+                        dateAxis.renderer.labels.template.adapter.add("rotation", function (rotation, target) {
+                            var dataItem = target.dataItem;
+                            if (dataItem.date && dataItem.date.getTime() == am4core.time.round(new Date(dataItem.date.getTime()), "minute").getTime()) {
+                                target.verticalCenter = "middle";
+                                target.horizontalCenter = "left";
+                                return -90;
+                            } else {
+                                target.verticalCenter = "bottom";
+                                target.horizontalCenter = "middle";
+                                return 0;
+                            }
+                        })
+
+                        // bullet at the front of the line
+                        var bullet = series.createChild(am4charts.CircleBullet);
+                        bullet.circle.radius = 3;
+                        bullet.fillOpacity = 1;
+                        bullet.fill = seriesColor;
+                        bullet.isMeasured = false;
+                        series.events.on("validated", function() {
+                            bullet.moveTo(series.dataItems.last.point);
+                            bullet.validatePosition();
+                        });
+
+                        var bullet2 = series2.createChild(am4charts.CircleBullet);//(am4core.Rectangle);
+                        //bullet2.width = 5;
+                        //bullet2.height = 5;
+                        //bullet2.width = 5;
+                        //bullet2.height = 5;
+                        bullet2.circle.radius = 3;
+                        bullet2.fillOpacity = 1;
+                        bullet2.fill = series2Color;
+                        bullet2.isMeasured = false;
+                        series2.events.on("validated", function() {
+                            bullet2.moveTo(series2.dataItems.last.point);
+                            //bullet2.moveBy(am4core.Point);
+                            bullet2.validatePosition();
+                        });
+
+                        var bullet3 = series3.createChild(am4charts.CircleBullet);//(am4core.Triangle);
+                        //bullet3.stroke = interfaceColors.getFor("background");
+                        //bullet3.strokeWidth = 2;
+                        //bullet3.direction = "top";
+                        //bullet3.width = 7;
+                        //bullet3.height = 7;
+                        bullet3.circle.radius = 3;
+                        bullet3.fillOpacity = 1;
+                        bullet3.fill = series3Color;
+                        bullet3.isMeasured = false;
+                        series3.events.on("validated", function() {
+                            bullet3.moveTo(series3.dataItems.last.point);
+                            bullet3.validatePosition();
+                        });
                     }); // end getScript (resize)
                 }); // end getScript (pie)
             }); // end getScript
-
-
-
         });
 
         $(document).ready(function() {

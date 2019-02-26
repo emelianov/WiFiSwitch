@@ -37,7 +37,6 @@ void anyFile(); //From web.h
 uint32_t initAlexa() {
     server.onNotFound([](){
       if (!espalexa.handleAlexaApiCall(server.uri(),server.arg(0))) {
-        //server.send(404, "text/plain", "Not found");
         anyFile();
       }
     });
@@ -52,7 +51,6 @@ uint32_t initAlexa() {
   espalexa.addDevice(ID_CHAN_8, chChanged<7>);
 
   espalexa.begin(&server);
-  
   taskAdd(alexaLoop);
   return RUN_DELETE;
 }
