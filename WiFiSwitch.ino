@@ -9,7 +9,7 @@
 
 ADC_MODE(ADC_VCC);
 
-const char* VERSION = "0.8.0";
+const char* VERSION = "0.8.3";
 
 // Pin to activete WiFiManager configuration routine
 #define RESET_PIN D8

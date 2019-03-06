@@ -376,6 +376,18 @@
             color: #fff;
         }
         
+        .custom-well-socket {
+
+        }
+
+        .custom-well-red {
+            background: #d9534f;
+        }
+
+        .custom-well-green {
+            background: #5cb85c;
+        }
+
         .off_d,
         .custom-well-inner .off_d input {
             background: #ccc !important;
@@ -622,6 +634,7 @@ opacity:0.5;pointer-events:none;
                 <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Group 2" data-vars="timer2" data-target="#modal_3" id="modal3">Group 2 <p class="timmershow"></p> </button>
                 <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Group 3" data-vars="timer3" data-target="#modal_4" id="modal4">Group 3 <p class="timmershow"></p></button>
                 <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Group 4" data-vars="timer4" data-target="#modal_5" id="modal5">Group 4 <p class="timmershow"></p></button>
+                <button class="btn btn-info overide_btns count_down_btn" type="button" data-toggle="modal" data-text="Maintenance Mode" data-vars="timer5" data-target="#modal_6" id="modal6">Maintanence Mode <p class="timmershow"></p></button>
                 <input type="hidden" id="hidden_id" />
                 <input type="hidden" id="hidden_model_id" />
                 <div class="modal fade" role="dialog" tabindex="-1" id="modal_1">
@@ -969,12 +982,81 @@ opacity:0.5;pointer-events:none;
                         </div>
                     </div>
                 </div>
+                <div class="modal fade" role="dialog" tabindex="-1" id="modal_6">
+                    <div class="modal-dialog modal-sm" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+                                <h4 class="modal-title">Maintaince Mode Overide</h4>
+                            </div>
+                            <div class="modal-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <p>Select Override ON or OFF</p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 col-sm-9 col-sm-offset-0">
+                                        <div class="min_select">
+                                            <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override6" name="candlestick" />
+
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row set_button_time">
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-2 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="1" data_type="min" type="button"> 1min</button>
+                                            <button class="btn default_grey" data_time="5" data_type="min" type="button"> 5min</button>
+                                            <button class="btn default_grey" data_time="10" data_type="min" type="button">10min</button>
+                                            <button class="btn default_grey" data_time="15" data_type="min" type="button">15min</button>
+                                            <button class="btn default_grey" data_time="30" data_type="min" type="button"> 30min</button>
+                                            <button class="btn default_grey" data_time="45" data_type="min" type="button">45min</button>
+                                            <button class="btn default_grey" data_time="1" data_type="hr" type="button"> 1hr</button>
+                                            <button class="btn default_grey" data_time="1.5" data_type="hr" type="button">1.5hr</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+                                        <div class="btn-group-vertical" role="group">
+                                            <button class="btn default_grey" data_time="2" data_type="hr" type="button"> 2hr</button>
+                                            <button class="btn default_grey" data_time="4" data_type="hr" type="button"> 4hr</button>
+                                            <button class="btn default_grey" data_time="6" data_type="hr" type="button"> 6hr</button>
+                                            <button class="btn default_grey" data_time="8" data_type="hr" type="button"> 8hr</button>
+                                            <button class="btn default_grey" data_time="12" data_type="hr" type="button"> 12hrs</button>
+                                            <button class="btn default_grey" data_time="14" data_type="hr" type="button"> 14hr</button>
+                                            <button class="btn default_grey" data_time="18" data_type="hr" type="button">18hr</button>
+                                            <button class="btn default_grey" data_time="24" data_type="hr" type="button"> 24hr</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row staus_selected">
+                                <div class="col-sm-2 hidden-xs">
+                                </div>
+                                <div class="col-sm-8 col-xs-12">
+                                    <form>
+                                        <input id="status_text" style="pointer-events:none;" class="form-control" type="text" name="status" placeholder="Selected ovverride" value="" />
+
+                                        <input class="data_time" type="hidden" value="" />
+                                        <input class="data_type" type="hidden" value="" />
+                                    </form>
+                                </div>
+                                <div class="col-sm-2 hidden-xs">
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="btn btn-default" type="button" data-dismiss="modal">Cancel </button>
+                                <button class="btn btn-primary count_value" type="button" data-dismiss="modal">Enter</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <div class="container sockets">
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-1">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -982,9 +1064,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text1"></span> <strong class="socket_name">Socket 1</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text=F data-vars="timer6" data-target="#modal_6" id="modal6"><span class="socket_name">Socket 1</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text=F data-vars="timer7" data-target="#modal_7" id="modal7"><span class="socket_name">Socket 1</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_6">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_7">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -1000,7 +1082,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override6" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override7" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -1169,7 +1251,7 @@ opacity:0.5;pointer-events:none;
         </div>
 
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-2">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -1177,9 +1259,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text2"></span> <strong class="socket_name">Socket 2</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer7" data-target="#modal_7" id="modal7"><span class="socket_name">Socket 2</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer8" data-target="#modal_8" id="modal8"><span class="socket_name">Socket 2</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_7">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_8">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -1195,7 +1277,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override7" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override8" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -1356,7 +1438,7 @@ opacity:0.5;pointer-events:none;
         </div>
 
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-3">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -1364,9 +1446,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text3"></span> <strong class="socket_name">Socket 3</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer8" data-target="#modal_8" id="modal8"><span class="socket_name">Socket 3</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer9" data-target="#modal_9" id="modal9"><span class="socket_name">Socket 3</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_8">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_9">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -1382,7 +1464,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override8" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override9" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -1543,7 +1625,7 @@ opacity:0.5;pointer-events:none;
         </div>
 
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-4">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -1551,9 +1633,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text4"></span> <strong class="socket_name">Socket 4</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer9" data-target="#modal_9" id="modal9"><span class="socket_name">Socket 4</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer10" data-target="#modal_10" id="modal10"><span class="socket_name">Socket 4</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_9">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_10">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -1569,7 +1651,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override9" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override10" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -1730,7 +1812,7 @@ opacity:0.5;pointer-events:none;
         </div>
 
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-5">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -1738,9 +1820,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text5"></span> <strong class="socket_name">Socket 5</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer10" data-target="#modal_10" id="modal10"><span class="socket_name">Socket 5</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer11" data-target="#modal_11" id="modal11"><span class="socket_name">Socket 5</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_10">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_11">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -1756,7 +1838,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override10" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override11" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -1917,7 +1999,7 @@ opacity:0.5;pointer-events:none;
         </div>
 
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-6">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -1925,9 +2007,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text6"></span> <strong class="socket_name">Socket 6</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer11" data-target="#modal_11" id="modal11"><span class="socket_name">Socket 6</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer12" data-target="#modal_12" id="modal12"><span class="socket_name">Socket 6</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_11">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_12">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -1943,7 +2025,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override11" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override12" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -2104,7 +2186,7 @@ opacity:0.5;pointer-events:none;
         </div>
 
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-7">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -2112,9 +2194,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text7"></span> <strong class="socket_name">Socket 7</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer12" data-target="#modal_12" id="modal12"><span class="socket_name">Socket 7</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer13" data-target="#modal_13" id="modal13"><span class="socket_name">Socket 7</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_12">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_13">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -2130,7 +2212,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override12" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override13" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -2300,9 +2382,6 @@ opacity:0.5;pointer-events:none;
                                     </div>
                                 </h4>
                             </div>
-                            <div id="chart2" class="big-chart">
-
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -2311,7 +2390,7 @@ opacity:0.5;pointer-events:none;
         </div>
 
 
-        <div class="well custom-well-socket">
+        <div class="well custom-well-socket" id="socket-8">
             <div class="row">
                 <div class="col-sm-8 col-xs-12 ">
 
@@ -2319,9 +2398,9 @@ opacity:0.5;pointer-events:none;
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 ">
                             <p><span class="glyphicon glyphicon-edit edit_name" data-toggle="modal" data-target="#edit_text8"></span> <strong class="socket_name">Socket 8</strong></p>
 
-                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer13" data-target="#modal_13" id="modal13"><span class="socket_name">Socket 8</span> <p class="timmershow"></p></button>
+                            <button class="buton_replace_socket btn btn-info overide_btns count_down_btn none" type="button" data-toggle="modal" data-text="socket" data-vars="timer14" data-target="#modal_14" id="modal14"><span class="socket_name">Socket 8</span> <p class="timmershow"></p></button>
 
-                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_13">
+                            <div class="modal fade" role="dialog" tabindex="-1" id="modal_14">
                                 <div class="modal-dialog modal-sm" role="document">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -2337,7 +2416,7 @@ opacity:0.5;pointer-events:none;
                                             <div class="row">
                                                 <div class="col-md-12 col-sm-9 col-sm-offset-0">
                                                     <div class="min_select">
-                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override13" name="candlestick" />
+                                                        <input type="checkbox" class="input-group js-candlestick" id="candlestickID_override14" name="candlestick" />
 
                                                     </div>
                                                 </div>
@@ -2507,9 +2586,6 @@ opacity:0.5;pointer-events:none;
                                     </div>
                                 </h4>
                             </div>
-                            <div id="chart3" class="big-chart">
-
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -2658,8 +2734,66 @@ opacity:0.5;pointer-events:none;
                 </div>
             </div>
         </div>
-
     </div>
+        <div class="container">
+            <div class="well"><span><strong>Maintanance Mode Setting</strong></span>
+                <div class="col-md-12">
+                    <hr>
+                </div>
+                <div class="row">
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-sm-offset-3 col-xs-5">
+                        <div>
+                            <p>
+                                <input type="checkbox" class="  input-group js-candlestick" id="candlestickID9" name="candlestick" /><span class="editable9">Socket 1</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                <input type="checkbox" class="  input-group js-candlestick" id="candlestickID10" name="candlestick" /><span class="editable10">Socket 2</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                <input type="checkbox" class="  input-group js-candlestick" id="candlestickID11" name="candlestick" /><span class="editable11">Socket 3</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                <input type="checkbox" class="  input-group js-candlestick" id="candlestickID12" name="candlestick" /><span class="editable12">Socket 4</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-3 col-sm-3 col-xs-5">
+                        <div>
+                            <p>
+                                <input type="checkbox" class="input-group js-candlestick" id="candlestickID13" name="candlestick" />
+                                <span class="editable13">Socket 5</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                <input type="checkbox" class="input-group js-candlestick" id="candlestickID14" name="candlestick" />
+                                <span class="editable14">Socket 6</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                <input type="checkbox" class="input-group js-candlestick" id="candlestickID15" name="candlestick" />
+                                <span class="editable15">Socket 7</span>
+                            </p>
+                        </div>
+                        <div>
+                            <p>
+                                <input type="checkbox" class="input-group js-candlestick" id="candlestickID16" name="candlestick" />
+                                <span class="editable16">Socket 8</span>
+                            </p>
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+
+    
 
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
@@ -2797,7 +2931,8 @@ opacity:0.5;pointer-events:none;
                             SocketXMLupdate(this.responseXML.getElementsByTagName("Socket"),
                                 this.responseXML.getElementsByTagName("Manual"),
                                 this.responseXML.getElementsByTagName("Enabled"),
-                                this.responseXML.getElementsByTagName("SState")),
+                                this.responseXML.getElementsByTagName("SState"),
+                                this.responseXML.getElementsByTagName("Alexa")),
                             RawDataUpdate(this.responseXML.getElementsByTagName("v"),
                             this.responseXML.getElementsByTagName("i"))
                         ) && (console.log(this.responseXML.getElementsByTagName("sequence")[0].childNodes[0].nodeValue));
@@ -2809,9 +2944,12 @@ opacity:0.5;pointer-events:none;
                 for (i = 0; i < docTimerCheckbox.length; i++)
                     changeStateTCheckbox[i] && (changeStateTCheckbox[i] = !1, n += docTimerCheckbox[i].checked ? "TCB" + i + "=1&" : "TCB" + i + "=0&");
                 for (i = 0; i < docTimer.length; i++)
-                    changeStateTimer[i] && (changeStateTimer[i] = !1, n += "TIM" + i + "=" + $(docTimer[i])[0].value + "&")
+                    changeStateTimer[i] && (changeStateTimer[i] = !1, n += "TIM" + i + "=" + $(docTimer[i])[0].value + "&");
                 for (i = 0; i < docCandles.length; i++)
-                    stateCandles[i] != $(docCandles[i])[0].value && (stateCandles[i] = $(docCandles[i])[0].value, n += "C" + i + "=" + $(docCandles[i])[0].value + "&")
+                    if (stateCandles[i] != $(docCandles[i])[0].value) {
+                        stateCandles[i] = $(docCandles[i])[0].value;
+                        n += "C" + i + "=" + $(docCandles[i])[0].value + "&";
+                    }
                 for (i = 0; i < docGroups.length; i++)
                     changeStateGroups[i] && (changeStateGroups[i] = !1, n += "SOCG" + i + "=" + $(docGroups[i])[0].value + "&")
                 for (i = 0; i < docCountdowns.length; i++)
@@ -2821,7 +2959,7 @@ opacity:0.5;pointer-events:none;
                 changeStateWave && (changeStateWave = !1, n += "W=" + docWave.value + "&")
                 if (n.length > 0) n += "SEQ=" + sequence;
             }
-            //console.log(n),
+            console.log(n),
             t.open("GET", "/ajax_inputs?" + n + e, !0);
             t.send(null);
             strWaveSelection = "";
@@ -2847,7 +2985,7 @@ opacity:0.5;pointer-events:none;
         }
 
         function Remainings(x, y) {
-            var t = Math.min(x.length, 14);
+            var t = Math.min(x.length, 15);
             for (var i = 0; i < t; i++) {
                 var n = new Date();
                 var c = new Date();
@@ -2881,6 +3019,7 @@ opacity:0.5;pointer-events:none;
                 $(document.getElementsByClassName("socket_name"))[e * 2].innerHTML = x[e].childNodes[0].nodeValue.toString();
                 $(document.getElementsByClassName("socket_name"))[e * 2 + 1].innerHTML = x[e].childNodes[0].nodeValue.toString();
                 document.getElementsByClassName("editable" + (e + 1))[0].innerHTML = x[e].childNodes[0].nodeValue.toString();
+                document.getElementsByClassName("editable" + (e + 9))[0].innerHTML = x[e].childNodes[0].nodeValue.toString()
             }
         }
 
@@ -2888,14 +3027,21 @@ opacity:0.5;pointer-events:none;
             var e,
                 t = Math.min(y.length, docCandles.length),
                 u = Math.min(x.length, docCandles.length)
-                //var deb = "";
             for (e = 0; e < t; e++) {
                 $(docCandles[e]).candlestick(y[e].childNodes[0].nodeValue.toString());
             }
-            for (e = u - 8; e < u; e++) {
+            for (e = u - 16; e < u - 8; e++) {
                 $(docCandles[e]).candlestick(x[e].childNodes[0].nodeValue.toString());
             }
-            //console.log(deb);
+            st = u - 8;
+            for (e = st; e < u; e++) {
+                $(docCandles[e]).candlestick(x[e].childNodes[0].nodeValue.toString());
+                //if ("default" !== x[e].childNodes[0].nodeValue) {
+                //    $("#socket-" + (e - st + 1)).find("input,button,textarea,select").attr("disabled", "disabled");
+                //} else {
+                    //$("#socket-" + (e - st)).attr("disabled", "");
+                //}
+            }
         }
 
         function WaveUpdate(x) {
@@ -2923,13 +3069,21 @@ opacity:0.5;pointer-events:none;
             if (x.length >= 3) document.getElementsByClassName("analog")[7].innerHTML = x[2].childNodes[0].nodeValue
         }
 
-        function SocketXMLupdate(x, y, z, a) {
+        function SocketXMLupdate(x, y, z, a, o) {
             var e = x.length;
             //$(docSockets).prop("disabled",!1),
             gotState = !0;
             var t, i = "";
             for (t = 0; t < e && t < docSockets.length; t++) {
-                var my_btn_id = "#modal" + (t + 6);
+                if (t < o.length) {
+                    $("#socket-" + (t + 1)).removeClass("custom-well-red");
+                    $("#socket-" + (t + 1)).removeClass("custom-well-green");
+                    if ("on" === o[t].childNodes[0].nodeValue)
+                        $("#socket-" + (t + 1)).addClass("custom-well-green");
+                    if ("off" === o[t].childNodes[0].nodeValue)
+                        $("#socket-" + (t + 1)).addClass("custom-well-red");
+                }
+                var my_btn_id = "#modal" + (t + 7);
                 if (z[t].childNodes[0].nodeValue != "1") {
                     if (a[t].childNodes[0].nodeValue == "1") {
                         //$(docSockets[t]).bootstrapToggle("on");
@@ -3732,6 +3886,7 @@ opacity:0.5;pointer-events:none;
         var timer;
         var end;
         var currentDate;
+        var timer1, timer2, timer3, timer4, timer5, timer6, timer7, timer8, timer9, timer10, timer11, timer12, timer13, timer14, timer15, timer16;
 
         //3. Group Overrides 
         $(document).on("click", ".count_value", function() {
@@ -3863,6 +4018,8 @@ opacity:0.5;pointer-events:none;
                 clearInterval(timer3);
             } else if (datavar == 'timer4') {
                 clearInterval(timer4);
+            } else if (datavar == 'timerM') {
+                clearInterval(timerM);
             } else if (datavar == 'timer5') {
                 clearInterval(timer5);
             } else if (datavar == 'timer6') {

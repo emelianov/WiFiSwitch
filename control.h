@@ -166,29 +166,52 @@ class Socket: public DoubleSchedule, public Override {
   DoubleSchedule times;
   bool enabled              = true;
   OverrideMode  actualState = SOFF;
+  OverrideMode  alexa       = SNA;
+  OverrideMode  lastState   = SNA;
+  OverrideMode  maint       = SNA;
+  void alexaOn() {
+    alexa = SON;
+  }
+  void alexaOff() {
+    alexa = SOFF;    
+  }
   void turn(OverrideMode state) {
+    if (lastState != state)
+      alexa = SNA;
+    if (alexa != SNA) {
+      if (alexa == SON) {
+        actualState = SON;
+        digitalWrite(pin, LOW);
+        return;
+      }
+      actualState = SOFF;
+      digitalWrite(pin, HIGH);
+      return;
+    }
+    lastState = state;
     if (state == SON) {
       if (wave != NULL) {
         if (wave->isOn()) {
           //Serial.println("ON (Wave)");
           actualState = SON;
           digitalWrite(pin, LOW);
+          return;
         }
         if (wave->isOff()) {
           //Serial.println("OFF (Wave)");
           actualState = SOFF;
           digitalWrite(pin, HIGH);
+          return;
         }
-      } else {
-        //Serial.println("ON");
-        actualState = SON;
-        digitalWrite(pin, LOW);
       }
-    } else {
-      //Serial.println("OFF");
-      actualState = SOFF;
-      digitalWrite(pin, HIGH);
+      //Serial.println("ON");
+      actualState = SON;
+      digitalWrite(pin, LOW);
+      return;
     }
+    //Serial.println("OFF");
+    actualState = SOFF;
+    digitalWrite(pin, HIGH);
   }
   void setGroup(Override* gr = NULL) {
     group = gr;
@@ -240,8 +263,17 @@ task groupOverride[GROUP_COUNT] = { groupTask<0>, groupTask<1>, groupTask<2>, gr
 
 // Global feed
 Override* feed;
+
 uint32_t feedTask() {
   feed->na();
+  return RUN_DELETE;
+}
+
+// Maintanence
+Override* maint;
+
+uint32_t maintTask() {
+  maint->na();
   return RUN_DELETE;
 }
 
@@ -349,17 +381,29 @@ void setWave(WaveSocket t) {
 // Should be run in main loop
 uint32_t socketsTask() {
   for (uint8_t i = 0; i < SOCKET_COUNT; i++) {
-//uint8_t i = 2;
-//{
     socket[i]->enabled = true;
     bool switched = false;
+    // Maintenence mode
+    if (maint->mode != SNA && socket[i]->maint != SNA) {
+      if (maint->mode == SON) {
+        socket[i]->turn(socket[i]->maint);
+        socket[i]->enabled = false;
+        //switched = true;
+        continue;
+      }
+    }
+    // Alexa command
+    if (socket[i]->alexa != SNA) {
+      
+    }
     // Socket override
     if (socket[i]->overrideBy == SOCKET || socket[i]->group == NULL) {
       if (socket[i]->mode != SNA) {
         //Serial.print("SOCKET: ");
         //Serial.println(socket[i]->group == NULL?"No grpup":"Override");
         socket[i]->turn(socket[i]->mode);
-        switched = true;
+        //switched = true;
+        continue;
       }
     // Group override
     } else { //.overrideBy == GROUP
@@ -368,7 +412,8 @@ uint32_t socketsTask() {
         //Serial.println(socket[i]->group->mode == SNA?"NA":"ON/OFF");
         socket[i]->turn(socket[i]->group->mode);
         socket[i]->enabled = false;
-        switched = true;
+        //switched = true;
+        continue;
       }
     }
     // Feed
@@ -377,7 +422,8 @@ uint32_t socketsTask() {
       if (feed->mode == SON || (feedSchedule.active(getTime()) && feed->mode != SOFF)) {
         socket[i]->turn(socket[i]->feedOverride);
         socket[i]->enabled = false;
-        switched = true;
+        //switched = true;
+        continue;
       }/* else {
         socket[i]->turn(!socket[i]->feedOverride);
       }*/
@@ -396,7 +442,8 @@ uint32_t socketsTask() {
       } else {
         socket[i]->turn(SOFF);
       }
-      switched = true;
+      //switched = true;
+      continue;
     }
     if (!switched) {
       //Serial.print("ELSE: ");
@@ -423,6 +470,7 @@ uint32_t initSockets() {
     group[i] = new Override(groupOverride[i]);
   }
   feed = new Override(feedTask);
+  maint = new Override(maintTask);
   taskAdd(socketsTask);
   return RUN_DELETE;
 }

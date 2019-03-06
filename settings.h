@@ -10,6 +10,7 @@
 // If not defined -- production WeMos mini
 #ifdef ARDUINO_ESP8266_NODEMCU
  #define WFS_DEBUG
+ #define WFS_HISTORY
 //Debug settings
  #define WDEBUG(format, ...) Serial.printf_P((format), ##__VA_ARGS__);
 

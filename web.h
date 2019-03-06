@@ -13,6 +13,9 @@
 
 ESP8266WebServer server(80);      // create a server at port 80
 uint32_t sequence = 0;
+
+extern bool alexa;  // From alexa.h
+
 #ifdef WFS_DEBUG
 void handleDebug() {
   uint16_t _timeout = 500;
@@ -168,7 +171,7 @@ void ajaxInputs() {
   // Check if Socket Schedule Feed Override mode is changed
   // For first Socket url argument will be ?C13=1
   // For second ?C14=1 etc
-    #define SOCKET_FEED_BASE 13     
+    #define SOCKET_FEED_BASE 14     
     for (i = 0; i < SOCKET_COUNT; i++) {
       cArg = (String(F("C")) + String(SOCKET_FEED_BASE + i));
       if (server.hasArg(cArg)) {
@@ -225,7 +228,7 @@ void ajaxInputs() {
   // Check if Socket override mode or time is changed
   // Second Socket override to off ?C6=0 
   // New Mode will be saved to temprary variable until get actual period of time to override duration
-    #define SOCKET_OVERRIDE_BASE 5
+    #define SOCKET_OVERRIDE_BASE 6
     for (i = 0; i < SOCKET_COUNT; i++) {
       cArg = (String(F("C")) + String(SOCKET_OVERRIDE_BASE + i));
       tArg = (String(F("CD")) + String(SOCKET_OVERRIDE_BASE + i));
@@ -268,7 +271,25 @@ void ajaxInputs() {
       }
     }
     
-  // Feed override ?C0=1
+// Maintanence ?C0=5
+    cArg = F("C5");
+    tArg = F("CD5");
+    if (server.hasArg(cArg)) {
+      v = server.arg(cArg);
+      if (v == "1") {
+        maint->modeWaiting = SON;
+      } else if (v == "0") {
+        maint->modeWaiting = SOFF;
+      } else {
+        maint->modeWaiting = SNA;
+      }
+    }
+    if (server.hasArg(tArg)) {
+      maint->stop();
+      maint->start(maint->modeWaiting, (int)(server.arg(tArg).toFloat()*60));
+    }
+
+  // Feed override ?C0=0
     cArg = F("C0");
     tArg = F("CD0");
     if (server.hasArg(cArg)) {
@@ -304,6 +325,27 @@ void ajaxInputs() {
         save = true;
       //}
     }
+
+  // Maintanence override
+  // ?C15=1
+    #define MAINT_BASE 22
+    for (i = 0; i < SOCKET_COUNT; i++) {
+      cArg = F("C");
+      cArg += String(i + MAINT_BASE);
+      if (server.hasArg(cArg)) {
+        v = server.arg(cArg);
+        if (v == "1") {
+          socket[i]->maint = SON;
+        } else if (v == "0") {
+          socket[i]->maint = SOFF;
+        } else {
+          socket[i]->maint = SNA;
+        }
+      }
+    }
+    
+  // Sequence number
+  // ?SEQ=1
     cArg = F("SEQ");
     if (server.hasArg(cArg)) {
       sequence = server.arg(cArg).toInt();
@@ -338,6 +380,15 @@ void ajaxInputs() {
               );
     p += strlen(p);
   }
+
+  // Maintanence
+  sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
+              (maint->mode==SON)?"on":(maint->mode==SOFF)?"off":"default",
+              taskRemainder(maintTask)/1000,
+              (maint->modeWaiting==SON)?"on":(maint->modeWaiting==SOFF)?"off":"default"
+              );
+  p += strlen(p);
+
   // Socket switch state
   for (i = 0; i < SOCKET_COUNT; i++) {
     sprintf_P(p, PSTR("<Manual>%s</Manual><Socket>%s</Socket><Enabled>%s</Enabled><SState>%s</SState>\n"), (socket[i]->manual == SON)?"checked":"unckecked", swState(socket[i]->mode).c_str(), socket[i]->enabled?"1":"0", socket[i]->actualState==SON?"1":"0");
@@ -368,6 +419,7 @@ void ajaxInputs() {
               );
     p += strlen(p);
   }
+  
   for (i = 0; i < SOCKET_COUNT; i++) {
     sprintf_P(p, PSTR("<Switch>%s</Switch><Override>%lu</Override><Waiting>%s</Waiting>\n"),
               (socket[i]->mode==SON)?"on":(socket[i]->mode==SOFF)?"off":"default",
@@ -376,6 +428,8 @@ void ajaxInputs() {
               );
     p += strlen(p);
   }
+
+  // Feed
   for (i = 0; i < SOCKET_COUNT; i++) {
     sprintf_P(p, PSTR("<Switch>%s</Switch>"),
               (socket[i]->feedOverride==SON)?"on":(socket[i]->feedOverride==SOFF)?"off":"default"
@@ -397,6 +451,23 @@ void ajaxInputs() {
   sprintf_P(p, PSTR("<Pump>%s</Pump><Wave>%s</Wave><time>%s</time><sequence>%lu</sequence>\n"),
               pump.c_str(), timeToStr24(wave.period).c_str(), timeToStr(getTime()).c_str(), sequence);
   p += strlen(p);
+
+  // Maintanence
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    sprintf_P(p, PSTR("<Switch>%s</Switch>"),
+              (socket[i]->maint==SON)?"on":(socket[i]->maint==SOFF)?"off":"default");
+    p += strlen(p);
+  }
+  sprintf_P(p, PSTR("\n"));
+  p += strlen(p);
+
+  // Alexa
+  for (i = 0; i < SOCKET_COUNT; i++) {
+    sprintf_P(p, PSTR("<Alexa>%s</Alexa>"),
+              (socket[i]->alexa==SON)?"on":(socket[i]->alexa==SOFF)?"off":"default"
+              );
+    p += strlen(p);
+  }
   /*
   int16_t* pV = (int16_t*)data;
   int16_t* pI = (int16_t*)data + (SAVE_SAMPLES * sizeof(int16_t));
@@ -530,7 +601,7 @@ function countTime() {\
  <div class='row'><div class='col-md-4'><h4>Wi-Fi Socket Control - Settings</h4></div><div class='col-md-4'><h4 id='advTime'>00:00</h4></div><div class='col-md-4'><h1><a id='advShow' href='javascript:advanced()'>Show Advanced settings</a></h1></div>\
  </div>\
  <div class='container'><div class='well'>\
- <b>Network settings</b>\
+ <b>General settings</b>\
  <hr>\
  <form name='form' method='POST' action='/net' enctype='multipart/form-data'>\
   <table>\
@@ -579,6 +650,7 @@ function countTime() {\
   </script>\
   </select>&nbsp;<font size=-2>(Become effective on Socket restart)</font></td></tr>\
   <tr><td>Setup AP SSID</td><td>%s%02X%02X</td></tr>\
+  <tr><td>Alexa intergation</td><td><input type='checkbox' name='alexa'%s></td></tr>\
   </table>\
   <input type='submit' value='Apply'>\
   </table>\
@@ -607,7 +679,7 @@ function countTime() {\
   Upload file to local filesystem:<br>\
    <input type='file' name='update'>\
    <input type='submit' value='Upload file'>\
-  </form>"), getTime(), ip.c_str(), sysName.c_str(), tz.c_str(), WIFI_SETUP_AP, mac[4], mac[5], VERSION);
+  </form>"), getTime(), ip.c_str(), sysName.c_str(), tz.c_str(), WIFI_SETUP_AP, mac[4], mac[5], (alexa)?"checked":"", VERSION);
   p += strlen(p);
   String path = server.hasArg("dir")?server.arg("dir"):"/";
   Dir dir = SPIFFS.openDir(path);
@@ -781,11 +853,14 @@ void handleNetwork() {
   if(server.hasArg("name")) {
     sysName = server.arg("name");
   }
+  if(server.hasArg("alexa")) {
+    alexa = server.arg("alexa") == "on";
+  }
   saveConfig();
   server.send(200, "text/plain", "OK");
 }
 
-#define DEFAULT_OVERRIDE 10
+#define DEFAULT_OVERRIDE 11
 void handleOverride() {
   server.sendHeader("Connection", "close");
   server.sendHeader("Cache-Control", "no-store, must-revalidate");

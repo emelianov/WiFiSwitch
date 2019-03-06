@@ -3,6 +3,7 @@
 #include <TinyXML.h>
 #define CFG "/config.xml"
 #define STATE "/state.xml"
+extern bool alexa;
 
 WiFiManagerParameter pNet("IP/Mask/Gw/DNS");
 /*
@@ -124,6 +125,9 @@ uint32_t readConfig() {
        } else if 
       (xmlTag.endsWith(F("/name"))) {
         sysName = xmlData;
+       } else if 
+      (xmlTag.endsWith(F("/alexa"))) {
+        alexa = xmlData == "1";
        }
       xmlTag = "";
       xmlData = "";
@@ -158,7 +162,8 @@ uint32_t saveConfig() {
   //    sprintf_P(buf, PSTR("<ip>%s</ip><mask>%s</mask>\n<gw>%s</gw>\n<dns>%s</dns>"), ip.c_str(), mask.c_str(), gw.c_str(), dns.c_str());
   //    configFile.write((uint8_t*)buf, strlen(buf));
   //  }
-    sprintf_P(buf, PSTR("<version>%s</version><name>%s</name><ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone></config>"), VERSION, sysName.c_str(), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt());
+    sprintf_P(buf, PSTR("<version>%s</version><name>%s</name><ntp1>%s</ntp1>\n<ntp2>%s</ntp2>\n<ntp3>%s</ntp3><timezone>%d</timezone><alexa>%d</alexa></config>"),
+                          VERSION, sysName.c_str(), ntp1.c_str(), ntp2.c_str(), ntp3.c_str(), tz.toInt(), alexa);
     configFile.write((uint8_t*)buf, strlen(buf));
     configFile.close();
    }
@@ -169,7 +174,8 @@ uint32_t saveState() {
    uint8_t i;
    File configFile = SPIFFS.open(F(STATE), "w");
    if (configFile) {
-    char buf[512];
+    //char buf[512];
+    char* buf = data;
     sprintf_P(buf, PSTR("<?xml version = \"1.0\" ?>\n<state>\n"));
     configFile.write((uint8_t*)buf, strlen(buf));
     sprintf_P(buf, PSTR("<FSwitch>%s</FSwitch><FOverride>%lu</FOverride><FWaiting>%s</FWaiting>"),
@@ -193,13 +199,15 @@ uint32_t saveState() {
     for (uint8_t j = 0; j < GROUP_COUNT; j++) {
       if (socket[i]->group == group[j]) {
         gr = j + GROUP_HTML_BASE;
-        continue; 
+        break; 
       }
     }
-    sprintf_P(buf, PSTR("<Manual>%s</Manual><Socket>%s</Socket>\n\
+    String mt = (socket[i]->maint == SON)?"on":(socket[i]->maint == SOFF)?"off":"default";
+    sprintf_P(buf, PSTR("<Maint>%s</Maint><Manual>%s</Manual><Socket>%s</Socket>\n\
 <TimerCheckbox1>%s</TimerCheckbox1>\n<TimerCheckbox2>%s</TimerCheckbox2>\n<TimerValue1on>%s</TimerValue1on>\n<TimerValue1off>%s</TimerValue1off>\n\
 <TimerValue2on>%s</TimerValue2on>\n<TimerValue2off>%s</TimerValue2off>\n\
 <Group>%d</Group>\n<Override>%lu</Override><Switch>%s</Switch><Waiting>%s</Waiting><SwitchF>%s</SwitchF><name>%s</name>"),
+              mt.c_str(),
               (socket[i]->manual == SON)?"checked":"unchecked",
               socket[i]->isOn()?"checked":"unckecked",
               socket[i]->schedule1.active()?"checked":"unckecked",
@@ -254,10 +262,16 @@ uint32_t readState() {
    uint8_t g = 0;
    uint8_t f = 0;
    uint8_t n = 0;
+   uint8_t s = 0;
    while (configFile.read((uint8_t*)&c, 1) == 1) {
     xmlo.processChar(c);
     if (xmlTag != "") {
        if
+      (xmlTag.endsWith(F("/Maint"))) {
+        if (xmlData == "on") socket[s]->maint = SON;
+        if (xmlData == "off") socket[s]->maint = SOFF;
+        if (s < SOCKET_COUNT - 1) s++;
+       } else if 
       (xmlTag.endsWith(F("/Manual"))) {
         socket[m]->manual = (xmlData == "checked")?SON:SOFF;
         if (m < SOCKET_COUNT - 1) m++;

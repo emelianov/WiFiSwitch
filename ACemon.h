@@ -34,6 +34,7 @@ typedef struct power {
   double Itune;
 } power;
 
+
 power history[HISTORY][MCP_COUNT];
 uint16_t h = 1;
 uint16_t l = 0;
@@ -101,6 +102,9 @@ uint32_t queryA0() {
     fI[numberOfSamples] = mcp3221_read(mcp[ch]);               //Read in raw current signal
     numberOfSamples++;                                         //Count number of times looped.
   }
+
+  yield();
+  
   // Calculate and remove offset
   offsetV = 0;
   offsetI = 0;
@@ -147,7 +151,7 @@ uint32_t queryA0() {
   }
 
   uint16_t strip = numberOfSamples * 1000 / (timeout * HZ);
-  Serial.println(strip);
+  //Serial.println(strip);
   //filteredV =(abs(fV[2]) > NOISE_FLOOR)?fV[2]:0;
   filteredV = VTUNE * fV[strip];
   for (uint16_t i = strip; i < numberOfSamples - strip; i++) {
@@ -189,7 +193,7 @@ uint32_t queryA0() {
     sumP +=instP;                               //Sum
 
   }
-
+  
   //-------------------------------------------------------------------------------------------------------------------------
   // 3) Post loop calculations
   //-------------------------------------------------------------------------------------------------------------------------
