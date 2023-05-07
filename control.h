@@ -289,6 +289,7 @@ uint32_t wavePulse() {
   return wave.period * 1000;
 }
 uint32_t waveAlt() {
+  return 1000;
 }
 uint32_t waveSeries() {
   waveSoc++;

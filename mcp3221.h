@@ -36,11 +36,12 @@ bool mcp3221_init(uint32_t freq, uint8_t sda, uint8_t scl) {
   Wire.beginTransmission(MCP_3);
   Wire.endTransmission();
   if (sda != 0 || scl != 0) {
-    twi_stop();
+    //twi_stop();
     twi_init(sda, scl);
   }
   twi_setClock(freq);
   twi_setClockStretchLimit(230); // default value is 230 uS
+  return true;
 }
 
 uint16_t mcp3221_read(uint8_t address) {

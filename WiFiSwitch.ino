@@ -150,7 +150,7 @@ uint32_t wifiManager() {
   saveConfig();
   delay(1000);
   ESP.restart();
-  RUN_DELETE;
+  return RUN_DELETE;
 }
 
 // Query Reset Key ststus change and flag events

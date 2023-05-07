@@ -750,7 +750,7 @@ void handleFileUpload(){
 // Read file routine. Used internaly
 bool fileRead(String path){
   if(path.endsWith("/")) path += INDEX;
-  String contentType = StaticRequestHandler::getContentType(path);
+  String contentType = esp8266webserver::StaticRequestHandler<WiFiServer>::getContentType(path);
   String pathWithGz = path + ".gz";
   if(SPIFFS.exists(pathWithGz) || SPIFFS.exists(path)){
     if(SPIFFS.exists(pathWithGz))

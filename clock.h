@@ -14,6 +14,7 @@ struct timeval {
 };
 */
 
+#define DS3231_ADDRESS 0
 #define NTP_CHECK_DELAY 300000L
 // 01/01/2018
 #define DEF_TIME 1514764800
